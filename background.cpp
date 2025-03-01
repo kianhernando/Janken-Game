@@ -1,6 +1,10 @@
 //
+//modified by: Kian Hernando
+//date: February 2025
+//purpose: Framework for building Video Game
+//
 //program: background.cpp
-//author:  Gordon Griesel
+//original author:  Gordon Griesel
 //date:    2017 - 2018
 //
 //The position of the background QUAD does not change.
@@ -15,48 +19,53 @@
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
 #include <GL/glx.h>
+#include "khernando.h"
 
-class Image {
-public:
-	int width, height;
-	unsigned char *data;
-	~Image() { delete [] data; }
-	Image(const char *fname) {
-		if (fname[0] == '\0')
-			return;
-		char name[40];
-		strcpy(name, fname);
-		int slen = strlen(name);
-		name[slen-4] = '\0';
-		char ppmname[80];
-		sprintf(ppmname,"%s.ppm", name);
-		char ts[100];
-		sprintf(ts, "convert %s %s", fname, ppmname);
-		system(ts);
-		FILE *fpi = fopen(ppmname, "r");
-		if (fpi) {
-			char line[200];
-			fgets(line, 200, fpi);
-			fgets(line, 200, fpi);
-			//skip comments and blank lines
-			while (line[0] == '#' || strlen(line) < 2)
-				fgets(line, 200, fpi);
-			sscanf(line, "%i %i", &width, &height);
-			fgets(line, 200, fpi);
-			//get pixel data
-			int n = width * height * 3;			
-			data = new unsigned char[n];			
-			for (int i=0; i<n; i++)
-				data[i] = fgetc(fpi);
-			fclose(fpi);
-		} else {
-			printf("ERROR opening image: %s\n", ppmname);
-			exit(0);
-		}
-		unlink(ppmname);
-	}
-};
-Image img[1] = {"seamless_back.jpg"};
+// MOVED IMAGE CLASS TO FUNCTIONS.H
+// class Image {
+// public:
+// 	int width, height;
+// 	unsigned char *data;
+// 	~Image() { delete [] data; }
+// 	Image(const char *fname) {
+// 		if (fname[0] == '\0')
+// 			return;
+// 		char name[40];
+// 		strcpy(name, fname);
+// 		int slen = strlen(name);
+// 		name[slen-4] = '\0';
+// 		char ppmname[80];
+// 		sprintf(ppmname,"%s.ppm", name);
+// 		char ts[100];
+// 		sprintf(ts, "convert %s %s", fname, ppmname);
+// 		system(ts);
+// 		FILE *fpi = fopen(ppmname, "r");
+// 		if (fpi) {
+// 			char line[200];
+// 			fgets(line, 200, fpi);
+// 			fgets(line, 200, fpi);
+// 			//skip comments and blank lines
+// 			while (line[0] == '#' || strlen(line) < 2)
+// 				fgets(line, 200, fpi);
+// 			sscanf(line, "%i %i", &width, &height);
+// 			fgets(line, 200, fpi);
+// 			//get pixel data
+// 			int n = width * height * 3;			
+// 			data = new unsigned char[n];			
+// 			for (int i=0; i<n; i++)
+// 				data[i] = fgetc(fpi);
+// 			fclose(fpi);
+// 		} else {
+// 			printf("ERROR opening image: %s\n", ppmname);
+// 			exit(0);
+// 		}
+// 		unlink(ppmname);
+// 	}
+// };
+
+// Temporary image for game
+// URL: https://opengameart.org/content/simple-natural-landscape-pixel-art-background
+Image img[1] = {"landscape.jpg"};
 
 class Texture {
 public:
@@ -70,8 +79,12 @@ class Global {
 public:
 	int xres, yres;
 	Texture tex;
+	// Added boolean to detect background movement
+	bool isBackgroundMoving;
 	Global() {
-		xres=640, yres=480;
+		xres=576, yres=324;
+		// Defaulted to moving
+		isBackgroundMoving = true;
 	}
 } g;
 
@@ -84,7 +97,7 @@ public:
 	X11_wrapper() {
 		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
 		//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
-		setup_screen_res(640, 480);
+		setup_screen_res(576, 324);
 		dpy = XOpenDisplay(NULL);
 		if(dpy == NULL) {
 			printf("\n\tcannot connect to X server\n\n");
@@ -210,8 +223,9 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 							GL_RGB, GL_UNSIGNED_BYTE, g.tex.backImage->data);
+	// Edited to use full texture width/height
 	g.tex.xc[0] = 0.0;
-	g.tex.xc[1] = 0.25;
+	g.tex.xc[1] = 1.0;
 	g.tex.yc[0] = 0.0;
 	g.tex.yc[1] = 1.0;
 }
@@ -249,6 +263,23 @@ int check_keys(XEvent *e)
 		if (key == XK_Escape) {
 			return 1;
 		}
+
+		if (key == XK_minus) {
+			// Stops background from moving
+			g.isBackgroundMoving = false;
+
+			// Force render to show stop (lag spikes when on Odin)
+			render();
+			x11.swapBuffers();
+		}
+		if (key == XK_equal) {
+			// Continues background movement
+			g.isBackgroundMoving = true;
+
+			// Force render to show stop (lag spikes when on Odin)
+			render();
+			x11.swapBuffers();
+		}
 	}
 	return 0;
 }
@@ -256,8 +287,10 @@ int check_keys(XEvent *e)
 void physics()
 {
 	//move the background
-	g.tex.xc[0] += 0.001;
-	g.tex.xc[1] += 0.001;
+	if (g.isBackgroundMoving) {
+		g.tex.xc[0] += 0.001;
+		g.tex.xc[1] += 0.001;
+	}
 }
 
 void render()
