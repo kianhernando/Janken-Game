@@ -174,7 +174,7 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics(void);
 void render(void);
-
+extern void testFunction();
 
 //===========================================================================
 //===========================================================================
@@ -193,6 +193,7 @@ int main()
 		render();
 		x11.swapBuffers();
 	}
+    testFunction();
 	return 0;
 }
 
