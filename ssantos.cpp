@@ -1,5 +1,4 @@
 //Simon Santos
-//PERSONAL FILE
 #include <cstdio>
 
 //void simonTestDos() {
