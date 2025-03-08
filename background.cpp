@@ -175,7 +175,7 @@ int check_keys(XEvent *e);
 void physics(void);
 void render(void);
 extern void testFunction();
-extern void simonTestDos();
+//extern void simonTestDos();
 extern void jadenTestFunction();
 
 //===========================================================================
@@ -196,7 +196,7 @@ int main()
 		x11.swapBuffers();
 	}
     testFunction();
-    simonTestDos();
+    //simonTestDos();
     jadenTestFunction();
 	return 0;
 }
