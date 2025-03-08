@@ -21,7 +21,7 @@
 #include <GL/glx.h>
 #include "khernando.h"
 
-// MOVED IMAGE CLASS TO FUNCTIONS.H
+// MOVED IMAGE CLASS TO IMAGE.H
 // class Image {
 // public:
 // 	int width, height;
@@ -65,15 +65,16 @@
 
 // Temporary image for game
 // URL: https://opengameart.org/content/simple-natural-landscape-pixel-art-background
-Image img[1] = {"landscape.jpg"};
+Image img[1] = {"./assets/landscape.jpg"};
 
-class Texture {
-public:
-	Image *backImage;
-	GLuint backTexture;
-	float xc[2];
-	float yc[2];
-};
+// MOVED TEXTURE CLASS TO TEXTURE.H
+// class Texture {
+// public:
+// 	Image *backImage;
+// 	GLuint backTexture;
+// 	float xc[2];
+// 	float yc[2];
+// };
 
 class Global {
 public:
@@ -193,7 +194,9 @@ int main()
 		render();
 		x11.swapBuffers();
 	}
-    testFunction();
+
+	cleanup_fonts();
+  testFunction();
 	return 0;
 }
 
@@ -224,6 +227,11 @@ void init_opengl(void)
 	glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
 	glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
 							GL_RGB, GL_UNSIGNED_BYTE, g.tex.backImage->data);
+	
+	// Initialize fonts for text rendering
+	glEnable(GL_TEXTURE_2D);
+	initialize_fonts();
+	
 	// Edited to use full texture width/height
 	g.tex.xc[0] = 0.0;
 	g.tex.xc[1] = 1.0;
@@ -295,16 +303,33 @@ void physics()
 }
 
 void render()
-{
-	glClear(GL_COLOR_BUFFER_BIT);
-	glColor3f(1.0, 1.0, 1.0);
-	glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
-	glBegin(GL_QUADS);
-		glTexCoord2f(g.tex.xc[0], g.tex.yc[1]); glVertex2i(0,      0);
-		glTexCoord2f(g.tex.xc[0], g.tex.yc[0]); glVertex2i(0,      g.yres);
-		glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
-		glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
-	glEnd();
+{   
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    // Render background first
+    glColor3f(1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
+    glBegin(GL_QUADS);
+        glTexCoord2f(g.tex.xc[0], g.tex.yc[1]); glVertex2i(0,      0);
+        glTexCoord2f(g.tex.xc[0], g.tex.yc[0]); glVertex2i(0,      g.yres);
+        glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
+        glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
+    glEnd();
+
+    // Create and render player
+    static Player player;
+    static bool initialized = false;
+    if (!initialized) {
+        player.init("assets/idle.png");
+        initialized = true;
+    }
+    player.render_hand();
+
+    Rect r;
+    r.bot = g.yres - 20;
+    r.left = 10;
+    r.center = 0;
+    kian_text(&r);
 }
 
 
