@@ -2,8 +2,8 @@
 // start date: 2/14/2025
 // test
 
-int main() 
+int jadenTestFunction() 
 {
-    cout << "te st" << endl;
+    cout << "test" << endl;
     return 0;
 }
