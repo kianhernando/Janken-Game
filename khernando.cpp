@@ -121,9 +121,44 @@ void render_box()
 
 void render_text(Rect *rec)
 {
-    ggprint8b(rec, 12, 0xFFFFFF, "HI MY NAME IS HANDEL!"); 
-    ggprint8b(rec, 12, 0xFFFFFF, "THIS IS MY DEBUT GAME!");
-    ggprint8b(rec, 12, 0xFFFFFF, "IT IS CALLED JANKENPOI!");
+    float box_center_x = box.pos[0];
+    float box_bottom = box.pos[1];
+    
+    const int char_width = 6;
+    const int line_height = 12;
+    
+    const char* lines[] = {
+        "HI MY NAME IS HANDEL!",
+        "THIS IS MY DEBUT GAME!",
+        "IT IS CALLED JANKEN!"
+    };
+    const int num_lines = 3;
+    
+    // Find the longest line
+    int max_length = 0;
+    for (int i = 0; i < num_lines; i++) {
+        int line_length = strlen(lines[i]);
+        if (line_length > max_length) {
+            max_length = line_length;
+        }
+    }
+    
+    // Calculate total height and starting position
+    float total_height = line_height * num_lines;
+    float start_y = box_bottom + (box.height - total_height) / 2;
+    
+    // Calculate left alignment position based on longest line
+    float text_block_width = max_length * char_width;
+    float start_x = box_center_x - (text_block_width / 2);
+    
+    // Render each line from the same starting x position
+    for (int i = 0; i < num_lines; i++) {
+        rec->left = start_x;
+        rec->bot = start_y + (i * line_height);
+        rec->center = 0;
+        
+        ggprint8b(rec, 12, 0xFFFFFF, lines[i]);
+    }
 }
 
 void kian_text(Rect* r)

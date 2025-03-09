@@ -97,7 +97,6 @@ private:
 public:
 	X11_wrapper() {
 		GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
-		//GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, None };
 		setup_screen_res(576, 324);
 		dpy = XOpenDisplay(NULL);
 		if(dpy == NULL) {
@@ -121,6 +120,14 @@ public:
 								vi->depth, InputOutput, vi->visual,
 								CWColormap | CWEventMask, &swa);
 		set_title();
+		
+		// Added to X11_wrapper to prevent window resizing (as it breaks our assets)
+		XSizeHints hints;
+		hints.flags = PMinSize | PMaxSize;
+		hints.min_width = hints.max_width = g.xres;
+		hints.min_height = hints.max_height = g.yres;
+		XSetWMNormalHints(dpy, win, &hints);
+		
 		glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
 		glXMakeCurrent(dpy, win, glc);
 	}
