@@ -1,6 +1,5 @@
 #pragma once
 
-
 // ORIGINALLY FROM BACKGROUND.CPP
 // ORIGINAL AUTHOR: GORDON GRIESEL
 class Image {
@@ -43,3 +42,41 @@ public:
 		unlink(ppmname);
 	}
 };
+
+// ORIGINALLY FROM RAINFOREST.CPP
+// ORIGINAL AUTHOR: GORDON GRIESEL
+// EDITED TO ALLOW BLACK AND WHITE IMAGES TO BE TRANSPARENT
+// (ORIGINALLY WOULD MAKE THE BLACK PARTS OF AN IMAGE TRANSPARENT)
+inline unsigned char *buildAlphaData(Image *img)
+{
+	//Add 4th component to an RGB stream...
+	//RGBA
+	//When you do this, OpenGL is able to use the A component to determine
+	//transparency information.
+	//It is used in this application to erase parts of a texture-map from view.
+	int i;
+	int a,b,c;
+	unsigned char *newdata, *ptr;
+	unsigned char *data = (unsigned char *)img->data;
+	newdata = (unsigned char *)malloc(img->width * img->height * 4);
+	ptr = newdata;
+	for (i=0; i<img->width * img->height * 3; i+=3) {
+		a = *(data+0);
+		b = *(data+1);
+		c = *(data+2);
+		*(ptr+0) = a;
+		*(ptr+1) = b;
+		*(ptr+2) = c;
+
+		// Make magenta (255,0,255) transparent
+		if (a == 255 && b == 0 && c == 255) {
+			*(ptr+3) = 0;
+		} else {
+			*(ptr+3) = 255;
+		}
+
+		ptr += 4;
+		data += 3;
+	}
+	return newdata;
+}

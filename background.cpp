@@ -144,7 +144,7 @@ public:
 	void set_title() {
 		//Set the window title bar.
 		XMapWindow(dpy, win);
-		XStoreName(dpy, win, "scrolling background (seamless)");
+		XStoreName(dpy, win, "JANKEN - The One-Handed Journey");
 	}
 	bool getXPending() {
 		return XPending(dpy);
@@ -196,7 +196,7 @@ int main()
 	}
 
 	cleanup_fonts();
-  testFunction();
+  	testFunction();
 	return 0;
 }
 
@@ -316,6 +316,8 @@ void render()
         glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
     glEnd();
 
+    render_box();
+
     // Create and render player
     static Player player;
     static bool initialized = false;
@@ -330,6 +332,13 @@ void render()
     r.left = 10;
     r.center = 0;
     kian_text(&r);
+
+	// TO-DO: Make a wrapper function so it adjusts based on the length of the text
+	Rect rec;
+    rec.bot = 45;
+    rec.left = (574 / 2) - 60;
+    rec.center = 0;
+	render_text(&rec);
 }
 
 
