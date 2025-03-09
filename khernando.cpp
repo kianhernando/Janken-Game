@@ -11,7 +11,6 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "khernando.h"
-#include "image.h"
 
 extern Global g;
 Box box(576, 75);
@@ -165,7 +164,6 @@ void kian_text(Rect* r)
 {
     ggprint8b(r, 16, 0xFFFFFF, "Graphics done by: Kian Hernando");
     ggprint8b(r, 16, 0xFFFFFF, "Press '-' to stop, Press '=' to start");
-
 }
 
 Image* newImage(const char* fname) {
