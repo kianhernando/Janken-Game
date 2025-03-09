@@ -20,6 +20,7 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "khernando.h"
+#include "ssantos.h"
 
 // MOVED IMAGE CLASS TO IMAGE.H
 // class Image {
@@ -296,6 +297,9 @@ int check_keys(XEvent *e)
 			render();
 			x11.swapBuffers();
 		}
+        if (key == XK_a) {
+            testFunction();
+        }
 	}
 	return 0;
 }
@@ -340,11 +344,13 @@ void render()
     r.center = 0;
     kian_text(&r);
 
-	// TO-DO: Make a wrapper function so it adjusts based on the length of the text
-	Rect rec;
-    rec.bot = 45;
-    rec.left = (574 / 2) - 60;
-    rec.center = 0;
+    Rect rSimon;
+    rSimon.bot = g.yres - 20;
+    rSimon.left = 500;
+    rSimon.center = 0;
+    simonText(&rSimon);
+	
+    Rect rec;
 	render_text(&rec);
 }
 
