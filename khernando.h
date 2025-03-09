@@ -3,6 +3,9 @@
 #include "image.h"
 #include "textures.h"
 
+class Global;
+extern Global g;
+
 class Player {
 public:
     Texture tex;
@@ -14,4 +17,18 @@ public:
     void render_hand();
 };
 
+// ORIGINALLY FROM WATERFALL (LAB 6)
+class Box {
+public:
+    float width, height;
+    float pos[2];
+    unsigned char color[3];
+    
+    Box();
+    Box(float w, float h);
+};
+
+extern Box box;
 void kian_text(Rect *r);
+void render_text(Rect *rec);
+void render_box();
