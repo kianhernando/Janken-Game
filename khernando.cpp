@@ -15,7 +15,8 @@
 extern Global g;
 Box box(576, 75);
 
-Box::Box() {
+Box::Box()
+{
     width = 50;
     height = 75;
     pos[0] = 576/2.0f;
@@ -25,7 +26,8 @@ Box::Box() {
     color[2] = 0;
 }
 
-Box::Box(float w, float h) {
+Box::Box(float w, float h)
+{
     width = w;
     height = h;
     pos[0] = 576/2.0f;
@@ -35,7 +37,8 @@ Box::Box(float w, float h) {
     color[2] = 0;
 }
 
-Player::Player() {
+Player::Player()
+{
     tex.xc[0] = 0.0;
     tex.xc[1] = 1.0;
     tex.yc[0] = 0.0;
@@ -49,12 +52,11 @@ Player::Player() {
     tex.backImage = nullptr;
 }
 
-void Player::init(const char* imagePath) {
+void Player::init(const char* imagePath)
+{
     tex.backImage = new Image(imagePath);
-
     int og_w = tex.backImage->width;
     int og_h = tex.backImage->height;
-
     float scale = 3.0f;
 
     xres = og_w * scale;
@@ -78,13 +80,14 @@ void Player::init(const char* imagePath) {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
-        GL_RGBA, GL_UNSIGNED_BYTE, alphaData);
+            GL_RGBA, GL_UNSIGNED_BYTE, alphaData);
 
     // Free alphaData since OpenGL has a copy
     free(alphaData);
 }
 
-void Player::render_hand() {
+void Player::render_hand()
+{
     // Enable blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -94,10 +97,14 @@ void Player::render_hand() {
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glBegin(GL_QUADS);
-        glTexCoord2f(tex.xc[0], tex.yc[1]); glVertex2i(pos_x,         pos_y);
-        glTexCoord2f(tex.xc[0], tex.yc[0]); glVertex2i(pos_x,         pos_y + yres);
-        glTexCoord2f(tex.xc[1], tex.yc[0]); glVertex2i(pos_x + xres,  pos_y + yres);
-        glTexCoord2f(tex.xc[1], tex.yc[1]); glVertex2i(pos_x + xres,  pos_y);
+    glTexCoord2f(tex.xc[0], tex.yc[1]); 
+    glVertex2i(pos_x, pos_y);
+    glTexCoord2f(tex.xc[0], tex.yc[0]); 
+    glVertex2i(pos_x, pos_y + yres);
+    glTexCoord2f(tex.xc[1], tex.yc[0]); 
+    glVertex2i(pos_x + xres, pos_y + yres);
+    glTexCoord2f(tex.xc[1], tex.yc[1]); 
+    glVertex2i(pos_x + xres, pos_y);
     glEnd();
 
     // Optional: Disable blending if you don't need it for other rendering
@@ -110,10 +117,10 @@ void render_box()
     glPushMatrix();
     glTranslatef(box.pos[0], box.pos[1], 0.0f);
     glBegin(GL_QUADS);
-        glVertex2f(-box.width/2, 0);
-        glVertex2f(-box.width/2, box.height);
-        glVertex2f(box.width/2, box.height);
-        glVertex2f(box.width/2, 0);
+    glVertex2f(-box.width/2, 0);
+    glVertex2f(-box.width/2, box.height);
+    glVertex2f(box.width/2, box.height);
+    glVertex2f(box.width/2, 0);
     glEnd();
     glPopMatrix();
 }
@@ -155,7 +162,6 @@ void render_text(Rect *rec)
         rec->left = start_x;
         rec->bot = start_y + (i * line_height);
         rec->center = 0;
-        
         ggprint8b(rec, 12, 0xFFFFFF, lines[i]);
     }
 }
@@ -166,8 +172,7 @@ void kian_text(Rect* r)
     ggprint8b(r, 16, 0xFFFFFF, "Press '-' to stop, Press '=' to start");
 }
 
-Image* newImage(const char* fname) {
+Image* newImage(const char* fname)
+{
     return new Image(fname);
 }
-
-

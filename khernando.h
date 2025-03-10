@@ -7,25 +7,25 @@ class Global;
 extern Global g;
 
 class Player {
-public:
-    Texture tex;
-    int xres, yres;
-    int pos_x, pos_y;
+    public:
+        Texture tex;
+        int xres, yres;
+        int pos_x, pos_y;
 
-    Player();
-    void init(const char* imagePath);
-    void render_hand();
+        Player();
+        void init(const char* imagePath);
+        void render_hand();
 };
 
-// ORIGINALLY FROM WATERFALL (LAB 6)
+// Originally from waterfall (lab 6)
 class Box {
-public:
-    float width, height;
-    float pos[2];
-    unsigned char color[3];
-    
-    Box();
-    Box(float w, float h);
+    public:
+        float width, height;
+        float pos[2];
+        unsigned char color[3];
+        
+        Box();
+        Box(float w, float h);
 };
 
 extern Box box;
