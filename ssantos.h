@@ -1,4 +1,4 @@
 #pragma once
 #include "fonts.h"
 
-void simonText (Rect* rSimon);
+void simonText(Rect *rSimon);
