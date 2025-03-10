@@ -2,7 +2,8 @@
 
 // ORIGINALLY FROM BACKGROUND.CPP
 // ORIGINAL AUTHOR: GORDON GRIESEL
-class Texture {
+class Texture 
+{
 public:
 	Image *backImage;
 	GLuint backTexture;

@@ -1,7 +1,8 @@
 #ifndef _FONTS_H_
 #define _FONTS_H_
 
-typedef struct t_rect {
+typedef struct t_rect 
+{
     int left;
     int top; 
     int right;
