@@ -191,6 +191,10 @@ extern void startGame();
 //===========================================================================
 int main()
 {
+	// ADJUSTED TO SHOW AT BEGINNING
+	showIntroScreen();
+    	startGame();
+	
 	init_opengl();
 	int done=0;
 	while (!done) {
@@ -204,8 +208,6 @@ int main()
 		render();
 		x11.swapBuffers();
 	}
-    showIntroScreen();
-    startGame();
 	cleanup_fonts();
   	testFunction();
 	return 0;
