@@ -1,5 +1,5 @@
 //
-// modified by: Kian Hernando
+// modified by: Kian Hernando, Simon Santos, Steven Tran
 // date: February 2025
 // purpose: Framework for building Video Game
 //
@@ -77,13 +77,15 @@ Image img[1] = {"./assets/landscape.jpg"};
 //     float yc[2];
 // };
 
-class Global {
+class Global 
+{
 public:
     int xres, yres;
     Texture tex;
     // Added boolean to detect background movement
     bool isBackgroundMoving;
-    Global() {
+    Global() 
+    {
         xres = 576;
         yres = 324;
         // Defaulted to moving
@@ -91,13 +93,15 @@ public:
     }
 } g;
 
-class X11_wrapper {
+class X11_wrapper 
+{
 private:
     Display *dpy;
     Window win;
     GLXContext glc;
 public:
-    X11_wrapper() {
+    X11_wrapper() 
+    {
         GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
         setup_screen_res(576, 324);
         dpy = XOpenDisplay(NULL);
@@ -133,15 +137,21 @@ public:
         glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
         glXMakeCurrent(dpy, win, glc);
     }
-    void cleanupXWindows() {
+    
+    void cleanupXWindows() 
+    {
         XDestroyWindow(dpy, win);
         XCloseDisplay(dpy);
     }
-    void setup_screen_res(const int w, const int h) {
+    
+    void setup_screen_res(const int w, const int h) 
+    {
         g.xres = w;
         g.yres = h;
     }
-    void reshape_window(int width, int height) {
+    
+    void reshape_window(int width, int height) 
+    {
         //window has been resized.
         setup_screen_res(width, height);
         glViewport(0, 0, (GLint)width, (GLint)height);
@@ -150,23 +160,33 @@ public:
         glOrtho(0, g.xres, 0, g.yres, -1, 1);
         set_title();
     }
-    void set_title() {
+    
+    void set_title() 
+    {
         //Set the window title bar.
         XMapWindow(dpy, win);
         XStoreName(dpy, win, "JANKEN - The One-Handed Journey");
     }
-    bool getXPending() {
+    
+    bool getXPending() 
+    {
         return XPending(dpy);
     }
-    XEvent getXNextEvent() {
+    
+    XEvent getXNextEvent() 
+    {
         XEvent e;
         XNextEvent(dpy, &e);
         return e;
     }
-    void swapBuffers() {
+    
+    void swapBuffers() 
+    {
         glXSwapBuffers(dpy, win);
     }
-    void check_resize(XEvent *e) {
+    
+    void check_resize(XEvent *e) 
+    {
         //The ConfigureNotify is sent by the server if the window is resized.
         if (e->type != ConfigureNotify)
             return;
@@ -192,7 +212,6 @@ extern void startGame();
 int main()
 {
     // ADJUSTED TO SHOW AT BEGINNING
-    showIntroScreen();
     startGame();
     
     init_opengl();

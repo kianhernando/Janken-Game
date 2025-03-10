@@ -2,12 +2,14 @@
 
 // ORIGINALLY FROM BACKGROUND.CPP
 // ORIGINAL AUTHOR: GORDON GRIESEL
-class Image {
+class Image 
+{
 public:
     int width, height;
     unsigned char *data;
     ~Image() { delete [] data; }
-    Image(const char *fname) {
+    Image(const char *fname) 
+    {
         if (fname[0] == '\0')
             return;
         char name[40];

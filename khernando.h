@@ -6,7 +6,8 @@
 class Global;
 extern Global g;
 
-class Player {
+class Player 
+{
     public:
         Texture tex;
         int xres, yres;
@@ -18,7 +19,8 @@ class Player {
 };
 
 // Originally from waterfall (lab 6)
-class Box {
+class Box 
+{
     public:
         float width, height;
         float pos[2];
