@@ -184,11 +184,17 @@ int check_keys(XEvent *e);
 void physics(void);
 void render(void);
 extern void testFunction();
+extern void showIntroScreen();
+extern void startGame();
 
 //===========================================================================
 //===========================================================================
 int main()
 {
+	// ADJUSTED TO SHOW AT BEGINNING
+	showIntroScreen();
+    	startGame();
+	
 	init_opengl();
 	int done=0;
 	while (!done) {
@@ -202,7 +208,6 @@ int main()
 		render();
 		x11.swapBuffers();
 	}
-
 	cleanup_fonts();
   	testFunction();
 	return 0;
