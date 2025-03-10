@@ -184,6 +184,8 @@ int check_keys(XEvent *e);
 void physics(void);
 void render(void);
 extern void testFunction();
+extern void showIntroScreen();
+extern void startGame();
 
 //===========================================================================
 //===========================================================================
@@ -202,7 +204,8 @@ int main()
 		render();
 		x11.swapBuffers();
 	}
-
+    showIntroScreen();
+    startGame();
 	cleanup_fonts();
   	testFunction();
 	return 0;
