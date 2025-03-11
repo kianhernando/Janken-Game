@@ -5,7 +5,8 @@
 
 void testFunction()
 {
-    printf("Hello World!");
+    printf("Hello World!\n");
+    fflush(stdout);
 }
 
 void simonText(Rect *rSimon)

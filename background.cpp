@@ -86,11 +86,13 @@ public:
     Texture tex;
     // Added boolean to detect background movement
     bool isBackgroundMoving;
+    bool isSimonText;
     Global() {
         xres = 576;
         yres = 324;
         // Defaulted to moving
         isBackgroundMoving = true;
+        isSimonText = true;
     }
 } g;
 
@@ -307,6 +309,12 @@ int check_keys(XEvent *e)
         if (key == XK_a) {
             testFunction();
         }
+        if (key == XK_s) {
+            g.isSimonText = true;
+        }
+        if (key == XK_d) {
+            g.isSimonText = false;
+        }
     }
     return 0;
 }
@@ -361,7 +369,8 @@ void render()
     rSimon.bot = g.yres - 20;
     rSimon.left = 500;
     rSimon.center = 0;
-    simonText(&rSimon);
+    if (g.isSimonText == true)
+        simonText(&rSimon);
     
     Rect rSteven;
     rSteven.bot = g.yres - 35;
