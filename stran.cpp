@@ -1,7 +1,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
-
+#include "stran.h"
 using namespace std;
 
 // Function to start intro screen delay
@@ -24,4 +24,9 @@ void startGame()
     showIntroScreen();
     // Main program or game logic here
     cout << "\nGame has started!" << endl;
+}
+
+void stevenText(Rect *rSteven)
+{
+    ggprint8b(rSteven, 16, 0xffffff, "Steven Tran");
 }
