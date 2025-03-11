@@ -21,6 +21,7 @@
 #include <GL/glx.h>
 #include "khernando.h"
 #include "ssantos.h"
+#include "stran.h"
 
 // MOVED IMAGE CLASS TO IMAGE.H
 // class Image {
@@ -192,7 +193,6 @@ extern void startGame();
 int main()
 {
     // ADJUSTED TO SHOW AT BEGINNING
-    showIntroScreen();
     startGame();
     
     init_opengl();
@@ -361,6 +361,12 @@ void render()
     rSimon.center = 0;
     simonText(&rSimon);
     
+    Rect rSteven;
+    rSteven.bot = g.yres - 35;
+    rSteven.left = 500;
+    rSteven.center = 0;
+    stevenText(&rSteven);
+
     Rect rec;
     render_text(&rec);
 }
