@@ -337,7 +337,7 @@ void render()
     static Player player;
     static bool initialized = false;
     if (!initialized) {
-        player.init("assets/idle.png");
+        player.init("assets/idle_x.png");
         initialized = true;
     }
     
