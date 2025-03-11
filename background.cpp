@@ -87,12 +87,14 @@ public:
     // Added boolean to detect background movement
     bool isBackgroundMoving;
     bool isSimonText;
+    bool isGarrettText;
     Global() {
         xres = 576;
         yres = 324;
         // Defaulted to moving
         isBackgroundMoving = true;
         isSimonText = true;
+        isGarrettText = true;
     }
 } g;
 
@@ -311,9 +313,11 @@ int check_keys(XEvent *e)
         }
         if (key == XK_s) {
             g.isSimonText = true;
+            g.isGarrettText = true;
         }
         if (key == XK_d) {
             g.isSimonText = false;
+            g.isGarrettText = false;
         }
     }
     return 0;
@@ -388,6 +392,7 @@ void render()
     rGarrett.bot = g.yres - 65;
     rGarrett.left = 500;
     rGarrett.center = 0;
+    if (g.isSimonText == true)
     garrettText(&rGarrett);
 
     Rect rec;
