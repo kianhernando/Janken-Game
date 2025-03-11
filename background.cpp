@@ -22,6 +22,7 @@
 #include "khernando.h"
 #include "ssantos.h"
 #include "stran.h"
+#include "jbowers.h"
 
 // MOVED IMAGE CLASS TO IMAGE.H
 // class Image {
@@ -366,6 +367,12 @@ void render()
     rSteven.left = 500;
     rSteven.center = 0;
     stevenText(&rSteven);
+
+    Rect rJaden;
+    rJaden.bot = g.yres - 50;
+    rJaden.left = 500;
+    rJaden.center = 0;
+    jadenBox(&rJaden);
 
     Rect rec;
     render_text(&rec);
