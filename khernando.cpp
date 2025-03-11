@@ -63,8 +63,9 @@ void Player::init(const char* imagePath)
     yres = og_h * scale;
 
     // Use hard-coded values for window dimensions (576x324)
-    pos_x = 576/2 - xres/2;
-    pos_y = 324/2 - yres/2;
+    pos_x = 576/4 - xres/2;
+    base_y = 324/2.5 - yres/2;
+    pos_y = base_y;
 
     // Generate one texture
     glGenTextures(1, &tex.backTexture);
@@ -109,6 +110,18 @@ void Player::render_hand()
 
     // Optional: Disable blending if you don't need it for other rendering
     glDisable(GL_BLEND);
+}
+
+void Player::update()
+{
+    static float time = 0.0f;
+    static const float speed = 2.0f;
+    static const float amplitude = 10.0f;
+
+    float offset = amplitude * sin(speed * time);
+    pos_y = base_y + offset;
+
+    time += 0.1f;
 }
 
 void render_box()
@@ -175,4 +188,17 @@ void kian_text(Rect* r)
 Image* newImage(const char* fname)
 {
     return new Image(fname);
+}
+
+void render_player()
+{   
+    // Create and render player
+    static Player player;
+    static bool initialized = false;
+    if (!initialized) {
+        player.init("assets/idle.png");
+        initialized = true;
+    }
+    player.update();
+    player.render_hand();
 }

@@ -6,21 +6,21 @@
 class Global;
 extern Global g;
 
-class Player 
-{
+class Player {
     public:
         Texture tex;
         int xres, yres;
         int pos_x, pos_y;
+        int base_y;
 
         Player();
         void init(const char* imagePath);
         void render_hand();
+        void update();
 };
 
 // Originally from waterfall (lab 6)
-class Box 
-{
+class Box {
     public:
         float width, height;
         float pos[2];
@@ -34,3 +34,4 @@ extern Box box;
 void kian_text(Rect *r);
 void render_text(Rect *rec);
 void render_box();
+void render_player();
