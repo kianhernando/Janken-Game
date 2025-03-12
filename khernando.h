@@ -19,6 +19,18 @@ class Player {
         void update();
 };
 
+class Enemy {
+    public:
+        Texture tex;
+        int xres, yres;
+        int pos_x, pos_y;
+        int base_y;
+
+        Enemy();
+        void init(const char* imagePath);
+        void render_enemy();
+};
+
 // Originally from waterfall (lab 6)
 class Box {
     public:

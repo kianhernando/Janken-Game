@@ -28,5 +28,5 @@ void startGame()
 
 void stevenText(Rect *rSteven)
 {
-    ggprint8b(rSteven, 16, 0xffffff, "Steven Tran");
+    ggprint8b(rSteven, 16, 0xffffff, "Steven");
 }

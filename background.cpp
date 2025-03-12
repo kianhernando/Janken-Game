@@ -86,15 +86,20 @@ public:
     Texture tex;
     // Added boolean to detect background movement
     bool isBackgroundMoving;
-    bool isSimonText;
-    bool isGarrettText;
+
+    // Boolean check for enemy encounter
+    bool encounterEnemy;
+
+    // Boolean check for name appearance
+    bool showMembers;
+
     Global() {
         xres = 576;
         yres = 324;
         // Defaulted to moving
         isBackgroundMoving = true;
-        isSimonText = true;
-        isGarrettText = true;
+        encounterEnemy = false;
+        showMembers = true;
     }
 } g;
 
@@ -311,13 +316,11 @@ int check_keys(XEvent *e)
         if (key == XK_a) {
             testFunction();
         }
-        if (key == XK_s) {
-            g.isSimonText = true;
-            g.isGarrettText = true;
+        if (key == XK_m) {
+            g.showMembers = !g.showMembers;
         }
-        if (key == XK_d) {
-            g.isSimonText = false;
-            g.isGarrettText = false;
+        if (key == XK_space) {
+            g.encounterEnemy = !g.encounterEnemy;
         }
     }
     return 0;
@@ -335,10 +338,17 @@ void physics()
 void render()
 {   
     static Player player;
-    static bool initialized = false;
-    if (!initialized) {
+    static bool isPlayerInit = false;
+    if (!isPlayerInit) {
         player.init("assets/idle_x.png");
-        initialized = true;
+        isPlayerInit = true;
+    }
+
+    static Enemy enemy;
+    static bool isEnemyInit = false;
+    if (!isEnemyInit) {
+        enemy.init("assets/boot.png");
+        isEnemyInit = true;
     }
     
     glClear(GL_COLOR_BUFFER_BIT);
@@ -363,6 +373,10 @@ void render()
         player.render_hand();
     }
 
+    if (g.encounterEnemy && !g.isBackgroundMoving) {
+        enemy.render_enemy();
+    }
+
     Rect r;
     r.bot = g.yres - 20;
     r.left = 10;
@@ -371,29 +385,31 @@ void render()
 
     Rect rSimon;
     rSimon.bot = g.yres - 20;
-    rSimon.left = 500;
+    rSimon.left = 520;
     rSimon.center = 0;
-    if (g.isSimonText == true)
+    if (g.showMembers == true)
         simonText(&rSimon);
     
     Rect rSteven;
     rSteven.bot = g.yres - 35;
-    rSteven.left = 500;
+    rSteven.left = 520;
     rSteven.center = 0;
-    stevenText(&rSteven);
+    if (g.showMembers == true)
+        stevenText(&rSteven);
 
     Rect rJaden;
     rJaden.bot = g.yres - 50;
-    rJaden.left = 500;
+    rJaden.left = 520;
     rJaden.center = 0;
-    jadenBox(&rJaden);
+    if (g.showMembers == true)
+        jadenBox(&rJaden);
 
     Rect rGarrett;
     rGarrett.bot = g.yres - 65;
-    rGarrett.left = 500;
+    rGarrett.left = 520;
     rGarrett.center = 0;
-    if (g.isSimonText == true)
-    garrettText(&rGarrett);
+    if (g.showMembers == true)
+        garrettText(&rGarrett);
 
     Rect rec;
     render_text(&rec);
