@@ -24,7 +24,7 @@ class Enemy {
         Texture tex;
         int xres, yres;
         int pos_x, pos_y;
-        int base_x;
+        int base_x, base_y;
 
         Enemy();
         void init(const char* imagePath);
