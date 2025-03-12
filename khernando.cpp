@@ -148,9 +148,9 @@ void Enemy::init(const char* imagePath)
     xres = og_w * scale;
     yres = og_h * scale;
 
-    pos_x = 3 * 576/4 - xres/2;
-    base_y = 324/3 - yres/2;
-    pos_y = base_y;
+    base_x = 3 * 576/4 - xres/2;
+    pos_y = 324/3 - yres/2;
+    pos_x = base_x;
 
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
@@ -187,6 +187,31 @@ void Enemy::render_enemy()
     glEnd();
 
     glDisable(GL_BLEND);
+}
+
+void Enemy::update()
+{
+    static float time = 0.0f;
+    static const float speed = 2.0f;
+    static const float amplitude = 10.0f;
+    static const float barrier = 3 * 576/4 - xres/2;
+
+    if (pos_x == 0.0f) {
+        pos_x = 576 + xres;
+    }
+
+    // Move left
+    pos_x -= 5.0f;
+
+    float offset = amplitude * sin(speed * time);
+    pos_x += offset;
+
+    // Reset position when hitting the barrier
+    if (pos_x <= barrier) {
+        pos_x = 576 + xres;
+    }
+
+    time += 0.1f;
 }
 
 void render_box()
