@@ -6,7 +6,7 @@
 
 void garrettText(Rect *rGarrett)
 {
-    ggprint8b(rGarrett, 16, 0xffffff, "Greg");
+    ggprint8b(rGarrett, 16, 0xffffff, "Garrett");
 }
 
 //create the game over screen (click g and the scene will be presented)

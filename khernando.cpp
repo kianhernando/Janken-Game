@@ -64,7 +64,7 @@ void Player::init(const char* imagePath)
 
     // Use hard-coded values for window dimensions (576x324)
     pos_x = 576/4 - xres/2;
-    base_y = 324/2.5 - yres/2;
+    base_y = 324/2.75 - yres/2;
     pos_y = base_y;
 
     // Generate one texture
@@ -122,6 +122,71 @@ void Player::update()
     pos_y = base_y + offset;
 
     time += 0.1f;
+}
+
+Enemy::Enemy()
+{
+    tex.xc[0] = 0.0;
+    tex.xc[1] = 1.0;
+    tex.yc[0] = 0.0;
+    tex.yc[1] = 1.0;
+    
+    xres = 0;  
+    yres = 0;  
+    pos_x = 0;
+    pos_y = 0;
+    tex.backImage = nullptr;
+}
+
+void Enemy::init(const char* imagePath)
+{
+    tex.backImage = new Image(imagePath);
+    int og_w = tex.backImage->width;
+    int og_h = tex.backImage->height;
+    float scale = 3.0f;
+
+    xres = og_w * scale;
+    yres = og_h * scale;
+
+    pos_x = 3 * 576/4 - xres/2;
+    base_y = 324/3 - yres/2;
+    pos_y = base_y;
+
+    glGenTextures(1, &tex.backTexture);
+    glBindTexture(GL_TEXTURE_2D, tex.backTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    unsigned char *alphaData = buildAlphaData(tex.backImage);
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, alphaData);
+
+    free(alphaData);
+}
+
+void Enemy::render_enemy()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, tex.backTexture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(tex.xc[0], tex.yc[1]); 
+    glVertex2i(pos_x, pos_y);
+    glTexCoord2f(tex.xc[0], tex.yc[0]); 
+    glVertex2i(pos_x, pos_y + yres);
+    glTexCoord2f(tex.xc[1], tex.yc[0]); 
+    glVertex2i(pos_x + xres, pos_y + yres);
+    glTexCoord2f(tex.xc[1], tex.yc[1]); 
+    glVertex2i(pos_x + xres, pos_y);
+    glEnd();
+
+    glDisable(GL_BLEND);
 }
 
 void render_box()
@@ -183,22 +248,11 @@ void kian_text(Rect* r)
 {
     ggprint8b(r, 16, 0xFFFFFF, "Graphics done by: Kian Hernando");
     ggprint8b(r, 16, 0xFFFFFF, "Press '-' to stop, Press '=' to start");
+    ggprint8b(r, 16, 0xFFFFFF, "Press 'M' to show members");
+    ggprint8b(r, 16, 0xFFFFFF, "Press 'Space' to show enemy (Only when stopped)");
 }
 
 Image* newImage(const char* fname)
 {
     return new Image(fname);
-}
-
-void render_player()
-{   
-    // Create and render player
-    static Player player;
-    static bool initialized = false;
-    if (!initialized) {
-        player.init("assets/idle.png");
-        initialized = true;
-    }
-    player.update();
-    player.render_hand();
 }
