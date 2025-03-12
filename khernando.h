@@ -24,11 +24,13 @@ class Enemy {
         Texture tex;
         int xres, yres;
         int pos_x, pos_y;
-        int base_y;
+        int base_x;
+        float speed;
 
         Enemy();
         void init(const char* imagePath);
         void render_enemy();
+        void update();
 };
 
 // Originally from waterfall (lab 6)

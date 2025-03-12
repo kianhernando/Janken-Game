@@ -136,6 +136,7 @@ Enemy::Enemy()
     pos_x = 0;
     pos_y = 0;
     tex.backImage = nullptr;
+    speed = 2.0f;
 }
 
 void Enemy::init(const char* imagePath)
@@ -148,9 +149,9 @@ void Enemy::init(const char* imagePath)
     xres = og_w * scale;
     yres = og_h * scale;
 
-    pos_x = 3 * 576/4 - xres/2;
-    base_y = 324/3 - yres/2;
-    pos_y = base_y;
+    base_x = 3 * 576/4 - xres/2;
+    pos_x = base_x;
+    pos_y = 324/3 - yres/2;
 
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
@@ -166,6 +167,12 @@ void Enemy::init(const char* imagePath)
             GL_RGBA, GL_UNSIGNED_BYTE, alphaData);
 
     free(alphaData);
+}
+
+void Enemy::update() {
+    pos_x -= speed;
+    if (pos_x < 3 * (576/4 - xres/2))
+        pos_x = 576;
 }
 
 void Enemy::render_enemy()

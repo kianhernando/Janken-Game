@@ -320,7 +320,9 @@ int check_keys(XEvent *e)
             g.showMembers = !g.showMembers;
         }
         if (key == XK_space) {
-            g.encounterEnemy = !g.encounterEnemy;
+            if (!g.isBackgroundMoving) {
+                g.encounterEnemy = !g.encounterEnemy;
+            }
         }
     }
     return 0;
@@ -366,15 +368,18 @@ void render()
     render_box();
 
     if (g.isBackgroundMoving) {
-        player.update();
         player.render_hand();
+        player.update();
     } else {
         player.pos_y = player.base_y;
         player.render_hand();
     }
 
-    if (g.encounterEnemy && !g.isBackgroundMoving) {
+    if (g.encounterEnemy) {
         enemy.render_enemy();
+        if (g.isBackgroundMoving) {
+            enemy.update();
+        }
     }
 
     Rect r;
