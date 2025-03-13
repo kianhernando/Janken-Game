@@ -45,6 +45,9 @@ class Box {
 
 extern Box box;
 void kian_text(Rect *r);
-void render_text(Rect *rec);
+void render_text(Rect *rec, const char* lines[], const int num_lines);
 void render_box();
 void render_player();
+
+extern const char* intro[];
+extern const char* lorem[];

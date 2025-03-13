@@ -80,6 +80,12 @@ Image img[1] = {"./assets/landscape.jpg"};
 //     float yc[2];
 // };
 
+enum TextState {
+    INTRO,
+    LOREM,
+    NONE
+};
+
 class Global {
 public:
     int xres, yres;
@@ -93,13 +99,16 @@ public:
     // Boolean check for name appearance
     bool showMembers;
 
+    // Use enum to track state
+    TextState currentTextState;
+
     Global() {
         xres = 576;
         yres = 324;
-        // Defaulted to moving
         isBackgroundMoving = true;
         encounterEnemy = false;
         showMembers = true;
+        currentTextState = INTRO;
     }
 } g;
 
@@ -314,7 +323,7 @@ int check_keys(XEvent *e)
             x11.swapBuffers();
         }
         if (key == XK_a) {
-            testFunction();
+            g.currentTextState = INTRO;
         }
         if (key == XK_m) {
             g.showMembers = !g.showMembers;
@@ -322,6 +331,9 @@ int check_keys(XEvent *e)
         if (key == XK_space) {
             if(!g.isBackgroundMoving)
                 g.encounterEnemy = !g.encounterEnemy;
+        }
+        if (key == XK_q) {
+            g.currentTextState = LOREM;
         }
     }
     return 0;
@@ -420,5 +432,14 @@ void render()
         garrettText(&rGarrett);
 
     Rect rec;
-    render_text(&rec);
+    switch (g.currentTextState) {
+        case INTRO:
+            render_text(&rec, intro, 3);
+            break;
+        case LOREM:
+            render_text(&rec, lorem, 6);
+            break;
+        case NONE:
+            break;
+    }
 }
