@@ -226,20 +226,13 @@ void render_box()
     glPopMatrix();
 }
 
-void render_text(Rect *rec)
+void render_text(Rect *rec, const char* lines[], const int num_lines)
 {
     float box_center_x = box.pos[0];
     float box_bottom = box.pos[1];
     
     const int char_width = 6;
     const int line_height = 12;
-    
-    const char* lines[] = {
-        "HI MY NAME IS HANDEL!",
-        "THIS IS MY DEBUT GAME!",
-        "IT IS CALLED JANKEN!"
-    };
-    const int num_lines = 3;
     
     // Find the longest line
     int max_length = 0;
@@ -261,7 +254,8 @@ void render_text(Rect *rec)
     // Render each line from the same starting x position
     for (int i = 0; i < num_lines; i++) {
         rec->left = start_x;
-        rec->bot = start_y + (i * line_height);
+        // Edited to fix passed-in text
+        rec->bot = start_y + ((num_lines - 1 - i) * line_height);
         rec->center = 0;
         ggprint8b(rec, 12, 0xFFFFFF, lines[i]);
     }
