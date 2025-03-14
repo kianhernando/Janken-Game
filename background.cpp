@@ -82,7 +82,7 @@ Image img[1] = {"./assets/landscape.jpg"};
 
 enum TextState {
     INTRO,
-    LOREM,
+    INSTRUCTIONS,
     NONE
 };
 
@@ -107,7 +107,7 @@ public:
         yres = 324;
         isBackgroundMoving = true;
         encounterEnemy = false;
-        showMembers = true;
+        showMembers = false;
         currentTextState = INTRO;
     }
 } g;
@@ -166,8 +166,10 @@ public:
         //window has been resized.
         setup_screen_res(width, height);
         glViewport(0, 0, (GLint)width, (GLint)height);
-        glMatrixMode(GL_PROJECTION); glLoadIdentity();
-        glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+        glMatrixMode(GL_PROJECTION);
+        glLoadIdentity();
+        glMatrixMode(GL_MODELVIEW);
+        glLoadIdentity();
         glOrtho(0, g.xres, 0, g.yres, -1, 1);
         set_title();
     }
@@ -238,8 +240,10 @@ void init_opengl(void)
     //OpenGL initialization
     glViewport(0, 0, g.xres, g.yres);
     //Initialize matrices
-    glMatrixMode(GL_PROJECTION); glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW); glLoadIdentity();
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
     //This sets 2D mode (no perspective)
     glOrtho(0, g.xres, 0, g.yres, -1, 1);
     //Clear the screen
@@ -333,7 +337,7 @@ int check_keys(XEvent *e)
                 g.encounterEnemy = !g.encounterEnemy;
         }
         if (key == XK_q) {
-            g.currentTextState = LOREM;
+            g.currentTextState = INSTRUCTIONS;
         }
     }
     return 0;
@@ -354,6 +358,7 @@ void render()
     static bool isPlayerInit = false;
     if (!isPlayerInit) {
         player.init("assets/idle_x.png");
+        player.init_hp();
         isPlayerInit = true;
     }
 
@@ -361,6 +366,7 @@ void render()
     static bool isEnemyInit = false;
     if (!isEnemyInit) {
         enemy.init("assets/boot.png");
+        enemy.init_hp();
         isEnemyInit = true;
     }
     
@@ -370,10 +376,14 @@ void render()
     glColor3f(1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
     glBegin(GL_QUADS);
-        glTexCoord2f(g.tex.xc[0], g.tex.yc[1]); glVertex2i(0, 0);
-        glTexCoord2f(g.tex.xc[0], g.tex.yc[0]); glVertex2i(0, g.yres);
-        glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
-        glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
+        glTexCoord2f(g.tex.xc[0], g.tex.yc[1]);
+        glVertex2i(0, 0);
+        glTexCoord2f(g.tex.xc[0], g.tex.yc[0]);
+        glVertex2i(0, g.yres);
+        glTexCoord2f(g.tex.xc[1], g.tex.yc[0]);
+        glVertex2i(g.xres, g.yres);
+        glTexCoord2f(g.tex.xc[1], g.tex.yc[1]);
+        glVertex2i(g.xres, 0);
     glEnd();
 
     render_box();
@@ -381,63 +391,69 @@ void render()
     if (g.isBackgroundMoving) {
         player.update();
         player.render_hand();
+        player.render_hp();
     } else {
         player.pos_y = player.base_y;
         player.render_hand();
+        player.render_hp();
     }
 
     if (g.encounterEnemy) {
         if (!g.isBackgroundMoving) {
             enemy.pos_x = enemy.base_x;
+            enemy.pos_y = enemy.base_y;
             enemy.render_enemy();
+            enemy.render_hp();
         } else {
             enemy.update();
             enemy.render_enemy();
+            enemy.render_hp();
         }
     }
 
-
-    Rect r;
-    r.bot = g.yres - 20;
-    r.left = 10;
-    r.center = 0;
-    kian_text(&r);
+    Rect rKian;
+    rKian.bot = g.yres - 20;
+    rKian.left = 520;
+    rKian.center = 0;
+    if (g.showMembers == true)
+        kianText(&rKian);
 
     Rect rSimon;
-    rSimon.bot = g.yres - 20;
+    rSimon.bot = g.yres - 35;
     rSimon.left = 520;
     rSimon.center = 0;
     if (g.showMembers == true)
         simonText(&rSimon);
     
     Rect rSteven;
-    rSteven.bot = g.yres - 35;
+    rSteven.bot = g.yres - 50;
     rSteven.left = 520;
     rSteven.center = 0;
     if (g.showMembers == true)
         stevenText(&rSteven);
 
     Rect rJaden;
-    rJaden.bot = g.yres - 50;
+    rJaden.bot = g.yres - 65;
     rJaden.left = 520;
     rJaden.center = 0;
     if (g.showMembers == true)
         jadenBox(&rJaden);
 
     Rect rGarrett;
-    rGarrett.bot = g.yres - 65;
+    rGarrett.bot = g.yres - 80;
     rGarrett.left = 520;
     rGarrett.center = 0;
     if (g.showMembers == true)
         garrettText(&rGarrett);
 
     Rect rec;
+
     switch (g.currentTextState) {
         case INTRO:
             render_text(&rec, intro, 3);
             break;
-        case LOREM:
-            render_text(&rec, lorem, 6);
+        case INSTRUCTIONS:
+            render_text(&rec, instructions, 3);
             break;
         case NONE:
             break;
