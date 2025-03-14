@@ -46,70 +46,89 @@ Player::Player()
     tex.yc[1] = 1.0;
     
     // Empty values to be set in init();
-    xres = 0;  
-    yres = 0;  
+    xres = 0;
+    yres = 0;
     pos_x = 0;
     pos_y = 0;
     tex.backImage = nullptr;
+    hp.backImage = nullptr;
+    hp_x = 10;
+    hp_y = 294;
 }
 
 void Player::init(const char* imagePath)
 {
     tex.backImage = new Image(imagePath);
+    // Call datatypes to store width and height for manipulation
     int og_w = tex.backImage->width;
     int og_h = tex.backImage->height;
+    
+    // Scale it 3x original size
     float scale = 3.0f;
-
     xres = og_w * scale;
     yres = og_h * scale;
 
-    // Use hard-coded values for window dimensions (576x324)
     pos_x = 576/4 - xres/2;
     base_y = 324/2.75 - yres/2;
     pos_y = base_y;
 
-    // Generate one texture
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    // Get alpha channel data to allow transparency
-    unsigned char *alphaData = buildAlphaData(tex.backImage);
-
-    // Enable blending for transparency
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, alphaData);
+            GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
+}
 
-    // Free alphaData since OpenGL has a copy
-    free(alphaData);
+void Player::init_hp()
+{
+    hp.backImage = new Image("assets/player_hp.png");
+    glGenTextures(1, &hp.backTexture);
+    glBindTexture(GL_TEXTURE_2D, hp.backTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, hp.backImage->height, 0,
+                GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(hp.backImage));
 }
 
 void Player::render_hand()
 {
-    // Enable blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Draw the hand; similar to drawing the box in waterlab
-    // UDATE: Changed to 4 channels to allow alpha data
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glBegin(GL_QUADS);
-    glTexCoord2f(tex.xc[0], tex.yc[1]); 
+    glTexCoord2f(tex.xc[0], tex.yc[1]);
     glVertex2i(pos_x, pos_y);
-    glTexCoord2f(tex.xc[0], tex.yc[0]); 
+    glTexCoord2f(tex.xc[0], tex.yc[0]);
     glVertex2i(pos_x, pos_y + yres);
-    glTexCoord2f(tex.xc[1], tex.yc[0]); 
+    glTexCoord2f(tex.xc[1], tex.yc[0]);
     glVertex2i(pos_x + xres, pos_y + yres);
-    glTexCoord2f(tex.xc[1], tex.yc[1]); 
+    glTexCoord2f(tex.xc[1], tex.yc[1]);
     glVertex2i(pos_x + xres, pos_y);
     glEnd();
 
-    // Optional: Disable blending if you don't need it for other rendering
+    glDisable(GL_BLEND);
+}
+
+void Player::render_hp()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glBindTexture(GL_TEXTURE_2D, hp.backTexture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 1.0);
+    glVertex2i(hp_x, hp_y);
+    glTexCoord2f(0.0, 0.0);
+    glVertex2i(hp_x, hp_y + 20);
+    glTexCoord2f(1.0, 0.0);
+    glVertex2i(hp_x + 100, hp_y + 20);
+    glTexCoord2f(1.0, 1.0);
+    glVertex2i(hp_x + 100, hp_y);
+    glEnd();
+
     glDisable(GL_BLEND);
 }
 
@@ -132,11 +151,14 @@ Enemy::Enemy()
     tex.yc[0] = 0.0;
     tex.yc[1] = 1.0;
     
-    xres = 0;  
-    yres = 0;  
+    xres = 0;
+    yres = 0;
     pos_x = 0;
     pos_y = 0;
     tex.backImage = nullptr;
+    hp.backImage = nullptr;
+    hp_x = 466;
+    hp_y = 294;
 }
 
 void Enemy::init(const char* imagePath)
@@ -144,8 +166,8 @@ void Enemy::init(const char* imagePath)
     tex.backImage = new Image(imagePath);
     int og_w = tex.backImage->width;
     int og_h = tex.backImage->height;
+   
     float scale = 3.0f;
-
     xres = og_w * scale;
     yres = og_h * scale;
 
@@ -158,16 +180,19 @@ void Enemy::init(const char* imagePath)
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    unsigned char *alphaData = buildAlphaData(tex.backImage);
-
-    glEnable(GL_BLEND);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, alphaData);
+            GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
+}
 
-    free(alphaData);
+void Enemy::init_hp() 
+{
+    hp.backImage = new Image("assets/enemy_hp.png");
+    glGenTextures(1, &hp.backTexture);
+    glBindTexture(GL_TEXTURE_2D, hp.backTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, hp.backImage->height, 0,
+                GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(hp.backImage));
 }
 
 void Enemy::render_enemy()
@@ -178,14 +203,34 @@ void Enemy::render_enemy()
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glBegin(GL_QUADS);
-    glTexCoord2f(tex.xc[0], tex.yc[1]); 
+    glTexCoord2f(tex.xc[0], tex.yc[1]);
     glVertex2i(pos_x, pos_y);
-    glTexCoord2f(tex.xc[0], tex.yc[0]); 
+    glTexCoord2f(tex.xc[0], tex.yc[0]);
     glVertex2i(pos_x, pos_y + yres);
-    glTexCoord2f(tex.xc[1], tex.yc[0]); 
+    glTexCoord2f(tex.xc[1], tex.yc[0]);
     glVertex2i(pos_x + xres, pos_y + yres);
-    glTexCoord2f(tex.xc[1], tex.yc[1]); 
+    glTexCoord2f(tex.xc[1], tex.yc[1]);
     glVertex2i(pos_x + xres, pos_y);
+    glEnd();
+
+    glDisable(GL_BLEND);
+}
+
+void Enemy::render_hp()
+{
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    
+    glBindTexture(GL_TEXTURE_2D, hp.backTexture);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 1.0);
+    glVertex2i(hp_x, hp_y);
+    glTexCoord2f(0.0, 0.0);
+    glVertex2i(hp_x, hp_y + 20);
+    glTexCoord2f(1.0, 0.0);
+    glVertex2i(hp_x + 100, hp_y + 20);
+    glTexCoord2f(1.0, 1.0);
+    glVertex2i(hp_x + 100, hp_y);
     glEnd();
 
     glDisable(GL_BLEND);
@@ -261,10 +306,7 @@ void render_text(Rect *rec, const char* lines[], const int num_lines)
     }
 }
 
-void kian_text(Rect* r)
+void kianText(Rect* rKian)
 {
-    ggprint8b(r, 16, 0xFFFFFF, "Graphics done by: Kian Hernando");
-    ggprint8b(r, 16, 0xFFFFFF, "Press '-' to stop, Press '=' to start");
-    ggprint8b(r, 16, 0xFFFFFF, "Press 'M' to show members");
-    ggprint8b(r, 16, 0xFFFFFF, "Press 'Space' to show enemy (Only when stopped)");
+    ggprint8b(rKian, 16, 0xFFFFFF, "Kian");
 }
