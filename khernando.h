@@ -12,10 +12,13 @@ class Player {
     public:
         Player();
         void init(const char* imagePath);
-        void init_hp();
+        void init_hp(int health);
         void render_hand();
         void render_hp();
         void update();
+        void changeImage(const char* imagePath);
+        void changeHealthBar(int health);
+        
         Texture tex;
         Texture hp;  // Add health bar texture
         int xres, yres;
@@ -53,9 +56,10 @@ class Box {
 
 extern Box box;
 void kianText(Rect *rKian);
+void controlText(Rect *rControl);
 void render_text(Rect *rec, const char* lines[], const int num_lines);
 void render_box();
 void render_player();
 
 extern const char* intro[];
-extern const char* instructions[];
+extern const char* controls[];

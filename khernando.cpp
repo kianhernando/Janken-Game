@@ -80,15 +80,29 @@ void Player::init(const char* imagePath)
             GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
 }
 
-void Player::init_hp()
+void Player::init_hp(int health)
 {
-    hp.backImage = new Image("assets/player_hp.png");
+    if (health == 100) {
+        hp.backImage = new Image("assets/playerHP/100.png");
+    } else if (health == 80) {
+        hp.backImage = new Image("assets/playerHP/80.png");
+    } else if (health == 60) {
+        hp.backImage = new Image("assets/playerHP/60.png");
+    } else if (health == 40) {
+        hp.backImage = new Image("assets/playerHP/40.png");
+    } else if (health == 20) {
+        hp.backImage = new Image("assets/playerHP/20.png");
+    } else if (health == 0) {
+        hp.backImage = new Image("assets/playerHP/0.png");
+    }
+    
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, hp.backImage->height, 0,
-                GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(hp.backImage));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, 
+            hp.backImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
+            buildAlphaData(hp.backImage));
 }
 
 void Player::render_hand()
@@ -144,6 +158,67 @@ void Player::update()
     time += 0.1f;
 }
 
+void Player::changeImage(const char* imagePath)
+{
+    if (tex.backImage != nullptr) {
+        delete tex.backImage;
+        glDeleteTextures(1, &tex.backTexture);
+    }
+
+    tex.backImage = new Image(imagePath);
+    int og_w = tex.backImage->width;
+    int og_h = tex.backImage->height;
+    
+    float scale = 3.0f;
+    xres = og_w * scale;
+    yres = og_h * scale;
+
+    pos_x = 576/4 - xres/2;
+    pos_y = base_y;
+
+    glGenTextures(1, &tex.backTexture);
+    glBindTexture(GL_TEXTURE_2D, tex.backTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
+    
+    tex.xc[0] = 0.0;
+    tex.xc[1] = 1.0;
+    tex.yc[0] = 0.0;
+    tex.yc[1] = 1.0;
+}
+
+void Player::changeHealthBar(int health)
+{
+    if (tex.backImage != nullptr) {
+        delete hp.backImage;
+        glDeleteTextures(1, &hp.backTexture);
+    }
+
+    if (health == 100) {
+        hp.backImage = new Image("assets/playerHP/100.png");
+    } else if (health == 80) {
+        hp.backImage = new Image("assets/playerHP/80.png");
+    } else if (health == 60) {
+        hp.backImage = new Image("assets/playerHP/60.png");
+    } else if (health == 40) {
+        hp.backImage = new Image("assets/playerHP/40.png");
+    } else if (health == 20) {
+        hp.backImage = new Image("assets/playerHP/20.png");
+    } else if (health == 0) {
+        hp.backImage = new Image("assets/playerHP/0.png");
+    }
+
+    glGenTextures(1, &hp.backTexture);
+    glBindTexture(GL_TEXTURE_2D, hp.backTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, 
+            hp.backImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+            buildAlphaData(hp.backImage));
+}
+
 Enemy::Enemy()
 {
     tex.xc[0] = 0.0;
@@ -186,13 +261,14 @@ void Enemy::init(const char* imagePath)
 
 void Enemy::init_hp() 
 {
-    hp.backImage = new Image("assets/enemy_hp.png");
+    hp.backImage = new Image("assets/enemyHP/100.png");
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, hp.backImage->height, 0,
-                GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(hp.backImage));
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, 
+            hp.backImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+            buildAlphaData(hp.backImage));
 }
 
 void Enemy::render_enemy()
@@ -304,6 +380,11 @@ void render_text(Rect *rec, const char* lines[], const int num_lines)
         rec->center = 0;
         ggprint8b(rec, 12, 0xFFFFFF, lines[i]);
     }
+}
+
+void controlText(Rect* rControl)
+{
+    ggprint8b(rControl, 16, 0xFFFFFF, "HIT C FOR CONTROLS");
 }
 
 void kianText(Rect* rKian)
