@@ -82,11 +82,15 @@ Image img[1] = {"./assets/landscape.jpg"};
 
 enum TextState {
     INTRO,
-    INSTRUCTIONS,
+    CONTROLS,
     NONE
 };
 
-class Global {
+Player player;
+Enemy enemy;
+
+class Global 
+{
 public:
     int xres, yres;
     Texture tex;
@@ -102,23 +106,31 @@ public:
     // Use enum to track state
     TextState currentTextState;
 
-    Global() {
+    // Temporary health for testing:
+    int playerHealth;
+
+    Global() 
+    {
         xres = 576;
         yres = 324;
         isBackgroundMoving = true;
         encounterEnemy = false;
         showMembers = false;
         currentTextState = INTRO;
+
+        playerHealth = 100;
     }
 } g;
 
-class X11_wrapper {
+class X11_wrapper 
+{
 private:
     Display *dpy;
     Window win;
     GLXContext glc;
 public:
-    X11_wrapper() {
+    X11_wrapper() 
+    {
         GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
         setup_screen_res(576, 324);
         dpy = XOpenDisplay(NULL);
@@ -154,15 +166,21 @@ public:
         glc = glXCreateContext(dpy, vi, NULL, GL_TRUE);
         glXMakeCurrent(dpy, win, glc);
     }
-    void cleanupXWindows() {
+
+    void cleanupXWindows() 
+    {
         XDestroyWindow(dpy, win);
         XCloseDisplay(dpy);
     }
-    void setup_screen_res(const int w, const int h) {
+
+    void setup_screen_res(const int w, const int h) 
+    {
         g.xres = w;
         g.yres = h;
     }
-    void reshape_window(int width, int height) {
+
+    void reshape_window(int width, int height) 
+    {
         //window has been resized.
         setup_screen_res(width, height);
         glViewport(0, 0, (GLint)width, (GLint)height);
@@ -173,23 +191,33 @@ public:
         glOrtho(0, g.xres, 0, g.yres, -1, 1);
         set_title();
     }
-    void set_title() {
+
+    void set_title() 
+    {
         //Set the window title bar.
         XMapWindow(dpy, win);
         XStoreName(dpy, win, "JANKEN - The One-Handed Journey");
     }
-    bool getXPending() {
+
+    bool getXPending() 
+    {
         return XPending(dpy);
     }
-    XEvent getXNextEvent() {
+
+    XEvent getXNextEvent() 
+    {
         XEvent e;
         XNextEvent(dpy, &e);
         return e;
     }
-    void swapBuffers() {
+
+    void swapBuffers() 
+    {
         glXSwapBuffers(dpy, win);
     }
-    void check_resize(XEvent *e) {
+
+    void check_resize(XEvent *e) 
+    {
         //The ConfigureNotify is sent by the server if the window is resized.
         if (e->type != ConfigureNotify)
             return;
@@ -309,7 +337,8 @@ int check_keys(XEvent *e)
         if (key == XK_Escape) {
             return 1;
         }
-
+        
+        // Stop and Start Keybinds
         if (key == XK_minus) {
             // Stops background from moving
             g.isBackgroundMoving = false;
@@ -326,18 +355,64 @@ int check_keys(XEvent *e)
             render();
             x11.swapBuffers();
         }
+
+        // Text Keybinds
         if (key == XK_a) {
             g.currentTextState = INTRO;
         }
         if (key == XK_m) {
             g.showMembers = !g.showMembers;
         }
-        if (key == XK_space) {
-            if(!g.isBackgroundMoving)
-                g.encounterEnemy = !g.encounterEnemy;
+        if (key == XK_c) {
+            g.currentTextState = CONTROLS;
         }
-        if (key == XK_q) {
-            g.currentTextState = INSTRUCTIONS;
+
+        // Player Health Keybinds for testing purposes
+        if (key == XK_2) {
+            g.playerHealth = 20;
+            player.changeHealthBar(g.playerHealth);
+        }
+        if (key == XK_4) {
+            g.playerHealth = 40;
+            player.changeHealthBar(g.playerHealth);
+        }
+        if (key == XK_6) {
+            g.playerHealth = 60;
+            player.changeHealthBar(g.playerHealth);
+        }
+        if (key == XK_8) {
+            g.playerHealth = 80;
+            player.changeHealthBar(g.playerHealth);
+        }
+        if (key == XK_0) {
+            g.playerHealth = 0;
+            player.changeHealthBar(g.playerHealth);
+        }
+        if (key == XK_f) {
+            g.playerHealth = 100;
+            player.changeHealthBar(g.playerHealth);
+        }
+        
+        if (!g.isBackgroundMoving) {
+            if (key == XK_r) {
+                player.changeImage("assets/player/rock_x.png");
+            }
+            if (key == XK_p) {
+                player.changeImage("assets/player/paper_x.png");
+            }
+            if (key == XK_s) {
+                player.changeImage("assets/player/scissors_x.png");
+            } 
+            if (key == XK_n) {
+                player.changeImage("assets/player/normal_x.png");
+            }
+        }
+
+        // Enemy Keybinds
+        if (key == XK_space) {
+            if (!g.isBackgroundMoving) {
+                g.encounterEnemy = !g.encounterEnemy;
+            }
         }
     }
     return 0;
@@ -354,18 +429,16 @@ void physics()
 
 void render()
 {   
-    static Player player;
     static bool isPlayerInit = false;
     if (!isPlayerInit) {
-        player.init("assets/idle_x.png");
-        player.init_hp();
+        player.init("assets/player/normal_x.png");
+        player.init_hp(g.playerHealth);
         isPlayerInit = true;
     }
 
-    static Enemy enemy;
     static bool isEnemyInit = false;
     if (!isEnemyInit) {
-        enemy.init("assets/boot.png");
+        enemy.init("assets/enemy/boot.png");
         enemy.init_hp();
         isEnemyInit = true;
     }
@@ -415,45 +488,56 @@ void render()
     rKian.bot = g.yres - 20;
     rKian.left = 520;
     rKian.center = 0;
-    if (g.showMembers == true)
+    if (g.showMembers == true) {
         kianText(&rKian);
+    }
 
     Rect rSimon;
     rSimon.bot = g.yres - 35;
     rSimon.left = 520;
     rSimon.center = 0;
-    if (g.showMembers == true)
+    if (g.showMembers == true) {
         simonText(&rSimon);
+    }
     
     Rect rSteven;
     rSteven.bot = g.yres - 50;
     rSteven.left = 520;
     rSteven.center = 0;
-    if (g.showMembers == true)
+    if (g.showMembers == true) {
         stevenText(&rSteven);
+    }
 
     Rect rJaden;
     rJaden.bot = g.yres - 65;
     rJaden.left = 520;
     rJaden.center = 0;
-    if (g.showMembers == true)
+    if (g.showMembers == true) {
         jadenBox(&rJaden);
+    }
 
     Rect rGarrett;
     rGarrett.bot = g.yres - 80;
     rGarrett.left = 520;
     rGarrett.center = 0;
-    if (g.showMembers == true)
+    if (g.showMembers == true) {
         garrettText(&rGarrett);
+    }
 
     Rect rec;
+
+    Rect rControl;
+    rControl.left = g.xres/2;
+    rControl.bot = g.yres - 20;
+    rControl.center = 1;
+    controlText(&rControl);
 
     switch (g.currentTextState) {
         case INTRO:
             render_text(&rec, intro, 3);
             break;
-        case INSTRUCTIONS:
-            render_text(&rec, instructions, 3);
+        case CONTROLS:
+            render_text(&rec, controls, 5);
             break;
         case NONE:
             break;
