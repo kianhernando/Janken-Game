@@ -392,6 +392,11 @@ int check_keys(XEvent *e)
             g.playerHealth = 100;
             player.changeHealthBar(g.playerHealth);
         }
+
+        //Test for random gen
+        if (key == XK_t) {
+            randGen();
+        }
         
         if (!g.isBackgroundMoving) {
             if (key == XK_r) {
