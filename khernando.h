@@ -23,8 +23,8 @@ class Player {
         Texture hp;  // Add health bar texture
         int xres, yres;
         float pos_x, pos_y;
-        float base_y;
-        float hp_x, hp_y;  // Add health bar position
+        float base_x, base_y;
+        float hp_x, hp_y;
 };
 
 class Enemy {
@@ -35,12 +35,15 @@ class Enemy {
         void render_enemy();
         void render_hp();
         void update();
+        void changeImage(const char* imagePath);
+        void changeHealthBar(int health);
+
         Texture tex;
         Texture hp;
         int xres, yres;
         float pos_x, pos_y;
         float base_x, base_y;
-        float hp_x, hp_y;  // Add health bar position
+        float hp_x, hp_y;
 };
 
 // Originally from waterfall (lab 6)
