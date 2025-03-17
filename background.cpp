@@ -1,6 +1,8 @@
 //
-// modified by: Kian Hernando
-// date: February 2025
+// modified by: Kian Hernando, Simon Santos, 
+//              Steven Tran, Jaden Bowers,
+//              and Garrett Gregory
+// start date: February 2025
 // purpose: Framework for building Video Game
 //
 // program: background.cpp
@@ -244,7 +246,6 @@ extern void startGame();
 //===========================================================================
 int main()
 {
-    // ADJUSTED TO SHOW AT BEGINNING
     startGame();
     
     init_opengl();
@@ -487,11 +488,11 @@ void render()
 
     if (g.isBackgroundMoving) {
         player.update();
-        player.render_hand();
+        player.render_player();
         player.render_hp();
     } else {
         player.pos_y = player.base_y;
-        player.render_hand();
+        player.render_player();
         player.render_hp();
     }
 

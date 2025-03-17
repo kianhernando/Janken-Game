@@ -16,17 +16,6 @@
 extern Global g;
 Box box(576, 75);
 
-Box::Box()
-{
-    width = 50;
-    height = 75;
-    pos[0] = 576/2.0f;
-    pos[1] = 0;
-    color[0] = 0;
-    color[1] = 0;
-    color[2] = 0;
-}
-
 Box::Box(float w, float h)
 {
     width = w;
@@ -40,6 +29,7 @@ Box::Box(float w, float h)
 
 Player::Player()
 {
+    // Set sprite coordinates
     tex.xc[0] = 0.0;
     tex.xc[1] = 1.0;
     tex.yc[0] = 0.0;
@@ -59,6 +49,7 @@ Player::Player()
 void Player::init(const char* imagePath)
 {
     tex.backImage = new Image(imagePath);
+
     // Call datatypes to store width and height for manipulation
     int og_w = tex.backImage->width;
     int og_h = tex.backImage->height;
@@ -68,11 +59,13 @@ void Player::init(const char* imagePath)
     xres = og_w * scale;
     yres = og_h * scale;
 
+    // Set player sprite coordinates
     base_x = 576/4 - xres/2;
     base_y = 324/2.75 - yres/2;
     pos_x = base_x;
     pos_y = base_y;
 
+    // Initalize sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -83,6 +76,7 @@ void Player::init(const char* imagePath)
 
 void Player::init_hp(int health)
 {
+    // Conditionals for player's HP amount
     if (health == 100) {
         hp.backImage = new Image("assets/playerHP/100.png");
     } else if (health == 80) {
@@ -97,6 +91,7 @@ void Player::init_hp(int health)
         hp.backImage = new Image("assets/playerHP/0.png");
     }
     
+    // Initalize health bar textures
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -106,11 +101,12 @@ void Player::init_hp(int health)
             buildAlphaData(hp.backImage));
 }
 
-void Player::render_hand()
+void Player::render_player()
 {
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Render player sprite textures
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glBegin(GL_QUADS);
@@ -132,6 +128,7 @@ void Player::render_hp()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Render health bar textures
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0);
@@ -153,6 +150,7 @@ void Player::update()
     static const float speed = 2.0f;
     static const float amplitude = 10.0f;
 
+    // Apply sinodal wave to player's original coords
     float offset = amplitude * sin(speed * time);
     pos_y = base_y + offset;
 
@@ -161,11 +159,13 @@ void Player::update()
 
 void Player::changeImage(const char* imagePath)
 {
+    // Conditional to check if player sprite is already initalized
     if (tex.backImage != nullptr) {
         delete tex.backImage;
         glDeleteTextures(1, &tex.backTexture);
     }
 
+    // Insert new sprite textures
     tex.backImage = new Image(imagePath);
     int og_w = tex.backImage->width;
     int og_h = tex.backImage->height;
@@ -177,6 +177,7 @@ void Player::changeImage(const char* imagePath)
     pos_x = base_x;
     pos_y = base_y;
 
+    // Render new sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -184,6 +185,7 @@ void Player::changeImage(const char* imagePath)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
     
+    // Set coordinates of new sprite textures
     tex.xc[0] = 0.0;
     tex.xc[1] = 1.0;
     tex.yc[0] = 0.0;
@@ -192,11 +194,13 @@ void Player::changeImage(const char* imagePath)
 
 void Player::changeHealthBar(int health)
 {
+    // Conditional to check if health bar is already initalized
     if (tex.backImage != nullptr) {
         delete hp.backImage;
         glDeleteTextures(1, &hp.backTexture);
     }
 
+    // Conditional to check player's HP amount
     if (health == 100) {
         hp.backImage = new Image("assets/playerHP/100.png");
     } else if (health == 80) {
@@ -210,7 +214,8 @@ void Player::changeHealthBar(int health)
     } else if (health == 0) {
         hp.backImage = new Image("assets/playerHP/0.png");
     }
-
+    
+    // Render health bar textures
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -222,11 +227,13 @@ void Player::changeHealthBar(int health)
 
 Enemy::Enemy()
 {
+    // Set sprite coordinates
     tex.xc[0] = 0.0;
     tex.xc[1] = 1.0;
     tex.yc[0] = 0.0;
     tex.yc[1] = 1.0;
     
+    // Empty values to be set in init();
     xres = 0;
     yres = 0;
     pos_x = 0;
@@ -239,19 +246,25 @@ Enemy::Enemy()
 
 void Enemy::init(const char* imagePath)
 {
+    
     tex.backImage = new Image(imagePath);
+    
+    // Call datatypes to store width and height
     int og_w = tex.backImage->width;
     int og_h = tex.backImage->height;
    
+    // Scale it 3x original size
     float scale = 3.0f;
     xres = og_w * scale;
     yres = og_h * scale;
 
+    // Set player sprite coordinates
     base_x = 3 * 576/4 - xres/2;
     base_y = 324/2.75 - yres/2;
     pos_x = base_x;
     pos_y = base_y;
 
+    // Initalize sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -262,6 +275,7 @@ void Enemy::init(const char* imagePath)
 
 void Enemy::init_hp() 
 {
+    // Initalize health bar textures
     hp.backImage = new Image("assets/enemyHP/100.png");
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
@@ -277,6 +291,7 @@ void Enemy::render_enemy()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+    // Render enemy sprite textures
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glBegin(GL_QUADS);
@@ -298,6 +313,7 @@ void Enemy::render_hp()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     
+    // Render health bar textures
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0, 1.0);
@@ -318,15 +334,18 @@ void Enemy::update()
     static float time = 0.0f;
     static const float speed = 2.0f;
     static const float amplitude = 10.0f;
+
+    // Set barrier to original coordinates
     static const float barrier = 3 * 576/4 - xres/2;
 
+    // Apply sinodal wave to enemy's original coordinates
     float offset = amplitude * sin(speed * time);
     pos_y = base_y + offset;
 
-    // Move left
+    // Move the enemy position left
     pos_x -= 4.0f;
 
-    // Reset position when hitting the barrier
+    // Reset position when sprite hits barrier
     if (pos_x <= barrier) {
         pos_x = 576 + xres;
     }
@@ -336,11 +355,13 @@ void Enemy::update()
 
 void Enemy::changeImage(const char* imagePath)
 {
+    // Conditional to check if enemy sprite is already initalized
     if (tex.backImage != nullptr) {
         delete tex.backImage;
         glDeleteTextures(1, &tex.backTexture);
     }
 
+    // Insert new sprite textures
     tex.backImage = new Image(imagePath);
     int og_w = tex.backImage->width;
     int og_h = tex.backImage->height;
@@ -352,6 +373,7 @@ void Enemy::changeImage(const char* imagePath)
     pos_x = base_x;
     pos_y = base_y;
 
+    // Render new sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -359,6 +381,7 @@ void Enemy::changeImage(const char* imagePath)
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
     
+    // Set coordinates of new sprite textures
     tex.xc[0] = 0.0;
     tex.xc[1] = 1.0;
     tex.yc[0] = 0.0;
@@ -367,11 +390,13 @@ void Enemy::changeImage(const char* imagePath)
 
 void Enemy::changeHealthBar(int health)
 {
+    // Conditional to check if health bar is already initalized
     if (tex.backImage != nullptr) {
         delete hp.backImage;
         glDeleteTextures(1, &hp.backTexture);
     }
 
+    // Conditional to check player's HP amount
     if (health == 100) {
         hp.backImage = new Image("assets/enemyHP/100.png");
     } else if (health == 80) {
@@ -386,6 +411,7 @@ void Enemy::changeHealthBar(int health)
         hp.backImage = new Image("assets/enemyHP/0.png");
     }
 
+    // Render health bar textures
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -397,6 +423,7 @@ void Enemy::changeHealthBar(int health)
 
 void render_box()
 {
+    // Render black box
     glColor3ub(box.color[0], box.color[1], box.color[2]);
     glPushMatrix();
     glTranslatef(box.pos[0], box.pos[1], 0.0f);
@@ -411,6 +438,7 @@ void render_box()
 
 void render_text(Rect *rec, const char* lines[], const int num_lines)
 {
+    // Set text box position
     float box_center_x = box.pos[0];
     float box_bottom = box.pos[1];
     
