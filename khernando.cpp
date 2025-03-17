@@ -68,8 +68,9 @@ void Player::init(const char* imagePath)
     xres = og_w * scale;
     yres = og_h * scale;
 
-    pos_x = 576/4 - xres/2;
+    base_x = 576/4 - xres/2;
     base_y = 324/2.75 - yres/2;
+    pos_x = base_x;
     pos_y = base_y;
 
     glGenTextures(1, &tex.backTexture);
@@ -173,7 +174,7 @@ void Player::changeImage(const char* imagePath)
     xres = og_w * scale;
     yres = og_h * scale;
 
-    pos_x = 576/4 - xres/2;
+    pos_x = base_x;
     pos_y = base_y;
 
     glGenTextures(1, &tex.backTexture);
@@ -247,7 +248,7 @@ void Enemy::init(const char* imagePath)
     yres = og_h * scale;
 
     base_x = 3 * 576/4 - xres/2;
-    base_y = 324/3 - yres/2;
+    base_y = 324/2.75 - yres/2;
     pos_x = base_x;
     pos_y = base_y;
 
@@ -331,6 +332,67 @@ void Enemy::update()
     }
 
     time += 0.1f;
+}
+
+void Enemy::changeImage(const char* imagePath)
+{
+    if (tex.backImage != nullptr) {
+        delete tex.backImage;
+        glDeleteTextures(1, &tex.backTexture);
+    }
+
+    tex.backImage = new Image(imagePath);
+    int og_w = tex.backImage->width;
+    int og_h = tex.backImage->height;
+    
+    float scale = 3.0f;
+    xres = og_w * scale;
+    yres = og_h * scale;
+
+    pos_x = base_x;
+    pos_y = base_y;
+
+    glGenTextures(1, &tex.backTexture);
+    glBindTexture(GL_TEXTURE_2D, tex.backTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
+            GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
+    
+    tex.xc[0] = 0.0;
+    tex.xc[1] = 1.0;
+    tex.yc[0] = 0.0;
+    tex.yc[1] = 1.0;
+}
+
+void Enemy::changeHealthBar(int health)
+{
+    if (tex.backImage != nullptr) {
+        delete hp.backImage;
+        glDeleteTextures(1, &hp.backTexture);
+    }
+
+    if (health == 100) {
+        hp.backImage = new Image("assets/enemyHP/100.png");
+    } else if (health == 80) {
+        hp.backImage = new Image("assets/enemyHP/80.png");
+    } else if (health == 60) {
+        hp.backImage = new Image("assets/enemyHP/60.png");
+    } else if (health == 40) {
+        hp.backImage = new Image("assets/enemyHP/40.png");
+    } else if (health == 20) {
+        hp.backImage = new Image("assets/enemyHP/20.png");
+    } else if (health == 0) {
+        hp.backImage = new Image("assets/enemyHP/0.png");
+    }
+
+    glGenTextures(1, &hp.backTexture);
+    glBindTexture(GL_TEXTURE_2D, hp.backTexture);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, 
+            hp.backImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+            buildAlphaData(hp.backImage));
 }
 
 void render_box()

@@ -108,6 +108,7 @@ public:
 
     // Temporary health for testing:
     int playerHealth;
+    int enemyHealth;
 
     Global() 
     {
@@ -119,6 +120,7 @@ public:
         currentTextState = INTRO;
 
         playerHealth = 100;
+        enemyHealth = 100;
     }
 } g;
 
@@ -370,27 +372,39 @@ int check_keys(XEvent *e)
         // Player Health Keybinds for testing purposes
         if (key == XK_2) {
             g.playerHealth = 20;
+            g.enemyHealth = 20;
             player.changeHealthBar(g.playerHealth);
+            enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_4) {
             g.playerHealth = 40;
+            g.enemyHealth = 40;
             player.changeHealthBar(g.playerHealth);
+            enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_6) {
             g.playerHealth = 60;
+            g.enemyHealth = 60;
             player.changeHealthBar(g.playerHealth);
+            enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_8) {
             g.playerHealth = 80;
+            g.enemyHealth = 80;
             player.changeHealthBar(g.playerHealth);
+            enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_0) {
             g.playerHealth = 0;
+            g.enemyHealth = 0;
             player.changeHealthBar(g.playerHealth);
+            enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_f) {
             g.playerHealth = 100;
+            g.enemyHealth = 100;
             player.changeHealthBar(g.playerHealth);
+            enemy.changeHealthBar(g.enemyHealth);
         }
 
         //Test for random gen
@@ -401,15 +415,20 @@ int check_keys(XEvent *e)
         if (!g.isBackgroundMoving) {
             if (key == XK_r) {
                 player.changeImage("assets/player/rock_x.png");
+                enemy.changeImage("assets/enemy/rock.png");
             }
             if (key == XK_p) {
                 player.changeImage("assets/player/paper_x.png");
+                enemy.changeImage("assets/enemy/paper.png");
             }
             if (key == XK_s) {
                 player.changeImage("assets/player/scissors_x.png");
+                enemy.changeImage("assets/enemy/scissors.png");
             } 
             if (key == XK_n) {
                 player.changeImage("assets/player/normal_x.png");
+                enemy.changeImage("assets/enemy/boot.png");
+
             }
         }
 
