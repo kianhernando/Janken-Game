@@ -44,6 +44,7 @@ class Enemy {
         float pos_x, pos_y;
         float base_x, base_y;
         float hp_x, hp_y;
+        bool hitBarrier;
 };
 
 // Originally from waterfall (lab 6)

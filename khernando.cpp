@@ -14,6 +14,7 @@
 #include "image.h"
 
 extern Global g;
+extern void stopBackground();
 Box box(576, 75);
 
 Box::Box(float w, float h)
@@ -174,9 +175,6 @@ void Player::changeImage(const char* imagePath)
     xres = og_w * scale;
     yres = og_h * scale;
 
-    pos_x = base_x;
-    pos_y = base_y;
-
     // Render new sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
@@ -214,7 +212,7 @@ void Player::changeHealthBar(int health)
     } else if (health == 0) {
         hp.backImage = new Image("assets/playerHP/0.png");
     }
-    
+
     // Render health bar textures
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
@@ -242,11 +240,11 @@ Enemy::Enemy()
     hp.backImage = nullptr;
     hp_x = 466;
     hp_y = 294;
+    hitBarrier = false;
 }
 
 void Enemy::init(const char* imagePath)
 {
-    
     tex.backImage = new Image(imagePath);
     
     // Call datatypes to store width and height
@@ -258,11 +256,13 @@ void Enemy::init(const char* imagePath)
     xres = og_w * scale;
     yres = og_h * scale;
 
-    // Set player sprite coordinates
-    base_x = 3 * 576/4 - xres/2;
+    // Set enemy sprite coordinates
+    base_x = 576 + xres + 100;
     base_y = 324/2.75 - yres/2;
     pos_x = base_x;
     pos_y = base_y;
+
+    hitBarrier = false;
 
     // Initalize sprite textures
     glGenTextures(1, &tex.backTexture);
@@ -335,22 +335,25 @@ void Enemy::update()
     static const float speed = 2.0f;
     static const float amplitude = 10.0f;
 
-    // Set barrier to original coordinates
+    // Set barrier
     static const float barrier = 3 * 576/4 - xres/2;
 
-    // Apply sinodal wave to enemy's original coordinates
-    float offset = amplitude * sin(speed * time);
-    pos_y = base_y + offset;
+    if (!hitBarrier) {
+        // Apply sinodal wave to enemy's original coordinates
+        float offset = amplitude * sin(speed * time);
+        pos_y = base_y + offset;
 
-    // Move the enemy position left
-    pos_x -= 4.0f;
+        // Move the enemy left from off-screen
+        pos_x -= 4.0f;
 
-    // Reset position when sprite hits barrier
-    if (pos_x <= barrier) {
-        pos_x = 576 + xres;
+        if (pos_x <= barrier) {
+            hitBarrier = true;
+            pos_x = barrier;
+            pos_y = base_y;
+        }
+
+        time += 0.1f;
     }
-
-    time += 0.1f;
 }
 
 void Enemy::changeImage(const char* imagePath)
@@ -369,9 +372,6 @@ void Enemy::changeImage(const char* imagePath)
     float scale = 3.0f;
     xres = og_w * scale;
     yres = og_h * scale;
-
-    pos_x = base_x;
-    pos_y = base_y;
 
     // Render new sprite textures
     glGenTextures(1, &tex.backTexture);
