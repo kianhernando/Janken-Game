@@ -90,6 +90,8 @@ enum TextState {
 
 Player player;
 Enemy enemy;
+int choice = 0;
+int enChoice = 0;
 
 class Global 
 {
@@ -238,7 +240,6 @@ void check_mouse(XEvent *e);
 int check_keys(XEvent *e);
 void physics(void);
 void render(void);
-extern void testFunction();
 extern void showIntroScreen();
 extern void startGame();
 
@@ -262,7 +263,6 @@ int main()
         x11.swapBuffers();
     }
     cleanup_fonts();
-    testFunction();
     return 0;
 }
 
@@ -393,6 +393,24 @@ int check_keys(XEvent *e)
         // Test for random gen
         if (key == XK_t) {
             randGen();
+        }
+        
+        // Keybinds for rock paper and scissors
+        if (key == XK_Left) {
+            choice = 0;
+            enChoice = randGen();
+            //printf("%i\n", enChoice);
+            logicSimon(choice, enChoice);
+        }
+        if (key == XK_Down) {
+            choice = 1;
+            enChoice = randGen();
+            logicSimon(choice, randGen());
+        }
+        if (key == XK_Right) {
+            choice = 2;
+            enChoice = randGen();
+            logicSimon(choice, enChoice);
         }
         
         if (!g.isBackgroundMoving) {
