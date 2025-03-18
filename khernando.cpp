@@ -257,7 +257,7 @@ void Enemy::init(const char* imagePath)
     yres = og_h * scale;
 
     // Set enemy sprite coordinates
-    base_x = 576 + xres + 100;
+    base_x = 576 + xres;
     base_y = 324/2.75 - yres/2;
     pos_x = base_x;
     pos_y = base_y;
