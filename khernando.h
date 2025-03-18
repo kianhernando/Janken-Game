@@ -13,14 +13,14 @@ class Player {
         Player();
         void init(const char* imagePath);
         void init_hp(int health);
-        void render_hand();
+        void render_player();
         void render_hp();
         void update();
         void changeImage(const char* imagePath);
         void changeHealthBar(int health);
         
         Texture tex;
-        Texture hp;  // Add health bar texture
+        Texture hp;
         int xres, yres;
         float pos_x, pos_y;
         float base_x, base_y;
@@ -62,7 +62,6 @@ void kianText(Rect *rKian);
 void controlText(Rect *rControl);
 void render_text(Rect *rec, const char* lines[], const int num_lines);
 void render_box();
-void render_player();
 
 extern const char* intro[];
 extern const char* controls[];
