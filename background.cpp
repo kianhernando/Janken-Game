@@ -341,24 +341,6 @@ int check_keys(XEvent *e)
             return 1;
         }
         
-        // Stop and Start Keybinds
-        if (key == XK_minus) {
-            // Stops background from moving
-            g.isBackgroundMoving = false;
-
-            // Force render to show stop (lag spikes when on Odin)
-            render();
-            x11.swapBuffers();
-        }
-        if (key == XK_equal) {
-            // Continues background movement
-            g.isBackgroundMoving = true;
-
-            // Force render to show stop (lag spikes when on Odin)
-            render();
-            x11.swapBuffers();
-        }
-
         // Text Keybinds
         if (key == XK_a) {
             g.currentTextState = INTRO;
@@ -408,7 +390,7 @@ int check_keys(XEvent *e)
             enemy.changeHealthBar(g.enemyHealth);
         }
 
-        //Test for random gen
+        // Test for random gen
         if (key == XK_t) {
             randGen();
         }
@@ -435,8 +417,18 @@ int check_keys(XEvent *e)
 
         // Enemy Keybinds
         if (key == XK_space) {
-            if (!g.isBackgroundMoving) {
-                g.encounterEnemy = !g.encounterEnemy;
+            g.encounterEnemy = !g.encounterEnemy;
+            
+            if (!g.encounterEnemy) {
+                enemy.hitBarrier = false;
+                enemy.pos_x = enemy.base_x;
+                enemy.pos_y = enemy.base_y;
+                g.isBackgroundMoving = true;
+                // Reset sprites to normal when movement resumes
+                player.changeImage("assets/player/normal_x.png");
+                enemy.changeImage("assets/enemy/boot.png");
+            } else {
+                g.isBackgroundMoving = false;
             }
         }
     }
@@ -445,8 +437,7 @@ int check_keys(XEvent *e)
 
 void physics()
 {
-    //move the background
-    if (g.isBackgroundMoving) {
+    if (g.isBackgroundMoving && !g.encounterEnemy) {
         g.tex.xc[0] += 0.001;
         g.tex.xc[1] += 0.001;
     }
@@ -486,27 +477,26 @@ void render()
 
     render_box();
 
-    if (g.isBackgroundMoving) {
+    if (g.isBackgroundMoving && !g.encounterEnemy) {
         player.update();
-        player.render_player();
-        player.render_hp();
     } else {
         player.pos_y = player.base_y;
-        player.render_player();
-        player.render_hp();
     }
+    player.render_player();
+    player.render_hp();
 
     if (g.encounterEnemy) {
-        if (!g.isBackgroundMoving) {
-            enemy.pos_x = enemy.base_x;
-            enemy.pos_y = enemy.base_y;
-            enemy.render_enemy();
-            enemy.render_hp();
-        } else {
+        if (!enemy.hitBarrier) {
             enemy.update();
-            enemy.render_enemy();
-            enemy.render_hp();
+        } else {
+            enemy.pos_y = enemy.base_y;
         }
+        enemy.render_enemy();
+        enemy.render_hp();
+    } else {
+        enemy.hitBarrier = false;
+        enemy.pos_x = enemy.base_x;
+        enemy.pos_y = enemy.base_y;
     }
 
     Rect rKian;
@@ -562,7 +552,7 @@ void render()
             render_text(&rec, intro, 3);
             break;
         case CONTROLS:
-            render_text(&rec, controls, 5);
+            render_text(&rec, controls, 4);
             break;
         case NONE:
             break;
