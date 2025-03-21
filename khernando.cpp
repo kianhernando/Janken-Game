@@ -436,6 +436,18 @@ void render_box()
     glPopMatrix();
 }
 
+const char* intro[] = {
+    "HI MY NAME IS HANDEL!",
+    "THIS IS MY DEBUT GAME!", 
+    "IT IS CALLED JANKEN!"
+};
+
+const char* controls[] = {
+    "PRESS 'M' TO SHOW CONTRIBUTORS", 
+    "PRESS 'SPACE' TO SHOW ENEMY (WILL AUTOMATICALLY STOP BACKGROUND)",
+    "PRESS 'R', 'P', OR 'S' FOR ROCK-PAPER-SCISSORS, 'N' FOR NORMAL"
+};
+
 void render_text(Rect *rec, const char* lines[], const int num_lines)
 {
     // Set text box position

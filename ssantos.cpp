@@ -34,14 +34,14 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
 {
     if (choice == ROCK) {
         if (enChoice == 1) {
-            printf("Player Wins! Enemy loses 10 HP!\n");
+            printf("Player Wins! Enemy loses 20 HP!\n");
             eHealth -= 20;
             printf("%i\n", eHealth);
             enemy.changeHealthBar(eHealth);
             fflush(stdout);
         }
         if (enChoice == 2) {
-            printf("Player Loses! Player loses 10 HP!\n");
+            printf("Player Loses! Player loses 20 HP!\n");
             pHealth -= 20;
             printf("%i\n", pHealth);
             player.changeHealthBar(pHealth);
@@ -54,11 +54,11 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
     }
     if (choice == PAPER) {
         if (enChoice == 0) {
-            printf("Player Wins! Enemy loses 10 HP!\n");
+            printf("Player Wins! Enemy loses 20 HP!\n");
             fflush(stdout);
         }
         if (enChoice == 2) {
-            printf("Player Loses! Player loses 10 HP!\n");
+            printf("Player Loses! Player loses 20 HP!\n");
             fflush(stdout);
         }
         if (enChoice == choice) {
@@ -68,11 +68,11 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
     }
     if (choice == SCISSORS) {
         if (enChoice == 1) {
-            printf("Player Wins! Enemy loses 10 HP!\n");
+            printf("Player Wins! Enemy loses 20 HP!\n");
             fflush(stdout);
         }
         if (enChoice == 0) {
-            printf("Player Loses! Player loses 10 HP!\n");
+            printf("Player Loses! Player loses 20 HP!\n");
             fflush(stdout);
         }
         if (enChoice == choice) {
