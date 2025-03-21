@@ -1,37 +1,58 @@
 // Original author: Simon Santos
 // Date: March 08, 2025
 #include <cstdio>
+#include <GL/gl.h>
 #include <ctime>
 #include <cstdlib>
 #include <iostream>
 #include <random>
 #include "ssantos.h"
+#include "khernando.h"
 
+extern Global g;
+extern Player player;
+extern Enemy enemy;
+extern void init_hp(int health);
+extern void changeHealthBar(int health);
 std::random_device rd;
 std::mt19937 gen(rd());
+
+/*
+class entityHealth {
+    public:
+        int userHealth = 100;
+        int oppHealth = 100;
+} e;
+*/
 
 void simonText(Rect *rSimon)
 {
     ggprint8b(rSimon, 16, 0xffffff, "Simon");
 }
 
-int logicSimon(int choice, int enChoice) 
+int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth) 
 {
-    if (choice == 0) {
+    if (choice == ROCK) {
         if (enChoice == 1) {
             printf("Player Wins! Enemy loses 10 HP!\n");
+            eHealth -= 20;
+            printf("%i\n", eHealth);
+            enemy.changeHealthBar(eHealth);
             fflush(stdout);
         }
         if (enChoice == 2) {
             printf("Player Loses! Player loses 10 HP!\n");
+            pHealth -= 20;
+            printf("%i\n", pHealth);
+            player.changeHealthBar(pHealth);
             fflush(stdout);
         }
         if (enChoice == choice) {
-            printf("Tie! Both lose 10 HP!\n");
+            printf("Tie! Nothing happens!\n");
             fflush(stdout);
         }
     }
-    if (choice == 1) {
+    if (choice == PAPER) {
         if (enChoice == 0) {
             printf("Player Wins! Enemy loses 10 HP!\n");
             fflush(stdout);
@@ -41,11 +62,11 @@ int logicSimon(int choice, int enChoice)
             fflush(stdout);
         }
         if (enChoice == choice) {
-            printf("Tie! Both lose 10 HP!\n");
+            printf("Tie! Nothing happens!\n");
             fflush(stdout);
         }
     }
-    if (choice == 2) {
+    if (choice == SCISSORS) {
         if (enChoice == 1) {
             printf("Player Wins! Enemy loses 10 HP!\n");
             fflush(stdout);
@@ -55,7 +76,7 @@ int logicSimon(int choice, int enChoice)
             fflush(stdout);
         }
         if (enChoice == choice) {
-            printf("Tie! Both lose 10 HP!\n");
+            printf("Tie! Nothing happens!\n");
             fflush(stdout);
         }
     }

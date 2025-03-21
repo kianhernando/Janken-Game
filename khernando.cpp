@@ -149,7 +149,7 @@ void Player::update()
 {
     static float time = 0.0f;
     static const float speed = 2.0f;
-    static const float amplitude = 10.0f;
+    static const float amplitude = 5.0f;
 
     // Apply sinodal wave to player's original coords
     float offset = amplitude * sin(speed * time);

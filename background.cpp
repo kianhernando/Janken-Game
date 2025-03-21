@@ -70,7 +70,8 @@
 // };
 
 // Temporary image for game
-// URL: https://opengameart.org/content/simple-natural-landscape-pixel-art-background
+// URL: 
+// https://opengameart.org/content/simple-natural-landscape-pixel-art-background
 Image img[1] = {"./assets/landscape.jpg"};
 
 // MOVED TEXTURE CLASS TO TEXTURE.H
@@ -137,7 +138,8 @@ private:
 public:
     X11_wrapper() 
     {
-        GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, None };
+        GLint att[] = { GLX_RGBA, GLX_DEPTH_SIZE, 24, GLX_DOUBLEBUFFER, 
+            None };
         setup_screen_res(576, 324);
         dpy = XOpenDisplay(NULL);
         if (dpy == NULL) {
@@ -154,7 +156,8 @@ public:
         XSetWindowAttributes swa;
         swa.colormap = cmap;
         swa.event_mask =
-            ExposureMask | KeyPressMask | KeyReleaseMask | PointerMotionMask |
+            ExposureMask | KeyPressMask | KeyReleaseMask | 
+            PointerMotionMask |
             ButtonPressMask | ButtonReleaseMask |
             StructureNotifyMask | SubstructureNotifyMask;
         win = XCreateWindow(dpy, root, 0, 0, g.xres, g.yres, 0,
@@ -224,7 +227,8 @@ public:
 
     void check_resize(XEvent *e) 
     {
-        //The ConfigureNotify is sent by the server if the window is resized.
+        //The ConfigureNotify is sent by 
+        //the server if the window is resized.
         if (e->type != ConfigureNotify)
             return;
         XConfigureEvent xce = e->xconfigure;
@@ -243,8 +247,8 @@ void render(void);
 extern void showIntroScreen();
 extern void startGame();
 
-//===========================================================================
-//===========================================================================
+//==========================================================================
+//==========================================================================
 int main()
 {
     startGame();
@@ -397,21 +401,23 @@ int check_keys(XEvent *e)
         
         // Keybinds for rock paper and scissors
         if (key == XK_Left) {
-            choice = 0;
+            choice = ROCK;
             enChoice = randGen();
             //printf("%i\n", enChoice);
-            logicSimon(choice, enChoice);
+            logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
         }
+        /*
         if (key == XK_Down) {
-            choice = 1;
+            choice = PAPER;
             enChoice = randGen();
             logicSimon(choice, randGen());
         }
         if (key == XK_Right) {
-            choice = 2;
+            choice = SCISSORS;
             enChoice = randGen();
             logicSimon(choice, enChoice);
         }
+        */
         
         if (!g.isBackgroundMoving) {
             if (key == XK_r) {
