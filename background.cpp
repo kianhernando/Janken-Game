@@ -93,6 +93,8 @@ Player player;
 Enemy enemy;
 int choice = 0;
 int enChoice = 0;
+static float moving = 10.0f;
+static float idle = 2.0f;
 
 class Global 
 {
@@ -494,18 +496,20 @@ void render()
     render_box();
 
     if (g.isBackgroundMoving && !g.encounterEnemy) {
-        player.update();
+        player.update(moving);
     } else {
         player.pos_y = player.base_y;
+        player.update(idle);
     }
     player.render_player();
     player.render_hp();
 
     if (g.encounterEnemy) {
         if (!enemy.hitBarrier) {
-            enemy.update();
+            enemy.update(moving);
         } else {
             enemy.pos_y = enemy.base_y;
+            enemy.update(idle);
         }
         enemy.render_enemy();
         enemy.render_hp();

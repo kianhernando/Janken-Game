@@ -145,11 +145,10 @@ void Player::render_hp()
     glDisable(GL_BLEND);
 }
 
-void Player::update()
+void Player::update(float amplitude)
 {
     static float time = 0.0f;
     static const float speed = 2.0f;
-    static const float amplitude = 5.0f;
 
     // Apply sinodal wave to player's original coords
     float offset = amplitude * sin(speed * time);
@@ -329,29 +328,27 @@ void Enemy::render_hp()
     glDisable(GL_BLEND);
 }
 
-void Enemy::update()
+void Enemy::update(float amplitude)
 {
     static float time = 0.0f;
     static const float speed = 2.0f;
-    static const float amplitude = 10.0f;
-
     // Set barrier
     static const float barrier = 3 * 576/4 - xres/2;
 
-    if (!hitBarrier) {
-        // Apply sinodal wave to enemy's original coordinates
-        float offset = amplitude * sin(speed * time);
-        pos_y = base_y + offset;
+    float offset = amplitude * sin(speed * time);
+    pos_y = base_y + offset;
 
+    if (!hitBarrier) {
         // Move the enemy left from off-screen
         pos_x -= 4.0f;
 
         if (pos_x <= barrier) {
             hitBarrier = true;
             pos_x = barrier;
-            pos_y = base_y;
         }
 
+        time += 0.1f;
+    } else {
         time += 0.1f;
     }
 }
