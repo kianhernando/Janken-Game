@@ -405,24 +405,27 @@ int check_keys(XEvent *e)
                 if (key == XK_r) {
                     choice = ROCK;
                     enChoice = randGen();
-                    player.changeImage("assets/player/rock_x.png");
-                    enemy.changeImage("assets/enemy/rock.png");
+                    //player.changeImage("assets/player/rock_x.png");
+                    //enemy.changeImage("assets/enemy/rock.png");                    
                     logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                    usleep(700000);                
                 }
                 
                 if (key == XK_p) {
                     choice = PAPER;
                     enChoice = randGen();
-                    player.changeImage("assets/player/paper_x.png");
-                    enemy.changeImage("assets/enemy/paper.png");
+                    //player.changeImage("assets/player/paper_x.png");
+                    //enemy.changeImage("assets/enemy/paper.png");
                     logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                    usleep(700000);
                 }
                 if (key == XK_s) {
                     choice = SCISSORS;
                     enChoice = randGen();
-                    player.changeImage("assets/player/scissors_x.png");
-                    enemy.changeImage("assets/enemy/scissors.png");
+                    //player.changeImage("assets/player/scissors_x.png");
+                    //enemy.changeImage("assets/enemy/scissors.png");
                     logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                    usleep(700000);
                 }
                 if (key == XK_n) {
                     player.changeImage("assets/player/normal_x.png");
