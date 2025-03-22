@@ -398,44 +398,36 @@ int check_keys(XEvent *e)
         if (key == XK_t) {
             randGen();
         }
-        
-        // Keybinds for rock paper and scissors
-        if (key == XK_Left) {
-            choice = ROCK;
-            enChoice = randGen();
-            //printf("%i\n", enChoice);
-            logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
-        }
-        /*
-        if (key == XK_Down) {
-            choice = PAPER;
-            enChoice = randGen();
-            logicSimon(choice, randGen());
-        }
-        if (key == XK_Right) {
-            choice = SCISSORS;
-            enChoice = randGen();
-            logicSimon(choice, enChoice);
-        }
-        */
-        
+    
         if (!g.isBackgroundMoving) {
-            if (key == XK_r) {
-                player.changeImage("assets/player/rock_x.png");
-                enemy.changeImage("assets/enemy/rock.png");
-            }
-            if (key == XK_p) {
-                player.changeImage("assets/player/paper_x.png");
-                enemy.changeImage("assets/enemy/paper.png");
-            }
-            if (key == XK_s) {
-                player.changeImage("assets/player/scissors_x.png");
-                enemy.changeImage("assets/enemy/scissors.png");
-            } 
-            if (key == XK_n) {
-                player.changeImage("assets/player/normal_x.png");
-                enemy.changeImage("assets/enemy/boot.png");
-
+            // Keybinds for rock paper and scissors
+            if (g.playerHealth != 0 && g.enemyHealth != 0) {
+                if (key == XK_r) {
+                    choice = ROCK;
+                    enChoice = randGen();
+                    player.changeImage("assets/player/rock_x.png");
+                    enemy.changeImage("assets/enemy/rock.png");
+                    logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                }
+                
+                if (key == XK_p) {
+                    choice = PAPER;
+                    enChoice = randGen();
+                    player.changeImage("assets/player/paper_x.png");
+                    enemy.changeImage("assets/enemy/paper.png");
+                    logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                }
+                if (key == XK_s) {
+                    choice = SCISSORS;
+                    enChoice = randGen();
+                    player.changeImage("assets/player/scissors_x.png");
+                    enemy.changeImage("assets/enemy/scissors.png");
+                    logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                }
+                if (key == XK_n) {
+                    player.changeImage("assets/player/normal_x.png");
+                    enemy.changeImage("assets/enemy/boot.png");
+                }
             }
         }
 
@@ -576,7 +568,7 @@ void render()
             render_text(&rec, intro, 3);
             break;
         case CONTROLS:
-            render_text(&rec, controls, 4);
+            render_text(&rec, controls, 3);
             break;
         case NONE:
             break;
