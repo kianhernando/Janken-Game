@@ -1,6 +1,7 @@
 // Original author: Simon Santos
 // Date: March 08, 2025
 #include <cstdio>
+#include <unistd.h>
 #include <GL/gl.h>
 #include <ctime>
 #include <cstdlib>
@@ -16,14 +17,6 @@ extern void init_hp(int health);
 extern void changeHealthBar(int health);
 std::random_device rd;
 std::mt19937 gen(rd());
-
-/*
-class entityHealth {
-    public:
-        int userHealth = 100;
-        int oppHealth = 100;
-} e;
-*/
 
 void simonText(Rect *rSimon)
 {
@@ -104,6 +97,7 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
         }
     }
     printf("\n");
+    usleep(700000);
     return 0;
 }
 
