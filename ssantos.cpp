@@ -68,6 +68,7 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
             fflush(stdout);
         }
         if (enChoice == choice) {
+            enemy.changeImage("assets/enemy/paper.png");
             printf("Tie! Nothing happens!\n");
             fflush(stdout);
         }

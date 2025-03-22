@@ -15,7 +15,7 @@ class Player {
         void init_hp(int health);
         void render_player();
         void render_hp();
-        void update();
+        void update(float amplitude);
         void changeImage(const char* imagePath);
         void changeHealthBar(int health);
         
@@ -34,7 +34,7 @@ class Enemy {
         void init_hp();
         void render_enemy();
         void render_hp();
-        void update();
+        void update(float amplitude);
         void changeImage(const char* imagePath);
         void changeHealthBar(int health);
 
