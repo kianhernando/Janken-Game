@@ -34,22 +34,20 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
             printf("%i\n", eHealth);
             enemy.changeHealthBar(eHealth);
             fflush(stdout);
-        }
-        if (enChoice == 1) {
+        } else if (enChoice == 1) {
             enemy.changeImage("assets/enemy/paper.png");
             printf("Player Loses! Player loses 10 HP!\n");
             pHealth -= 10;
             printf("%i\n", pHealth);
             player.changeHealthBar(pHealth);
             fflush(stdout);
-        }
-        if (enChoice == choice) {
+        } else if (enChoice == choice) {
             enemy.changeImage("assets/enemy/rock.png");
             printf("Tie! Nothing happens!\n");
             fflush(stdout);
         }
     }
-    if (choice == PAPER) {
+    else if (choice == PAPER) {
         player.changeImage("assets/player/paper_x.png");
         if (enChoice == 0) {
             enemy.changeImage("assets/enemy/rock.png");
@@ -58,22 +56,19 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
             printf("%i\n", eHealth);
             enemy.changeHealthBar(eHealth);
             fflush(stdout);
-        }
-        if (enChoice == 2) {
+        } else if (enChoice == 2) {
             enemy.changeImage("assets/enemy/scissors.png");
             printf("Player Loses! Player loses 10 HP!\n");
             pHealth -= 10;
             printf("%i\n", pHealth);
             player.changeHealthBar(pHealth);
             fflush(stdout);
-        }
-        if (enChoice == choice) {
+        } else if (enChoice == choice) {
             enemy.changeImage("assets/enemy/paper.png");
             printf("Tie! Nothing happens!\n");
             fflush(stdout);
         }
-    }
-    if (choice == SCISSORS) {
+    } else if (choice == SCISSORS) {
         player.changeImage("assets/player/scissors_x.png");
         if (enChoice == 1) {
             enemy.changeImage("assets/enemy/paper.png");
@@ -82,16 +77,14 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
             printf("%i\n", eHealth);
             enemy.changeHealthBar(eHealth);
             fflush(stdout);
-        }
-        if (enChoice == 0) {
+        } else if (enChoice == 0) {
             enemy.changeImage("assets/enemy/rock.png");
             printf("Player Loses! Player loses 10 HP!\n");
             pHealth -= 10;
             printf("%i\n", pHealth);
             player.changeHealthBar(pHealth);
             fflush(stdout);
-        }
-        if (enChoice == choice) {
+        } else if (enChoice == choice) {
             enemy.changeImage("assets/enemy/scissors.png");
             printf("Tie! Nothing happens!\n");
             fflush(stdout);
