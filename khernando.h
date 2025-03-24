@@ -22,6 +22,7 @@ class Player {
         Texture tex;
         Texture hp;
         int xres, yres;
+        int hp_xres, hp_yres;
         float pos_x, pos_y;
         float base_x, base_y;
         float hp_x, hp_y;
@@ -41,6 +42,7 @@ class Enemy {
         Texture tex;
         Texture hp;
         int xres, yres;
+        int hp_xres, hp_yres;
         float pos_x, pos_y;
         float base_x, base_y;
         float hp_x, hp_y;
@@ -59,10 +61,13 @@ class Box {
 };
 
 extern Box box;
+extern Box topBox;
+void render_box();
+void render_top();
+
 void kianText(Rect *rKian);
 void controlText(Rect *rControl);
-void render_text(Rect *rec, const char* lines[], const int num_lines);
-void render_box();
 
 extern const char* intro[];
 extern const char* controls[];
+void render_text(Rect *rec, const char* lines[], const int num_lines);

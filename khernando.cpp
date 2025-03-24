@@ -16,6 +16,7 @@
 extern Global g;
 extern void stopBackground();
 Box box(576, 75);
+Box top(576, 40);
 
 Box::Box(float w, float h)
 {
@@ -43,6 +44,8 @@ Player::Player()
     pos_y = 0;
     tex.backImage = nullptr;
     hp.backImage = nullptr;
+    hp_xres = 0;
+    hp_yres = 0;
     hp_x = 10;
     hp_y = 294;
 }
@@ -52,13 +55,13 @@ void Player::init(const char* imagePath)
     tex.backImage = new Image(imagePath);
 
     // Call datatypes to store width and height for manipulation
-    int og_w = tex.backImage->width;
-    int og_h = tex.backImage->height;
+    int image_width = tex.backImage->width;
+    int image_height = tex.backImage->height;
     
     // Scale it 3x original size
     float scale = 3.0f;
-    xres = og_w * scale;
-    yres = og_h * scale;
+    xres = image_width * scale;
+    yres = image_height * scale;
 
     // Set player sprite coordinates
     base_x = 576/4 - xres/2;
@@ -71,26 +74,21 @@ void Player::init(const char* imagePath)
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
 }
 
 void Player::init_hp(int health)
 {
-    // Conditionals for player's HP amount
-    if (health == 100) {
-        hp.backImage = new Image("assets/playerHP/100.png");
-    } else if (health == 80) {
-        hp.backImage = new Image("assets/playerHP/80.png");
-    } else if (health == 60) {
-        hp.backImage = new Image("assets/playerHP/60.png");
-    } else if (health == 40) {
-        hp.backImage = new Image("assets/playerHP/40.png");
-    } else if (health == 20) {
-        hp.backImage = new Image("assets/playerHP/20.png");
-    } else if (health == 0) {
-        hp.backImage = new Image("assets/playerHP/0.png");
-    }
+    hp.backImage = new Image("assets/health/100.png");
+
+    int image_width = hp.backImage->width;
+    int image_height = hp.backImage->height;
+    
+    // Scale it 3x original size
+    float scale = 3.0f;
+    hp_xres = image_width * scale;
+    hp_yres = image_height * scale;
     
     // Initalize health bar textures
     glGenTextures(1, &hp.backTexture);
@@ -135,11 +133,11 @@ void Player::render_hp()
     glTexCoord2f(0.0, 1.0);
     glVertex2i(hp_x, hp_y);
     glTexCoord2f(0.0, 0.0);
-    glVertex2i(hp_x, hp_y + 20);
+    glVertex2i(hp_x, hp_y + hp_yres);
     glTexCoord2f(1.0, 0.0);
-    glVertex2i(hp_x + 100, hp_y + 20);
+    glVertex2i(hp_x + hp_xres, hp_y + hp_yres);
     glTexCoord2f(1.0, 1.0);
-    glVertex2i(hp_x + 100, hp_y);
+    glVertex2i(hp_x + hp_xres, hp_y);
     glEnd();
 
     glDisable(GL_BLEND);
@@ -167,19 +165,19 @@ void Player::changeImage(const char* imagePath)
 
     // Insert new sprite textures
     tex.backImage = new Image(imagePath);
-    int og_w = tex.backImage->width;
-    int og_h = tex.backImage->height;
+    int image_width = tex.backImage->width;
+    int image_height = tex.backImage->height;
     
     float scale = 3.0f;
-    xres = og_w * scale;
-    yres = og_h * scale;
+    xres = image_width * scale;
+    yres = image_height * scale;
 
     // Render new sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
     
     // Set coordinates of new sprite textures
@@ -199,17 +197,27 @@ void Player::changeHealthBar(int health)
 
     // Conditional to check player's HP amount
     if (health == 100) {
-        hp.backImage = new Image("assets/playerHP/100.png");
+        hp.backImage = new Image("assets/health/100.png");
+    } else if (health == 90) {
+        hp.backImage = new Image("assets/health/90.png");
     } else if (health == 80) {
-        hp.backImage = new Image("assets/playerHP/80.png");
+        hp.backImage = new Image("assets/health/80.png");
+    } else if (health == 70) {
+        hp.backImage = new Image("assets/health/70.png");
     } else if (health == 60) {
-        hp.backImage = new Image("assets/playerHP/60.png");
+        hp.backImage = new Image("assets/health/60.png");
+    } else if (health == 50) {
+        hp.backImage = new Image("assets/health/50.png");
     } else if (health == 40) {
-        hp.backImage = new Image("assets/playerHP/40.png");
+        hp.backImage = new Image("assets/health/40.png");
+    } else if (health == 30) {
+        hp.backImage = new Image("assets/health/30.png");
     } else if (health == 20) {
-        hp.backImage = new Image("assets/playerHP/20.png");
+        hp.backImage = new Image("assets/health/20.png");
+    } else if (health == 10) {
+        hp.backImage = new Image("assets/health/10.png");
     } else if (health == 0) {
-        hp.backImage = new Image("assets/playerHP/0.png");
+        hp.backImage = new Image("assets/health/0.png");
     }
 
     // Render health bar textures
@@ -237,7 +245,9 @@ Enemy::Enemy()
     pos_y = 0;
     tex.backImage = nullptr;
     hp.backImage = nullptr;
-    hp_x = 466;
+    hp_xres = 0;
+    hp_yres = 0;
+    hp_x = 449;
     hp_y = 294;
     hitBarrier = false;
 }
@@ -247,13 +257,13 @@ void Enemy::init(const char* imagePath)
     tex.backImage = new Image(imagePath);
     
     // Call datatypes to store width and height
-    int og_w = tex.backImage->width;
-    int og_h = tex.backImage->height;
+    int image_width = tex.backImage->width;
+    int image_height = tex.backImage->height;
    
     // Scale it 3x original size
     float scale = 3.0f;
-    xres = og_w * scale;
-    yres = og_h * scale;
+    xres = image_width * scale;
+    yres = image_height * scale;
 
     // Set enemy sprite coordinates
     base_x = 576 + xres;
@@ -268,20 +278,29 @@ void Enemy::init(const char* imagePath)
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
 }
 
 void Enemy::init_hp() 
 {
+    hp.backImage = new Image("assets/health/100.png");
+
+    int image_width = hp.backImage->width;
+    int image_height = hp.backImage->height;
+    
+    // Scale it 3x original size
+    float scale = 3.0f;
+    hp_xres = image_width * scale;
+    hp_yres = image_height * scale;
+    
     // Initalize health bar textures
-    hp.backImage = new Image("assets/enemyHP/100.png");
     glGenTextures(1, &hp.backTexture);
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, hp.backImage->width, 
-            hp.backImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+            hp.backImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
             buildAlphaData(hp.backImage));
 }
 
@@ -315,14 +334,14 @@ void Enemy::render_hp()
     // Render health bar textures
     glBindTexture(GL_TEXTURE_2D, hp.backTexture);
     glBegin(GL_QUADS);
-    glTexCoord2f(0.0, 1.0);
-    glVertex2i(hp_x, hp_y);
-    glTexCoord2f(0.0, 0.0);
-    glVertex2i(hp_x, hp_y + 20);
-    glTexCoord2f(1.0, 0.0);
-    glVertex2i(hp_x + 100, hp_y + 20);
     glTexCoord2f(1.0, 1.0);
-    glVertex2i(hp_x + 100, hp_y);
+    glVertex2i(hp_x, hp_y);
+    glTexCoord2f(1.0, 0.0);
+    glVertex2i(hp_x, hp_y + hp_yres);
+    glTexCoord2f(0.0, 0.0);
+    glVertex2i(hp_x + hp_xres, hp_y + hp_yres);
+    glTexCoord2f(0.0, 1.0);
+    glVertex2i(hp_x + hp_xres, hp_y);
     glEnd();
 
     glDisable(GL_BLEND);
@@ -363,19 +382,19 @@ void Enemy::changeImage(const char* imagePath)
 
     // Insert new sprite textures
     tex.backImage = new Image(imagePath);
-    int og_w = tex.backImage->width;
-    int og_h = tex.backImage->height;
+    int image_width = tex.backImage->width;
+    int image_height = tex.backImage->height;
     
     float scale = 3.0f;
-    xres = og_w * scale;
-    yres = og_h * scale;
+    xres = image_width * scale;
+    yres = image_height * scale;
 
     // Render new sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, og_w, og_h, 0,
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0,
             GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
     
     // Set coordinates of new sprite textures
@@ -395,17 +414,27 @@ void Enemy::changeHealthBar(int health)
 
     // Conditional to check player's HP amount
     if (health == 100) {
-        hp.backImage = new Image("assets/enemyHP/100.png");
+        hp.backImage = new Image("assets/health/100.png");
+    } else if (health == 90) {
+        hp.backImage = new Image("assets/health/90.png");
     } else if (health == 80) {
-        hp.backImage = new Image("assets/enemyHP/80.png");
+        hp.backImage = new Image("assets/health/80.png");
+    } else if (health == 70) {
+        hp.backImage = new Image("assets/health/70.png");
     } else if (health == 60) {
-        hp.backImage = new Image("assets/enemyHP/60.png");
+        hp.backImage = new Image("assets/health/60.png");
+    } else if (health == 50) {
+        hp.backImage = new Image("assets/health/50.png");
     } else if (health == 40) {
-        hp.backImage = new Image("assets/enemyHP/40.png");
+        hp.backImage = new Image("assets/health/40.png");
+    } else if (health == 30) {
+        hp.backImage = new Image("assets/health/30.png");
     } else if (health == 20) {
-        hp.backImage = new Image("assets/enemyHP/20.png");
+        hp.backImage = new Image("assets/health/20.png");
+    } else if (health == 10) {
+        hp.backImage = new Image("assets/health/10.png");
     } else if (health == 0) {
-        hp.backImage = new Image("assets/enemyHP/0.png");
+        hp.backImage = new Image("assets/health/0.png");
     }
 
     // Render health bar textures
@@ -429,6 +458,20 @@ void render_box()
     glVertex2f(-box.width/2, box.height);
     glVertex2f(box.width/2, box.height);
     glVertex2f(box.width/2, 0);
+    glEnd();
+    glPopMatrix();
+}
+
+void render_top()
+{
+    glColor3ub(top.color[0], top.color[1], top.color[2]);
+    glPushMatrix();
+    glTranslatef(top.pos[0], 324 - top.height, 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(-top.width/2, 0);
+    glVertex2f(-top.width/2, top.height);
+    glVertex2f(top.width/2, top.height);
+    glVertex2f(top.width/2, 0);
     glEnd();
     glPopMatrix();
 }
