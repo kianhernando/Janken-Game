@@ -494,6 +494,7 @@ void render()
     glEnd();
 
     render_box();
+    render_top();
 
     if (g.isBackgroundMoving && !g.encounterEnemy) {
         player.update(moving);
@@ -563,7 +564,7 @@ void render()
 
     Rect rControl;
     rControl.left = g.xres/2;
-    rControl.bot = g.yres - 20;
+    rControl.bot = g.yres - 25;
     rControl.center = 1;
     controlText(&rControl);
 
