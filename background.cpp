@@ -494,7 +494,6 @@ void render()
     glEnd();
 
     render_box();
-    render_top();
 
     if (g.isBackgroundMoving && !g.encounterEnemy) {
         player.update(moving);
@@ -502,10 +501,12 @@ void render()
         player.pos_y = player.base_y;
         player.update(idle);
     }
+
     player.render_player();
-    player.render_hp();
 
     if (g.encounterEnemy) {
+        render_top();
+        enemy.update(moving);
         if (!enemy.hitBarrier) {
             enemy.update(moving);
         } else {
@@ -514,7 +515,10 @@ void render()
         }
         enemy.render_enemy();
         enemy.render_hp();
+        player.render_hp();
     } else {
+        g.playerHealth = 100;
+        player.changeHealthBar(g.playerHealth);
         enemy.hitBarrier = false;
         enemy.pos_x = enemy.base_x;
         enemy.pos_y = enemy.base_y;
