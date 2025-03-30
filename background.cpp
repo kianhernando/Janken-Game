@@ -110,6 +110,9 @@ public:
     // Boolean check for name appearance
     bool showMembers;
 
+    // boolean check for credits screen
+    bool showCreditsScreen = false;
+
     // Use enum to track state
     TextState currentTextState;
 
@@ -287,7 +290,7 @@ void init_opengl(void)
     glClearColor(1.0, 1.0, 1.0, 1.0);
     //glClear(GL_COLOR_BUFFER_BIT);
     //Do this to allow texture maps
-    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_TEXTURE_2D);glClearColor(0.0, 0.0, 0.0, 0.0);
     //
     //load the images file into a ppm structure.
     //
@@ -356,6 +359,9 @@ int check_keys(XEvent *e)
         }
         if (key == XK_c) {
             g.currentTextState = CONTROLS;
+        }
+        if (key == XK_z) {
+            g.showCreditsScreen = !g.showCreditsScreen;
         }
 
         // Player Health Keybinds for testing purposes
@@ -462,124 +468,134 @@ void physics()
 }
 
 void render()
-{   
-    static bool isPlayerInit = false;
-    if (!isPlayerInit) {
-        player.init("assets/player/normal_x.png");
-        player.init_hp(g.playerHealth);
-        isPlayerInit = true;
-    }
-
-    static bool isEnemyInit = false;
-    if (!isEnemyInit) {
-        enemy.init("assets/enemy/boot.png");
-        enemy.init_hp();
-        isEnemyInit = true;
-    }
-    
-    glClear(GL_COLOR_BUFFER_BIT);
-    
-    // Render background first
-    glColor3f(1.0, 1.0, 1.0);
-    glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
-    glBegin(GL_QUADS);
-        glTexCoord2f(g.tex.xc[0], g.tex.yc[1]);
-        glVertex2i(0, 0);
-        glTexCoord2f(g.tex.xc[0], g.tex.yc[0]);
-        glVertex2i(0, g.yres);
-        glTexCoord2f(g.tex.xc[1], g.tex.yc[0]);
-        glVertex2i(g.xres, g.yres);
-        glTexCoord2f(g.tex.xc[1], g.tex.yc[1]);
-        glVertex2i(g.xres, 0);
-    glEnd();
-
-    render_box();
-
-    if (g.isBackgroundMoving && !g.encounterEnemy) {
-        player.update(moving);
+{
+    if (g.showCreditsScreen == true) {
+        creditsScreen();
     } else {
-        player.pos_y = player.base_y;
-        player.update(idle);
-    }
+            creditsScreenReset();
+            glClearColor(1.0, 1.0, 1.0, 1.0); /* added so it sets the
+                                              background color back 
+                                              to white */
+        
+            static bool isPlayerInit = false;
+            if (!isPlayerInit) {
+                player.init("assets/player/normal_x.png");
+                player.init_hp(g.playerHealth);
+                isPlayerInit = true;
+            }
+        
+            static bool isEnemyInit = false;
+            if (!isEnemyInit) {
+                enemy.init("assets/enemy/boot.png");
+                enemy.init_hp();
+                isEnemyInit = true;
+            }
+            
+            glClear(GL_COLOR_BUFFER_BIT);
+            
+            // Render background first
+            glColor3f(1.0, 1.0, 1.0);
+            glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
+            glBegin(GL_QUADS);
+                glTexCoord2f(g.tex.xc[0], g.tex.yc[1]);
+                glVertex2i(0, 0);
+                glTexCoord2f(g.tex.xc[0], g.tex.yc[0]);
+                glVertex2i(0, g.yres);
+                glTexCoord2f(g.tex.xc[1], g.tex.yc[0]);
+                glVertex2i(g.xres, g.yres);
+                glTexCoord2f(g.tex.xc[1], g.tex.yc[1]);
+                glVertex2i(g.xres, 0);
+            glEnd();
+        
+            render_box();
+        
+            if (g.isBackgroundMoving && !g.encounterEnemy) {
+                player.update(moving);
+            } else {
+                player.pos_y = player.base_y;
+                player.update(idle);
+            }
+        
+            player.render_player();
+        
+            if (g.encounterEnemy) {
+                render_top();
+                enemy.update(moving);
+                if (!enemy.hitBarrier) {
+                    enemy.update(moving);
+                } else {
+                    enemy.pos_y = enemy.base_y;
+                    enemy.update(idle);
+                }
+                enemy.render_enemy();
+                enemy.render_hp();
+                player.render_hp();
+            } else {
+                g.playerHealth = 100;
+                player.changeHealthBar(g.playerHealth);
+                enemy.hitBarrier = false;
+                enemy.pos_x = enemy.base_x;
+                enemy.pos_y = enemy.base_y;
+            }
+        
+            Rect rKian;
+            rKian.bot = g.yres - 20;
+            rKian.left = 520;
+            rKian.center = 0;
+            if (g.showMembers == true) {
+                kianText(&rKian);
+            }
+        
+            Rect rSimon;
+            rSimon.bot = g.yres - 35;
+            rSimon.left = 520;
+            rSimon.center = 0;
+            if (g.showMembers == true) {
+                simonText(&rSimon);
+            }
+            
+            Rect rSteven;
+            rSteven.bot = g.yres - 50;
+            rSteven.left = 520;
+            rSteven.center = 0;
+            if (g.showMembers == true) {
+                stevenText(&rSteven);
+            }
+        
+            Rect rJaden;
+            rJaden.bot = g.yres - 65;
+            rJaden.left = 520;
+            rJaden.center = 0;
+            if (g.showMembers == true) {
+                jadenBox(&rJaden);
+            }
+        
+            Rect rGarrett;
+            rGarrett.bot = g.yres - 80;
+            rGarrett.left = 520;
+            rGarrett.center = 0;
+            if (g.showMembers == true) {
+                garrettText(&rGarrett);
+            }
+        
+            Rect rec;
+        
+            Rect rControl;
+            rControl.left = g.xres/2;
+            rControl.bot = g.yres - 25;
+            rControl.center = 1;
+            controlText(&rControl);
+        
+            switch (g.currentTextState) {
+                case INTRO:
+                    render_text(&rec, intro, 3);
+                    break;
+                case CONTROLS:
+                    render_text(&rec, controls, 3);
+                    break;
+                case NONE:
+                    break;
+            }
 
-    player.render_player();
-
-    if (g.encounterEnemy) {
-        render_top();
-        enemy.update(moving);
-        if (!enemy.hitBarrier) {
-            enemy.update(moving);
-        } else {
-            enemy.pos_y = enemy.base_y;
-            enemy.update(idle);
-        }
-        enemy.render_enemy();
-        enemy.render_hp();
-        player.render_hp();
-    } else {
-        g.playerHealth = 100;
-        player.changeHealthBar(g.playerHealth);
-        enemy.hitBarrier = false;
-        enemy.pos_x = enemy.base_x;
-        enemy.pos_y = enemy.base_y;
-    }
-
-    Rect rKian;
-    rKian.bot = g.yres - 20;
-    rKian.left = 520;
-    rKian.center = 0;
-    if (g.showMembers == true) {
-        kianText(&rKian);
-    }
-
-    Rect rSimon;
-    rSimon.bot = g.yres - 35;
-    rSimon.left = 520;
-    rSimon.center = 0;
-    if (g.showMembers == true) {
-        simonText(&rSimon);
-    }
-    
-    Rect rSteven;
-    rSteven.bot = g.yres - 50;
-    rSteven.left = 520;
-    rSteven.center = 0;
-    if (g.showMembers == true) {
-        stevenText(&rSteven);
-    }
-
-    Rect rJaden;
-    rJaden.bot = g.yres - 65;
-    rJaden.left = 520;
-    rJaden.center = 0;
-    if (g.showMembers == true) {
-        jadenBox(&rJaden);
-    }
-
-    Rect rGarrett;
-    rGarrett.bot = g.yres - 80;
-    rGarrett.left = 520;
-    rGarrett.center = 0;
-    if (g.showMembers == true) {
-        garrettText(&rGarrett);
-    }
-
-    Rect rec;
-
-    Rect rControl;
-    rControl.left = g.xres/2;
-    rControl.bot = g.yres - 25;
-    rControl.center = 1;
-    controlText(&rControl);
-
-    switch (g.currentTextState) {
-        case INTRO:
-            render_text(&rec, intro, 3);
-            break;
-        case CONTROLS:
-            render_text(&rec, controls, 3);
-            break;
-        case NONE:
-            break;
     }
 }
