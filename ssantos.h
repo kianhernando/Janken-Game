@@ -14,4 +14,5 @@ enum optionSelect{
 
 void simonText(Rect *rSimon);
 int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth);
+int scoreCalculator(int &pLoseCondition, int &eLoseCondition);
 int randGen();
