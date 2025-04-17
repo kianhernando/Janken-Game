@@ -411,6 +411,7 @@ int check_keys(XEvent *e)
         // Test for random gen
         if (key == XK_t) {
             randGen();
+            randItemGen();
         }
     
         if (!g.isBackgroundMoving) {
