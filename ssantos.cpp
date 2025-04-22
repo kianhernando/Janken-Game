@@ -27,6 +27,56 @@ struct battleState{
 int initScore = 100;
 int totalScore = 0;
 
+void Item::swordItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::bowItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::spearItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::axeItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::hammerItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::shieldItem()
+{
+    protectedDamage = 1;
+}
+
+void Item::armorItem()
+{
+    protectedDamage = 1;
+}
+
+void Item::helmItem()
+{
+    protectedDamage = 1;
+}
+
+void Item::serratedSword()
+{
+    crit = 2;
+}
+
+void Item::thornedArmor()
+{
+    thorns = 2;
+}
+
 void simonText(Rect *rSimon)
 {
     ggprint8b(rSimon, 16, 0xffffff, "Simon");
@@ -149,6 +199,67 @@ int randGen()
     int randNum = dis(gen);
 
     return randNum;
+}
+
+int randItemGen()
+{
+    std::uniform_int_distribution<> dis(1, 10);
+    int randItem = dis(gen);
+    if (randItem <= 10 && randItem > 9) {
+        printf("Ultra Rare Item: %i\n", randItem);
+        printf("serrated sword acquired\n");
+        fflush(stdout);
+    } else if (randItem <= 9 && randItem > 8) {
+        printf("Rare Item: %i\n", randItem);
+        printf("thorned armor acquired\n");
+        fflush(stdout);
+    } else if (randItem <= 8 && randItem > 5) {
+        printf("Uncommon Item: %i\n", randItem);
+        randUncommonItem();
+        fflush(stdout);
+    } else if (randItem <= 5 && randItem > 0) {
+        printf("Common Item: %i\n", randItem);
+        randCommonItem();
+        fflush(stdout);
+    }
+    printf("Item: %i\n", randItem);
+    fflush(stdout);
+
+    return randItem;
+}
+
+int randCommonItem()
+{
+    std::uniform_int_distribution<> dis(0, 4);
+    int randCommon = dis(gen);
+    if (randCommon == 0) {
+        printf("sword acquired\n");
+    } else if (randCommon == 1) {
+        printf("bow acquired\n");
+    } else if (randCommon == 2) {
+        printf("spear acquired\n");
+    } else if (randCommon == 3) {
+        printf("axe acquired\n");
+    } else if (randCommon == 4) {
+        printf("hammer acquired\n");
+    }
+
+    return randCommon;
+}
+
+int randUncommonItem()
+{
+    std::uniform_int_distribution<> dis(0, 2);
+    int randUncommon = dis(gen);
+    if (randUncommon == 0) {
+        printf("shield acquired\n");
+    } else if (randUncommon == 1) {
+        printf("helm acquired\n");
+    } else if (randUncommon == 2) {
+        printf("armor acquired\n");
+    }
+    
+    return randUncommon;
 }
 
 int scoreCalculator(int &pLoseCondition, int &eLoseCondition)
