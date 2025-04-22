@@ -17,6 +17,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <fstream>
+#include <string>
 #include <math.h>
 #include <X11/Xlib.h>
 #include <X11/keysym.h>
@@ -74,6 +76,10 @@
 // https://opengameart.org/content/simple-natural-landscape-pixel-art-background
 Image img[1] = {"./assets/landscape.jpg"};
 
+// Game Over Screen Images
+extern Image rpsImages[3];
+extern GLuint rpsTextures[3];
+
 // MOVED TEXTURE CLASS TO TEXTURE.H
 // class Texture {
 // public:
@@ -83,56 +89,12 @@ Image img[1] = {"./assets/landscape.jpg"};
 //     float yc[2];
 // };
 
-enum TextState {
-    INTRO,
-    CONTROLS,
-    NONE
-};
-
 Player player;
 Enemy enemy;
 int choice = 0;
 int enChoice = 0;
 static float moving = 10.0f;
 static float idle = 2.0f;
-
-class Global 
-{
-public:
-    int xres, yres;
-    Texture tex;
-    // Added boolean to detect background movement
-    bool isBackgroundMoving;
-
-    // Boolean check for enemy encounter
-    bool encounterEnemy;
-
-    // Boolean check for name appearance
-    bool showMembers;
-
-    // boolean check for credits screen
-    bool showCreditsScreen = false;
-
-    // Use enum to track state
-    TextState currentTextState;
-
-    // Temporary health for testing:
-    int playerHealth;
-    int enemyHealth;
-
-    Global() 
-    {
-        xres = 576;
-        yres = 324;
-        isBackgroundMoving = true;
-        encounterEnemy = false;
-        showMembers = false;
-        currentTextState = INTRO;
-
-        playerHealth = 100;
-        enemyHealth = 100;
-    }
-} g;
 
 class X11_wrapper 
 {
@@ -253,6 +215,9 @@ extern void showIntroScreen();
 extern void startGame();
 bool renderStartScreen = false;
 extern void renderStart();
+extern void renderPauseMenu();
+extern void renderGameOverScreen();
+extern void checkDeathLogTrigger();
 //==========================================================================
 //==========================================================================
 int main()
@@ -320,6 +285,17 @@ void init_opengl(void)
     g.tex.xc[1] = 1.0;
     g.tex.yc[0] = 0.0;
     g.tex.yc[1] = 1.0;
+
+    for (int i = 0; i < 3; ++i) {
+        glGenTextures(1, &rpsTextures[i]);
+        int w = rpsImages[i].width;
+        int h = rpsImages[i].height;
+        glBindTexture(GL_TEXTURE_2D, rpsTextures[i]);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, 3, w, h, 0,
+                     GL_RGB, GL_UNSIGNED_BYTE, rpsImages[i].data);
+    }    
 }
 
 void check_mouse(XEvent *e)
@@ -358,7 +334,7 @@ int check_keys(XEvent *e)
         
         // Text Keybinds
         if (key == XK_a) {
-            g.currentTextState = INTRO;
+            g.currentTextState = TEXT_INTRO;
         }
         if (key == XK_m) {
             g.showMembers = !g.showMembers;
@@ -368,6 +344,11 @@ int check_keys(XEvent *e)
         }
         if (key == XK_BackSpace) {
             g.showCreditsScreen = !g.showCreditsScreen;
+        }
+        if (key == XK_h) {
+            g.isGameOver = true;
+            g.enemyDefeated = true; 
+            g.gameOverMenuSelection = 0; 
         }
 
         // Player Health Keybinds for testing purposes
@@ -466,6 +447,95 @@ int check_keys(XEvent *e)
         if (key == XK_Tab) {
             renderStartScreen = !renderStartScreen;
         }
+
+        if (e->type == KeyPress) {
+            int key = XLookupKeysym(&e->xkey, 0);
+        
+            // Toggle pause with 'G'
+            if (key == XK_g) {
+                g.isPaused = !g.isPaused;
+                g.pauseMenuSelection = 0;
+                g.exitMenuSelection = 0;
+                g.settingsMenuSelection = 0;
+                return 0;
+            }
+        
+            // If pause menu is active
+            if (g.isPaused) {
+                // Exit submenu
+                if (g.showExitOptions) {
+                    if (key == XK_Up || key == XK_Down) {
+                        g.exitMenuSelection = 1 - g.exitMenuSelection;
+                    } else if (key == XK_Return) {
+                        if (g.exitMenuSelection == 0) {
+                            renderStartScreen = true;
+                            g.isPaused = false;
+                        } else {
+                            x11.cleanupXWindows();
+                            exit(0); 
+                        }
+                    } else if (key == XK_BackSpace) {
+                        g.showExitOptions = false;
+                    }
+                    return 0;
+                }
+        
+                // Settings submenu
+                if (g.settingsMenuSelection == 1) {
+                    if (key == XK_Up || key == XK_Down) {
+                        g.settingsMenuSelection = 0;
+                    } else if (key == XK_Return) {
+                        // Add toggle logic here later
+                    } else if (key == XK_BackSpace) {
+                        g.settingsMenuSelection = 0;
+                    }
+                    return 0;
+                }
+        
+                // Main pause menu
+                if (g.showExitOptions) {
+                    if (key == XK_Up) {
+                        g.pauseMenuSelection = (g.pauseMenuSelection + 2) % 3;
+                    } else if (key == XK_Down) {
+                        g.pauseMenuSelection = (g.pauseMenuSelection + 1) % 3;
+                    } else if (key == XK_Return) {
+                        if (g.pauseMenuSelection == 0) {
+                            g.isPaused = false;
+                        } else if (g.pauseMenuSelection == 1) {
+                            g.settingsMenuSelection = 1;
+                        } else if (g.pauseMenuSelection == 2) {
+                            g.showExitOptions = true;
+                        }
+                    }
+                    return 0;
+                }
+            }
+        }
+        // Game Over Screen
+        if (g.isGameOver) {
+            if (key == XK_Up || key == XK_Down) {
+                g.gameOverMenuSelection ^= 1;
+                if (!g.enemyDefeated) g.gameOverMenuSelection = 1; // lock to option 1
+            }
+            if (key == XK_Return) {
+                if (g.gameOverMenuSelection == 0 && g.enemyDefeated) {
+                    // Start next level
+                    printf("Loading next level...\n");
+                    g.isGameOver = false;
+                    g.playerHealth = 100;
+                    g.enemyHealth = 100;
+                    player.changeHealthBar(100);
+                    enemy.changeHealthBar(100);
+                    // any other reset logic here
+                } else {
+                    // Return to main menu
+                    renderStartScreen = true;
+                    g.isGameOver = false;
+                }
+            }
+            return 0;
+        }
+        
     }
     return 0;
 }
@@ -476,10 +546,22 @@ void physics()
         g.tex.xc[0] += 0.001;
         g.tex.xc[1] += 0.001;
     }
+
+    checkDeathLogTrigger();
 }
 
 void render()
 {
+    if (g.isPaused) {
+        renderPauseMenu();
+        return;
+    }
+
+    if (g.isGameOver) {
+        renderGameOverScreen();
+        return;
+    }    
+
     if (g.showCreditsScreen == true) {
         creditsScreen();
     } else {
@@ -596,13 +678,17 @@ void render()
             controlText(&rControl);
         
             switch (g.currentTextState) {
+                case TEXT_INTRO:
                 case INTRO:
                     render_text(&rec, intro, 3);
                     break;
                 case CONTROLS:
                     render_text(&rec, controls, 3);
                     break;
+                case TEXT_NONE:
                 case NONE:
+                    break;
+                default:
                     break;
             }
 
