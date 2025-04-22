@@ -1,4 +1,6 @@
 #pragma once
+#include "image.h"
+#include <GL/gl.h>
 
 // ORIGINALLY FROM BACKGROUND.CPP
 // ORIGINAL AUTHOR: GORDON GRIESEL
