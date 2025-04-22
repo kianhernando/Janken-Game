@@ -62,7 +62,9 @@ void renderStart()
 
     glClear(GL_COLOR_BUFFER_BIT);
 
-    // Render background (same as main screen)
+    // Render background (same as main screen) edited out currently
+    // Plan is to put a custom background separate from the main game
+    /*
     glColor3f(1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
     glBegin(GL_QUADS);
@@ -71,7 +73,7 @@ void renderStart()
         glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
         glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
     glEnd();
-
+*/
     // Render Falling Text
     Rect rText;
     rText.left = g.xres / 2;
@@ -79,7 +81,7 @@ void renderStart()
 
     // "Janken - Game!" - Falls last
     rText.bot = (g.yres / 2) + yOffset3;
-    ggprint16(&rText, 32, 0xffffff, "Janken - Game!");
+    ggprint16(&rText, 32, 0xffffff, "Welcome!");
 
     // "To!" - Falls next, below "Janken - Game!"
     rText.bot = (g.yres / 2) + yOffset2;
@@ -87,7 +89,7 @@ void renderStart()
 
     // "Welcome!" - Falls first, above "To!"
     rText.bot = (g.yres / 2) + yOffset1;
-    ggprint16(&rText, 32, 0xffffff, "Welcome!");
+    ggprint16(&rText, 32, 0xfffffff, "Janken - Game!");
 
     // Once text has finished falling, render additional instructions
     if (yOffset1 <= 0 && yOffset2 <= 50 && yOffset3 <= 100) {
