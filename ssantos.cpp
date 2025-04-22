@@ -178,10 +178,29 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
         scoreCalculator(bState.playerLoseInteraction, 
             bState.enemyLoseInteraction);
         ++bState.enemyDeath;
+        genNewEnemy(bState.enemyDeath);
+        eHealth = 100;
+        enemy.changeHealthBar(eHealth);
+        pHealth = 100;
+        player.changeHealthBar(pHealth);
+        player.init("assets/player/normal_x.png");
     }
     printf("\n");
     usleep(700000);
     return 0;
+}
+
+void genNewEnemy(int eDeath)
+{
+    if (eDeath == 1) {
+        enemy.init("assets/enemy/grey-yaroi.png");
+    } else if (eDeath == 2) {
+        enemy.init("assets/enemy/yellow-yaroi.png");
+    } else if (eDeath == 3) {
+        enemy.init("assets/enemy/blue-yaroi.png");
+    } else if (eDeath == 4) {
+        enemy.init("assets/enemy/red-yaroi.png");
+    }
 }
 
 //Random Gen for enemy choice
