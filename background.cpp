@@ -353,9 +353,9 @@ int check_keys(XEvent *e)
 
         // Player Health Keybinds for testing purposes
         if (key == XK_2) {
-            g.playerHealth = 20;
+            //g.playerHealth = 20;
             g.enemyHealth = 20;
-            player.changeHealthBar(g.playerHealth);
+            //player.changeHealthBar(g.playerHealth);
             enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_4) {
