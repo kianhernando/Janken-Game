@@ -428,9 +428,11 @@ int check_keys(XEvent *e)
 
         // Player Health Keybinds for testing purposes
         if (key == XK_2) {
-            g.playerHealth = 20;
+            // Commented out for testing logic 
+            //g.playerHealth = 20;
             g.enemyHealth = 20;
-            player.changeHealthBar(g.playerHealth);
+            // Commented out for testing logic 
+            //player.changeHealthBar(g.playerHealth);
             enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_4) {
@@ -467,6 +469,7 @@ int check_keys(XEvent *e)
         // Test for random gen
         if (key == XK_t) {
             randGen();
+            randItemGen();
         }
     
         if (!g.isBackgroundMoving) {
