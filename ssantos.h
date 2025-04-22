@@ -33,6 +33,7 @@ enum optionSelect{
 };
 
 void simonText(Rect *rSimon);
+void genNewEnemy(int eDeath);
 int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth);
 int scoreCalculator(int &pLoseCondition, int &eLoseCondition);
 int randGen();
