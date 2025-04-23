@@ -148,6 +148,8 @@ public:
     
     PauseSubState pauseMenuSubState;
 
+    bool showPlayerWins = false;
+
     Global() 
     {
         xres = 576;
@@ -419,6 +421,9 @@ int check_keys(XEvent *e)
         }
         if (key == XK_z) {
             g.showCreditsScreen = !g.showCreditsScreen;
+        }
+        if (key == XK_b) {
+            g.showPlayerWins = !g.showPlayerWins;
         }
         if (key == XK_h) {
             g.isGameOver = true;
@@ -750,6 +755,10 @@ void render()
             rGarrett.center = 0;
             if (g.showMembers == true) {
                 garrettText(&rGarrett);
+            }
+
+            if (g.showPlayerWins == true) {
+              playerWins();
             }
         
             Rect rec;

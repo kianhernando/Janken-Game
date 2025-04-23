@@ -19,7 +19,6 @@
 #include <unistd.h>
 #include "jbowers.h"
 
-
 /* ====================================================================== */
 /* =========================== GLOBAL DEFINES =========================== */
 #define NUM_CREDITS 6
@@ -31,14 +30,13 @@
 one credit pushes the next one */
 #define HIT_THRESHOLD 20
 
-
 /* ====================================================================== */
 /* ======================== GETTING THINGS READY ======================== */
 
 /* initializing the credits */
 const char *credits[NUM_CREDITS] = {
     "Kian", "Simon", "Jaden", "Steven", 
-    "Garrett", "The Janken Game."
+    "Garrett", "The Jake Game."
 };
 
 float yPositions[NUM_CREDITS];
@@ -90,7 +88,7 @@ void creditsScreen() {
         }
     }
 
-    /* iterates through the names array and drops 
+    /* iterates through the names array and drops
     the names at their specified intervals */
     for (int i = 0; i < NUM_CREDITS; ++i) {
         if (dropTimer < delayFrames[i])
@@ -164,6 +162,44 @@ void creditsScreenReset() {
     }
 }
 
+void playerWins()
+{
+    // Draw base pause box
+    int ares = 576;
+    int bres = 324;
+    float jBoxWidth = 281.0f;
+    float jBoxHeight = 181.0f;
+    float a = (ares - jBoxWidth) / 2;
+    float b = (bres - jBoxHeight) / 2;
+
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.0, 1.0, 1.0, 0.15);
+    for (int i = 0; i < 6; i++) {
+        float offset = i * 2.0f;
+        glBegin(GL_QUADS);
+            glVertex2f(a - offset, b - offset);
+            glVertex2f(a + jBoxWidth + offset, b - offset);
+            glVertex2f(a + jBoxWidth + offset, b + jBoxHeight + offset);
+            glVertex2f(a - offset, b + jBoxHeight + offset);
+        glEnd();
+    }
+
+    glColor4f(0.05, 0.05, 0.1, 0.85);
+    glBegin(GL_QUADS);
+        glVertex2f(a, b);
+        glVertex2f(a + jBoxWidth, b);
+        glVertex2f(a + jBoxWidth, b + jBoxHeight);
+        glVertex2f(a, b + jBoxHeight);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    Rect r;
+    r.center = 1;
+    r.left = ares / 2;
+    r.bot = b + jBoxHeight - 30;
+    ggprint16(&r, 32, 0x000000, "YOU WIN!!!");
+}
 
 /* ====================================================================== */
 /* ================================= MISC =============================== */
