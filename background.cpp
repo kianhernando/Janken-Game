@@ -96,9 +96,12 @@ Image img[1] = {"./assets/landscape.jpg"};
 enum TextState {
     INTRO,
     CONTROLS,
+    BATTLECONTROLS,
+    SIMPLIFYCONTROLS,
     NONE
 };
 
+int checkPlayerState;
 Player player;
 Enemy enemy;
 int choice = 0;
@@ -484,8 +487,9 @@ int check_keys(XEvent *e)
                     choice = ROCK;
                     enChoice = randGen();
                     //player.changeImage("assets/player/rock_x.png");
-                    //enemy.changeImage("assets/enemy/rock.png");                    
-                    logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);                
+                    //enemy.changeImage("assets/enemy/rock.png");
+                    checkPlayerState = logicSimon(choice, enChoice, 
+                            g.playerHealth); 
                 }
                 
                 if (key == XK_p) {
@@ -493,18 +497,32 @@ int check_keys(XEvent *e)
                     enChoice = randGen();
                     //player.changeImage("assets/player/paper_x.png");
                     //enemy.changeImage("assets/enemy/paper.png");
-                    logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                    //logicSimon(choice, enChoice, g.playerHealth);
+                    checkPlayerState = logicSimon(choice, enChoice, 
+                            g.playerHealth); 
                 }
                 if (key == XK_s) {
                     choice = SCISSORS;
                     enChoice = randGen();
                     //player.changeImage("assets/player/scissors_x.png");
                     //enemy.changeImage("assets/enemy/scissors.png");
-                    logicSimon(choice, enChoice, g.playerHealth, g.enemyHealth);
+                    //logicSimon(choice, enChoice, g.playerHealth);
+                    checkPlayerState = logicSimon(choice, enChoice, 
+                            g.playerHealth); 
                 }
                 if (key == XK_n) {
                     player.changeImage("assets/player/normal_x.png");
                     enemy.changeImage("assets/enemy/boot.png");
+                }
+                if (checkPlayerState == 1) {
+                    g.currentTextState = BATTLECONTROLS;
+                    if (key == XK_a) {
+                        battleChoiceFunc(g.enemyHealth);
+                        checkPlayerState = 0;
+                    }
+                }
+                if (checkPlayerState == 0) {
+                    g.currentTextState = SIMPLIFYCONTROLS;
                 }
             }
         }
@@ -775,6 +793,12 @@ void render()
                     break;
                 case CONTROLS:
                     render_text(&rec, controls, 3);
+                    break;
+                case SIMPLIFYCONTROLS:
+                    render_text(&rec, simplifyControls, 1);
+                    break;
+                case BATTLECONTROLS:
+                    render_text(&rec, battleChoice, 3);
                     break;
                 case NONE:
                     break;

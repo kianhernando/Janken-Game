@@ -32,9 +32,13 @@ enum optionSelect{
     SCISSORS
 };
 
+extern const char* battleChoice[];
+extern const char* simplifyControls[];
+
 void simonText(Rect *rSimon);
 void genNewEnemy(int eDeath);
-int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth);
+int battleChoiceFunc(int &health);
+int logicSimon(int choice, int enChoice, int &pHealth);
 int scoreCalculator(int &pLoseCondition, int &eLoseCondition);
 int randGen();
 int randItemGen();

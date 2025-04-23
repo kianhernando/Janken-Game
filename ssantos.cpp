@@ -27,76 +27,101 @@ struct battleState{
 int initScore = 100;
 int totalScore = 0;
 
+void Item::swordItem()
+{
+    boostedDamage = 1;
+}
 
- void Item::swordItem()
- {
-     boostedDamage = 1;
- }
- 
- void Item::bowItem()
- {
-     boostedDamage = 1;
- }
- 
- void Item::spearItem()
- {
-     boostedDamage = 1;
- }
- 
- void Item::axeItem()
- {
-     boostedDamage = 1;
- }
- 
- void Item::hammerItem()
- {
-     boostedDamage = 1;
- }
- 
- void Item::shieldItem()
- {
-     protectedDamage = 1;
- }
- 
- void Item::armorItem()
- {
-     protectedDamage = 1;
- }
- 
- void Item::helmItem()
- {
-     protectedDamage = 1;
- }
- 
- void Item::serratedSword()
- {
-     crit = 2;
- }
- 
- void Item::thornedArmor()
- {
-     thorns = 2;
- }
+void Item::bowItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::spearItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::axeItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::hammerItem()
+{
+    boostedDamage = 1;
+}
+
+void Item::shieldItem()
+{
+    protectedDamage = 1;
+}
+
+void Item::armorItem()
+{
+    protectedDamage = 1;
+}
+
+void Item::helmItem()
+{
+    protectedDamage = 1;
+}
+
+void Item::serratedSword()
+{
+    crit = 2;
+}
+
+void Item::thornedArmor()
+{
+    thorns = 2;
+}
 
 void simonText(Rect *rSimon)
 {
     ggprint8b(rSimon, 16, 0xffffff, "Simon");
 }
 
-int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth) 
+const char* battleChoice[] = {
+    "You won the round! Choose an Action!",
+    "'A' to attack enemy",
+    "'B' to choose gambit"
+};
+
+const char* simplifyControls[] = {
+    "PRESS 'R', 'P', OR 'S' FOR ROCK-PAPER-SCISSORS"
+};
+
+int battleChoiceFunc(int &health)
 {
+    health -= 10;
+    printf("amount of times enemy has lost: %i\n", 
+        bState.enemyLoseInteraction);
+    enemy.changeHealthBar(health);
+    if (health == 0) {
+        printf("Enemy has died!\n");
+        scoreCalculator(bState.playerLoseInteraction, 
+            bState.enemyLoseInteraction);
+        ++bState.enemyDeath;
+        genNewEnemy(bState.enemyDeath);
+        health = 100;
+        enemy.changeHealthBar(health);
+        player.init("assets/player/normal_x.png");
+    }
+    return health;
+}
+
+int logicSimon(int choice, int enChoice, int &pHealth) 
+{
+    int playerWonInteraction = 1;
     if (choice == ROCK) {
         player.changeImage("assets/player/rock_x.png");
         if (enChoice == 2) {
             enemy.changeImage("assets/enemy/scissors.png");
             ++bState.enemyLoseInteraction;
             printf("Player Wins! Enemy loses 10 HP!\n");
-            eHealth -= 10;
-            printf("%i\n", eHealth);
-            printf("amount of times enemy has lost: %i\n", 
-                bState.enemyLoseInteraction);
-            enemy.changeHealthBar(eHealth);
             fflush(stdout);
+            return playerWonInteraction;
         } else if (enChoice == 1) {
             enemy.changeImage("assets/enemy/paper.png");
             ++bState.playerLoseInteraction;
@@ -119,12 +144,8 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
             enemy.changeImage("assets/enemy/rock.png");
             ++bState.enemyLoseInteraction;
             printf("Player Wins! Enemy loses 10 HP!\n");
-            eHealth -= 10;
-            printf("%i\n", eHealth);
-            printf("amount of times enemy has lost: %i\n", 
-                bState.enemyLoseInteraction);
-            enemy.changeHealthBar(eHealth);
             fflush(stdout);
+            return playerWonInteraction;
         } else if (enChoice == 2) {
             enemy.changeImage("assets/enemy/scissors.png");
             ++bState.playerLoseInteraction;
@@ -146,12 +167,8 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
             enemy.changeImage("assets/enemy/paper.png");
             ++bState.enemyLoseInteraction;
             printf("Player Wins! Enemy loses 10 HP!\n");
-            eHealth -= 10;
-            printf("%i\n", eHealth);
-            printf("amount of times enemy has lost: %i\n", 
-                bState.enemyLoseInteraction);
-            enemy.changeHealthBar(eHealth);
             fflush(stdout);
+            return playerWonInteraction;
         } else if (enChoice == 0) {
             enemy.changeImage("assets/enemy/rock.png");
             ++bState.playerLoseInteraction;
@@ -173,17 +190,6 @@ int logicSimon(int choice, int enChoice, int &pHealth, int &eHealth)
         scoreCalculator(bState.playerLoseInteraction, 
             bState.enemyLoseInteraction);
         ++bState.playerDeath;
-    } else if (eHealth == 0) {
-        printf("Enemy has died!\n");
-        scoreCalculator(bState.playerLoseInteraction, 
-            bState.enemyLoseInteraction);
-        ++bState.enemyDeath;
-        genNewEnemy(bState.enemyDeath);
-        eHealth = 100;
-        enemy.changeHealthBar(eHealth);
-        pHealth = 100;
-        player.changeHealthBar(pHealth);
-        player.init("assets/player/normal_x.png");
     }
     printf("\n");
     usleep(700000);
