@@ -2,6 +2,7 @@
 #include "fonts.h"
 #include "image.h"
 #include "textures.h"
+#include <GL/glx.h>
 
 class Global;
 
@@ -52,12 +53,14 @@ class Enemy {
 // Originally from waterfall (lab 6)
 class Box {
     public:
-        float width, height;
-        float pos[2];
-        unsigned char color[3];
-        
-        Box();
         Box(float w, float h);
+        float pos[2];
+        float width, height;
+        unsigned char color[3];
+        Image *boxImage;
+        GLuint texture;
+        float xc[2];
+        float yc[2];
 };
 
 extern Box box;
@@ -71,3 +74,7 @@ void controlText(Rect *rControl);
 extern const char* intro[];
 extern const char* controls[];
 void render_text(Rect *rec, const char* lines[], const int num_lines);
+
+void initSelections();
+void renderBox(Box& sel, const char* imagePath = nullptr);
+

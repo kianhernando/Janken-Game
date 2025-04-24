@@ -153,6 +153,8 @@ public:
 
     bool showPlayerWins = false;
 
+    bool showSelection;
+
     Global() 
     {
         xres = 576;
@@ -171,6 +173,7 @@ public:
         exitMenuSelection = 0;
         gameOverMenuSelection = 0;
         pauseMenuSubState = PAUSE_NONE;
+        showSelection = false;
     }
 } g;
 
@@ -501,6 +504,11 @@ int check_keys(XEvent *e)
                     checkPlayerState = logicSimon(choice, enChoice, 
                             g.playerHealth); 
                 }
+                
+                if (key == XK_q) {
+                    g.showSelection = !g.showSelection;
+                }
+
                 if (key == XK_s) {
                     choice = SCISSORS;
                     enChoice = randGen();
@@ -804,6 +812,9 @@ void render()
                     break;
             }
 
+            if (g.showSelection) {
+                initSelections();
+            }
     }
 }
 
