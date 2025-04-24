@@ -17,6 +17,9 @@ extern Global g;
 extern void stopBackground();
 Box box(576, 75);
 Box top(576, 40);
+Box selection1(90, 65);
+Box selection2(90, 65);
+Box selection3(90, 65);
 
 Box::Box(float w, float h)
 {
@@ -27,6 +30,12 @@ Box::Box(float w, float h)
     color[0] = 0;
     color[1] = 0;
     color[2] = 0;
+    boxImage = nullptr;
+    texture = 0;
+    xc[0] = 0.0;
+    xc[1] = 1.0;
+    yc[0] = 0.0;
+    yc[1] = 1.0;
 }
 
 Player::Player()
@@ -524,6 +533,27 @@ void render_text(Rect *rec, const char* lines[], const int num_lines)
     }
 }
 
+void initSelections() {
+    float totalWidth = box.width;
+    float spacing = totalWidth / 4;
+    
+    float yPos = box.pos[1] + (box.height - selection1.height) / 2;
+    
+    selection1.pos[0] = box.pos[0] - spacing;
+    selection1.pos[1] = yPos;
+    
+    selection2.pos[0] = box.pos[0];
+    selection2.pos[1] = yPos;
+    
+    selection3.pos[0] = box.pos[0] + spacing;
+    selection3.pos[1] = yPos;
+
+    // Pass the image paths for rock, paper, scissors
+    renderBox(selection1, "assets/player/rock_y.png");
+    renderBox(selection2, "assets/player/paper_y.png");
+    renderBox(selection3, "assets/player/scissors_y.png");
+}
+
 void controlText(Rect* rControl)
 {
     ggprint8b(rControl, 16, 0xFFFFFF, "HIT C FOR CONTROLS");
@@ -532,4 +562,90 @@ void controlText(Rect* rControl)
 void kianText(Rect* rKian)
 {
     ggprint8b(rKian, 16, 0xFFFFFF, "Kian");
+}
+
+void renderBox(Box& sel, const char* imagePath) {
+    glColor3ub(sel.color[0], sel.color[1], sel.color[2]);
+    glPushMatrix();
+    glTranslatef(sel.pos[0], sel.pos[1], 0.0f);
+    glBegin(GL_QUADS);
+    glVertex2f(-sel.width/2, 0);
+    glVertex2f(-sel.width/2, sel.height);
+    glVertex2f(sel.width/2, sel.height);
+    glVertex2f(sel.width/2, 0);
+    glEnd();
+    glPopMatrix();
+
+    glDisable(GL_TEXTURE_2D);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glLineWidth(2.0);
+    glPushMatrix();
+    glTranslatef(sel.pos[0], sel.pos[1], 0.0f);
+    glBegin(GL_LINE_LOOP);
+    glVertex2f(-sel.width/2, 0);
+    glVertex2f(-sel.width/2, sel.height);
+    glVertex2f(sel.width/2, sel.height);
+    glVertex2f(sel.width/2, 0);
+    glEnd();
+    glPopMatrix();
+    
+    if (imagePath != nullptr) {
+        glEnable(GL_TEXTURE_2D);
+        
+        if (sel.boxImage != nullptr) {
+            delete sel.boxImage;
+            glDeleteTextures(1, &sel.texture);
+        }
+        
+        sel.boxImage = new Image(imagePath);
+        
+        sel.xc[0] = 0.0;
+        sel.xc[1] = 1.0;
+        sel.yc[0] = 0.0;
+        sel.yc[1] = 1.0;
+        
+        glGenTextures(1, &sel.texture);
+        glBindTexture(GL_TEXTURE_2D, sel.texture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sel.boxImage->width, sel.boxImage->height, 0,
+                GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(sel.boxImage));
+        
+        glEnable(GL_BLEND);
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        
+        glColor4f(1.0, 1.0, 1.0, 1.0);
+        glBindTexture(GL_TEXTURE_2D, sel.texture);
+        glPushMatrix();
+        glTranslatef(sel.pos[0], sel.pos[1], 0.0f);
+        
+        float imgWidth = (float)sel.boxImage->width;
+        float imgHeight = (float)sel.boxImage->height;
+        float boxWidth = sel.width;
+        float boxHeight = sel.height;
+        
+        float scaleX = boxWidth / imgWidth;
+        float scaleY = boxHeight / imgHeight;
+        float scale = std::min(scaleX, scaleY) * 0.8f;
+        
+        float newWidth = imgWidth * scale;
+        float newHeight = imgHeight * scale;
+        
+        float xOffset = (boxWidth - newWidth) / 2.0f;
+        float yOffset = (boxHeight - newHeight) / 2.0f;
+        
+        glBegin(GL_QUADS);
+        glTexCoord2f(sel.xc[0], sel.yc[1]);
+        glVertex2f(-boxWidth/2 + xOffset, yOffset);
+        glTexCoord2f(sel.xc[0], sel.yc[0]);
+        glVertex2f(-boxWidth/2 + xOffset, yOffset + newHeight);
+        glTexCoord2f(sel.xc[1], sel.yc[0]);
+        glVertex2f(-boxWidth/2 + xOffset + newWidth, yOffset + newHeight);
+        glTexCoord2f(sel.xc[1], sel.yc[1]);
+        glVertex2f(-boxWidth/2 + xOffset + newWidth, yOffset);
+        glEnd();
+        
+        glPopMatrix();
+        glDisable(GL_BLEND);
+    }
 }
