@@ -525,7 +525,7 @@ int check_keys(XEvent *e)
                 if (checkPlayerState == 1) {
                     g.currentTextState = BATTLECONTROLS;
                     if (key == XK_a) {
-                        battleChoiceFunc(g.enemyHealth);
+                        battleChoiceFunc(g.playerHealth, g.enemyHealth);
                         checkPlayerState = 0;
                     }
                 }

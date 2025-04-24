@@ -92,23 +92,25 @@ const char* simplifyControls[] = {
     "PRESS 'R', 'P', OR 'S' FOR ROCK-PAPER-SCISSORS"
 };
 
-int battleChoiceFunc(int &health)
+int battleChoiceFunc(int &pHealth, int &eHealth)
 {
-    health -= 10;
+    eHealth -= 10;
     printf("amount of times enemy has lost: %i\n", 
         bState.enemyLoseInteraction);
-    enemy.changeHealthBar(health);
-    if (health == 0) {
+    enemy.changeHealthBar(eHealth);
+    if (eHealth == 0) {
         printf("Enemy has died!\n");
         scoreCalculator(bState.playerLoseInteraction, 
             bState.enemyLoseInteraction);
         ++bState.enemyDeath;
         genNewEnemy(bState.enemyDeath);
-        health = 100;
-        enemy.changeHealthBar(health);
+        eHealth = 100;
+        pHealth = 100;
+        enemy.changeHealthBar(eHealth);
+        player.changeHealthBar(pHealth);
         player.init("assets/player/normal_x.png");
     }
-    return health;
+    return eHealth;
 }
 
 int logicSimon(int choice, int enChoice, int &pHealth) 
