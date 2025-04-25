@@ -102,6 +102,7 @@ enum TextState {
 };
 
 int checkPlayerState;
+int healthToCompare;
 Player player;
 Enemy enemy;
 int choice = 0;
@@ -472,9 +473,9 @@ int check_keys(XEvent *e)
         }
         if (key == XK_f) {
             g.playerHealth = 100;
-            g.enemyHealth = 100;
+            //g.enemyHealth = 100;
             player.changeHealthBar(g.playerHealth);
-            enemy.changeHealthBar(g.enemyHealth);
+            //enemy.changeHealthBar(g.enemyHealth);
         }
 
         // Test for random gen
@@ -525,13 +526,17 @@ int check_keys(XEvent *e)
                 if (checkPlayerState == 1) {
                     g.currentTextState = BATTLECONTROLS;
                     if (key == XK_a) {
-                        battleChoiceFunc(g.playerHealth, g.enemyHealth);
+                        healthToCompare = battleChoiceFunc(g.playerHealth, 
+                            g.enemyHealth);
                         checkPlayerState = 0;
                     }
                 }
                 if (checkPlayerState == 0) {
                     g.currentTextState = SIMPLIFYCONTROLS;
                 }
+                int ehealth = grabEnemyHealth(g.enemyHealth);
+                int phealth = grabPlayerHealth(g.playerHealth);
+                compareHealth(phealth, ehealth);
             }
         }
 

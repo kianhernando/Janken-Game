@@ -110,7 +110,35 @@ int battleChoiceFunc(int &pHealth, int &eHealth)
         player.changeHealthBar(pHealth);
         player.init("assets/player/normal_x.png");
     }
+    grabEnemyHealth(pHealth);
     return eHealth;
+}
+
+int grabEnemyHealth(int &eHealth)
+{
+    return eHealth;
+}
+
+int grabPlayerHealth(int &pHealth)
+{
+    return pHealth;
+}
+
+int compareHealth(int &pHealth, int &eHealth)
+{
+    int player = pHealth;
+    int enemy = eHealth;
+
+    if (player > enemy) {
+        printf("player won!\n");
+    }
+    if (player < enemy) {
+        printf("enemy won!\n");
+    }
+    if (player == enemy) {
+        printf("tie!\n");
+    }
+    return 0;
 }
 
 int logicSimon(int choice, int enChoice, int &pHealth) 
@@ -118,6 +146,7 @@ int logicSimon(int choice, int enChoice, int &pHealth)
     static int roundCounter = 0;
     int playerWonInteraction = 1;
     if (roundCounter == 20) {
+        grabPlayerHealth(pHealth);
         printf("battle over!\n");
         return 0;
     }
