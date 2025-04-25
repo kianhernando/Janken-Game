@@ -115,8 +115,15 @@ int battleChoiceFunc(int &pHealth, int &eHealth)
 
 int logicSimon(int choice, int enChoice, int &pHealth) 
 {
+    static int roundCounter = 0;
     int playerWonInteraction = 1;
+    if (roundCounter == 20) {
+        printf("battle over!\n");
+        return 0;
+    }
     if (choice == ROCK) {
+        roundCounter++;
+        printf("rounds: %i\n", roundCounter);
         player.changeImage("assets/player/rock_x.png");
         if (enChoice == 2) {
             enemy.changeImage("assets/enemy/scissors.png");
@@ -141,6 +148,8 @@ int logicSimon(int choice, int enChoice, int &pHealth)
         }
     }
     else if (choice == PAPER) {
+        roundCounter++;
+        printf("rounds: %i\n", roundCounter);
         player.changeImage("assets/player/paper_x.png");
         if (enChoice == 0) {
             enemy.changeImage("assets/enemy/rock.png");
@@ -164,6 +173,8 @@ int logicSimon(int choice, int enChoice, int &pHealth)
             fflush(stdout);
         }
     } else if (choice == SCISSORS) {
+        roundCounter++;
+        printf("rounds: %i\n", roundCounter);
         player.changeImage("assets/player/scissors_x.png");
         if (enChoice == 1) {
             enemy.changeImage("assets/enemy/paper.png");
