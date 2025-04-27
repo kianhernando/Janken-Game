@@ -717,7 +717,6 @@ void render()
     if (g.renderStartScreen) {
         g.isPaused = false;
         g.pauseMenuSubState = PAUSE_NONE;
-        g.startMenuSelection = 0;
         
         player.pos_x = player.base_x;
         player.pos_y = player.base_y;
