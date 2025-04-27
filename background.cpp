@@ -157,6 +157,8 @@ public:
 
     bool showSelection;
 
+    int startMenuSelection;
+
     Global() 
     {
         xres = 576;
@@ -176,6 +178,7 @@ public:
         gameOverMenuSelection = 0;
         pauseMenuSubState = PAUSE_NONE;
         showSelection = false;
+        startMenuSelection = 0;
     }
 } g;
 
@@ -299,8 +302,8 @@ void renderPauseMenu(int xres, int yres, int pauseMenuSelection,
                     PauseSubState pauseMenuSubState);
 extern void showIntroScreen();
 extern void startGame();
-extern void renderAnimation(Player &player, Enemy &enemy);
-extern void renderStart();
+extern bool renderAnimation(Player &player, Enemy &enemy);
+extern void renderStart(int startMenuSelection);
 extern void renderGameOverScreen(int xres, int yres, bool enemyDefeated, 
                                 int gameOverMenuSelection);
 extern void checkDeathLogTrigger(bool &isGameOver, bool &enemyDefeated);
@@ -321,11 +324,7 @@ int main()
             done = check_keys(&e);
         }
         physics();
-        if (g.renderStartScreen) {
-            renderAnimation(introPlayer, introEnemy);
-        } else {
         render();
-        }
         x11.swapBuffers();
     }
     cleanup_fonts();
@@ -418,6 +417,29 @@ int check_keys(XEvent *e)
             return 1;
         }
         
+        if (g.renderStartScreen) {
+            if (key == XK_Up) {
+                g.startMenuSelection = (g.startMenuSelection + 2) % 3;
+                return 0;
+            } else if (key == XK_Down) {
+                g.startMenuSelection = (g.startMenuSelection + 1) % 3;
+                return 0;
+            } else if (key == XK_Return) {
+                switch (g.startMenuSelection) {
+                    case 0:
+                        g.renderStartScreen = false;
+                        break;
+                    case 1:
+                        // add control functions later
+                        g.currentTextState = CONTROLS;
+                        break;
+                    case 2:
+                        return 1;
+                }
+                return 0;
+            }
+        }
+        
         // Text Keybinds
         if (key == XK_a) {
             g.currentTextState = INTRO;
@@ -443,11 +465,11 @@ int check_keys(XEvent *e)
         // Player Health Keybinds for testing purposes
         if (key == XK_2) {
             // Commented out for testing logic 
-            //g.playerHealth = 20;
-            g.enemyHealth = 20;
+            g.playerHealth = 20;
+            //g.enemyHealth = 20;
             // Commented out for testing logic 
-            //player.changeHealthBar(g.playerHealth);
-            enemy.changeHealthBar(g.enemyHealth);
+            player.changeHealthBar(g.playerHealth);
+            //enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_4) {
             g.playerHealth = 40;
@@ -536,6 +558,12 @@ int check_keys(XEvent *e)
                     g.currentTextState = SIMPLIFYCONTROLS;
                 }
             }
+
+            if (g.playerHealth <= 0) {
+                g.isGameOver = true;
+                g.enemyDefeated = false;
+                g.gameOverMenuSelection = 0;
+            }
         }
 
         // Enemy Keybinds
@@ -561,93 +589,90 @@ int check_keys(XEvent *e)
         }
 
         if (e->type == KeyPress) {
-             int key = XLookupKeysym(&e->xkey, 0);
-         
-             // Toggle pause with 'G'
-             if (key == XK_g) {
-                 g.isPaused = !g.isPaused;
-                 g.pauseMenuSelection = 0;
-                 g.exitMenuSelection = 0;
-                 g.settingsMenuSelection = 0;
-                 g.pauseMenuSubState = PAUSE_NONE;
-                 return 0;
-             }
-         
-             // If pause menu is active
-             if (g.isPaused) {
-                 // Exit submenu
-                 if (g.pauseMenuSubState == PAUSE_EXIT) {
-                     if (key == XK_Up || key == XK_Down) {
-                         g.exitMenuSelection = 1 - g.exitMenuSelection;
-                     } else if (key == XK_Return) {
-                         if (g.exitMenuSelection == 0) {
-                             g.renderStartScreen = true;
-                             g.isPaused = false;
-                         } else {
-                             x11.cleanupXWindows();
-                             exit(0); 
-                         }
-                     } else if (key == XK_BackSpace) {
-                         g.pauseMenuSubState = PAUSE_NONE;
-                     }
-                     return 0;
-                 }
-         
-                 // Settings submenu
-                 if (g.pauseMenuSubState == PAUSE_SETTINGS) {
-                     if (key == XK_Up || key == XK_Down) {
-                         g.settingsMenuSelection = 1 - g.settingsMenuSelection;
-                     } else if (key == XK_Return) {
-                         // Add toggle logic here later
-                     } else if (key == XK_BackSpace) {
-                         g.pauseMenuSubState = PAUSE_NONE;
-                     }
-                     return 0;
-                 }
-         
-                 // Main pause menu
-                 if (g.pauseMenuSubState == PAUSE_NONE) {
-                     if (key == XK_Up) {
-                         g.pauseMenuSelection = (g.pauseMenuSelection + 2) % 3;
-                     } else if (key == XK_Down) {
-                         g.pauseMenuSelection = (g.pauseMenuSelection + 1) % 3;
-                     } else if (key == XK_Return) {
-                         if (g.pauseMenuSelection == 0) {
-                             g.isPaused = false;
-                         } else if (g.pauseMenuSelection == 1) {
-                             g.pauseMenuSubState = PAUSE_SETTINGS;
-                         } else if (g.pauseMenuSelection == 2) {
-                             g.pauseMenuSubState = PAUSE_EXIT;
-                         }
-                     }
-                     return 0;
-                 }
-             }
-         }
-         // Game Over Screen
-         if (g.isGameOver) {
-             if (key == XK_Up || key == XK_Down) {
-                 g.gameOverMenuSelection ^= 1;
-                 if (!g.enemyDefeated) g.gameOverMenuSelection = 1; // lock to option 1
-             }
-             if (key == XK_Return) {
-                 if (g.gameOverMenuSelection == 0 && g.enemyDefeated) {
-                     // Start next level
-                     printf("Loading next level...\n");
-                     g.isGameOver = false;
-                     g.playerHealth = 100;
-                     g.enemyHealth = 100;
-                     player.changeHealthBar(100);
-                     enemy.changeHealthBar(100);
-                     // any other reset logic here
-                 } else {
-                     // Return to main menu
-                     g.renderStartScreen = true;
-                     g.isGameOver = false;
-                 }
-             }
-             return 0;
-         }
+            int key = XLookupKeysym(&e->xkey, 0);
+        
+            // Toggle pause with 'G'
+            if (key == XK_g) {
+                g.isPaused = !g.isPaused;
+                g.pauseMenuSelection = 0;
+                g.exitMenuSelection = 0;
+                g.settingsMenuSelection = 0;
+                g.pauseMenuSubState = PAUSE_NONE;
+                return 0;
+            }
+        
+            // If pause menu is active
+            if (g.isPaused) {
+                // Exit submenu
+                if (g.pauseMenuSubState == PAUSE_EXIT) {
+                    if (key == XK_Up || key == XK_Down) {
+                        g.exitMenuSelection = 1 - g.exitMenuSelection;
+                    } else if (key == XK_Return) {
+                        if (g.exitMenuSelection == 0) {
+                            g.renderStartScreen = true;
+                            g.isPaused = false;
+                        }
+                    } else if (key == XK_BackSpace) {
+                        g.pauseMenuSubState = PAUSE_NONE;
+                    }
+                return 0;
+                }
+    
+                // Settings submenu
+                if (g.pauseMenuSubState == PAUSE_SETTINGS) {
+                    if (key == XK_Up || key == XK_Down) {
+                        g.settingsMenuSelection = 1 - g.settingsMenuSelection;
+                    } else if (key == XK_Return) {
+                        // Add toggle logic here later
+                    } else if (key == XK_BackSpace) {
+                        g.pauseMenuSubState = PAUSE_NONE;
+                    }
+                    return 0;
+                }
+        
+                // Main pause menu
+                if (g.pauseMenuSubState == PAUSE_NONE) {
+                    if (key == XK_Up) {
+                        g.pauseMenuSelection = (g.pauseMenuSelection + 2) % 3;
+                    } else if (key == XK_Down) {
+                        g.pauseMenuSelection = (g.pauseMenuSelection + 1) % 3;
+                    } else if (key == XK_Return) {
+                        if (g.pauseMenuSelection == 0) {
+                            g.isPaused = false;
+                        } else if (g.pauseMenuSelection == 1) {
+                            g.pauseMenuSubState = PAUSE_SETTINGS;
+                        } else if (g.pauseMenuSelection == 2) {
+                            g.pauseMenuSubState = PAUSE_EXIT;
+                        }
+                    }
+                    return 0;
+                }
+            }
+        }
+        // Game Over Screen
+        if (g.isGameOver) {
+            if (key == XK_Up || key == XK_Down) {
+                g.gameOverMenuSelection ^= 1;
+                if (!g.enemyDefeated) g.gameOverMenuSelection = 1; // lock to option 1
+            }
+            if (key == XK_Return) {
+                if (g.gameOverMenuSelection == 0 && g.enemyDefeated) {
+                    // Start next level
+                    printf("Loading next level...\n");
+                    g.isGameOver = false;
+                    g.playerHealth = 100;
+                    g.enemyHealth = 100;
+                    player.changeHealthBar(100);
+                    enemy.changeHealthBar(100);
+                    // any other reset logic here
+                } else {
+                    // Return to main menu
+                    g.renderStartScreen = true;
+                    g.isGameOver = false;
+                }
+            }
+            return 0;
+        }
     }
     return 0;
 }
@@ -674,6 +699,49 @@ void render()
     if (g.isGameOver) {
         renderGameOverScreen(g.xres, g.yres, g.enemyDefeated, 
                             g.gameOverMenuSelection);
+        return;
+    }
+
+    // Separate animation rendering from start screen rendering
+    // Add a new state to track if animation is playing
+    static bool playingAnimation = true;
+    
+    if (playingAnimation) {
+        // Check if animation is done
+        if (renderAnimation(player, enemy)) {
+            playingAnimation = false;
+        }
+        return;
+    }
+
+    if (g.renderStartScreen) {
+        g.isPaused = false;
+        g.pauseMenuSubState = PAUSE_NONE;
+        g.startMenuSelection = 0;
+        
+        player.pos_x = player.base_x;
+        player.pos_y = player.base_y;
+        enemy.pos_x = enemy.base_x;
+        enemy.pos_y = enemy.base_y;
+        
+    
+        g.playerHealth = 100;
+        g.enemyHealth = 100;
+        player.changeHealthBar(g.playerHealth);
+        enemy.changeHealthBar(g.enemyHealth);
+        
+        g.encounterEnemy = false;
+        g.isBackgroundMoving = true;
+        enemy.hitBarrier = false;
+        
+        g.currentTextState = INTRO;
+        g.showMembers = false;
+        g.showCreditsScreen = false;
+        g.showPlayerWins = false;
+        
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+    
+        renderStart(g.startMenuSelection);
         return;
     }
 

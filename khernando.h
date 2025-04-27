@@ -78,4 +78,7 @@ void render_text(Rect *rec, const char* lines[], const int num_lines);
 void initSelections();
 void renderBox(Box& sel, const char* imagePath = nullptr);
 
-void renderAnimation(Player &player, Enemy &enemy);
+bool renderAnimation(Player &player, Enemy &enemy);
+void renderStart(int startMenuSelection);
+
+extern bool animationDone;

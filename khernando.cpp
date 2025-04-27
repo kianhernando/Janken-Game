@@ -14,6 +14,9 @@
 #include "stran.h"
 #include "image.h"
 
+bool animationDone = false;
+bool isRPSMoving = false;
+
 Box box(576, 75);
 Box top(576, 40);
 Box selection1(90, 65);
@@ -607,8 +610,9 @@ void renderBox(Box& sel, const char* imagePath) {
         glBindTexture(GL_TEXTURE_2D, sel.texture);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sel.boxImage->width, sel.boxImage->height, 0,
-                GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(sel.boxImage));
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, sel.boxImage->width, 
+            sel.boxImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
+            buildAlphaData(sel.boxImage));
         
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -649,18 +653,13 @@ void renderBox(Box& sel, const char* imagePath) {
     }
 }
 
-void renderAnimation(Player &player, Enemy &enemy)
+bool renderAnimation(Player &player, Enemy &enemy)
 {
     static bool isInitialized = false;
-    static bool isAnimating = true;
     static bool hasCollided = false; 
     static float playerStart = -36;
     static float enemyStart = 600;
     static float moveSpeed = 15.0f;
-    static int textTimer = 0;
-    static bool animationDone = false;
-    
-    static bool isRPSMoving = false;
     static float time = 0.0f;
     static const float speed = 0.5f;
     static const float amplitude = 20.0f;
@@ -700,8 +699,7 @@ void renderAnimation(Player &player, Enemy &enemy)
     static float explosionCounter = 0.0f;
     
     if (animationDone) {
-        renderStart();
-        return;
+        return true;
     }
     
     if (!isInitialized) {
@@ -711,16 +709,18 @@ void renderAnimation(Player &player, Enemy &enemy)
             glBindTexture(GL_TEXTURE_2D, playerTextures[i]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, playerSprites[i]->width, playerSprites[i]->height, 0,
-                    GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(playerSprites[i]));
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, playerSprites[i]->width, 
+                playerSprites[i]->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                buildAlphaData(playerSprites[i]));
             
             enemyImages[i] = new Image(enemyPaths[i]);
             glGenTextures(1, &enemyTextures[i]);
             glBindTexture(GL_TEXTURE_2D, enemyTextures[i]);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, enemyImages[i]->width, enemyImages[i]->height, 0,
-                    GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(enemyImages[i]));
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, enemyImages[i]->width, 
+                enemyImages[i]->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                buildAlphaData(enemyImages[i]));
         }
         
         player.init(playerPaths[0]);
@@ -733,12 +733,13 @@ void renderAnimation(Player &player, Enemy &enemy)
             glBindTexture(GL_TEXTURE_2D, explosionTexture);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, explosionImage->width, explosionImage->height, 0,
-                    GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(explosionImage));
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, explosionImage->width, 
+                explosionImage->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
+                buildAlphaData(explosionImage));
         }
         
-        player.pos_x = playerStart;
-        enemy.pos_x = enemyStart;
+        player.pos_x = playerStart - 35;
+        enemy.pos_x = enemyStart - 35;
         
         base_y = player.pos_y;
         
@@ -749,7 +750,7 @@ void renderAnimation(Player &player, Enemy &enemy)
         handtype = 0;
     }
     
-    float center = 285;
+    float center = 265;
     float playerEdge = center - 32;
     float enemyEdge = center + 1;
     
@@ -844,9 +845,8 @@ void renderAnimation(Player &player, Enemy &enemy)
             showExplosion = true;
             explosionFrame = 0;
             
-            explosionX = center;
-            explosionY = player.pos_y + player.yres / 2.0f;
-            textTimer = 0;
+            explosionX = center + 30;
+            explosionY = player.pos_y + player.yres / 2.0f + 40;
         }
     }
     
@@ -900,10 +900,7 @@ void renderAnimation(Player &player, Enemy &enemy)
     }
     
     if (hasCollided) {
-        textTimer++;
-        
         if (!showExplosion) {
-            isAnimating = false;
             hasCollided = false;
             isRPSMoving = false;
             RPSdone = false;
@@ -915,9 +912,101 @@ void renderAnimation(Player &player, Enemy &enemy)
             
             animationDone = true;
             
-            renderStart();
-            
-            return;
+            return true;
         }
+    }
+    
+    return animationDone;
+}
+
+void renderStart(int startMenuSelection)
+{
+    static bool titleInitialized = false;
+    static GLuint titleTexture;
+    static int titleWidth, titleHeight;
+    static Image *titleImage = NULL;
+    
+    if (!titleInitialized) {
+        titleImage = new Image("./assets/title.png");
+        titleWidth = titleImage->width;
+        titleHeight = titleImage->height;
+        
+        glGenTextures(1, &titleTexture);
+        glBindTexture(GL_TEXTURE_2D, titleTexture);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, titleWidth, titleHeight, 0,
+                GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(titleImage));
+        
+        titleInitialized = true;
+    }
+    
+    const int numOptions = 3; 
+    
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    float titleScale = 4.0f;
+    float scaledTitleWidth = titleWidth * titleScale;
+    float scaledTitleHeight = titleHeight * titleScale;
+    float titleX = (576 - scaledTitleWidth) / 2;
+    float titleY = 160;
+    
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(1.0, 1.0, 1.0, 1.0);
+    glBindTexture(GL_TEXTURE_2D, titleTexture);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(titleX, titleY);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(titleX, titleY + 
+            scaledTitleHeight);
+        glTexCoord2f(1.0f, 0.0f); glVertex2f(titleX + scaledTitleWidth, titleY 
+            + scaledTitleHeight);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f(titleX + scaledTitleWidth, titleY);
+    glEnd();
+    
+    Rect subtitleText;
+    subtitleText.center = 1;
+    subtitleText.left = 576 / 2;
+    subtitleText.bot = titleY - 20;
+    ggprint16(&subtitleText, 32, 0xffffff, "A One-Handed Journey");
+    
+    float boxWidth = 200.0f;
+    float boxHeight = 100.0f;
+    float x = (576 - boxWidth) / 2;
+    float y = 20;
+
+    glColor4f(1.0, 1.0, 1.0, 0.15);
+    for (int i = 0; i < 6; i++) {
+        float offset = i * 2.0f;
+        glBegin(GL_QUADS);
+            glVertex2f(x - offset, y - offset);
+            glVertex2f(x + boxWidth + offset, y - offset);
+            glVertex2f(x + boxWidth + offset, y + boxHeight + offset);
+            glVertex2f(x - offset, y + boxHeight + offset);
+        glEnd();
+    }
+    
+    glColor4f(0.0, 0.0, 0.0, 0.85);
+    glBegin(GL_QUADS);
+        glVertex2f(x, y);
+        glVertex2f(x + boxWidth, y);
+        glVertex2f(x + boxWidth, y + boxHeight);
+        glVertex2f(x, y + boxHeight);
+    glEnd();
+    glDisable(GL_BLEND);
+    
+    const unsigned int COLOR_MENU_SELECTED = 0xffffff;
+    const unsigned int COLOR_MENU_DEFAULT = 0x888888;
+    
+    Rect rText;
+    rText.center = 1;
+    rText.left = 576 / 2;
+    
+    const char* options[] = {"Play Game", "Controls", "Exit Game"};
+    for (int i = 0; i < numOptions; ++i) {
+        rText.bot = y + boxHeight - 35 - (i * 25);
+        int color = (i == startMenuSelection) ? COLOR_MENU_SELECTED : 
+            COLOR_MENU_DEFAULT;
+        ggprint16(&rText, 32, color, options[i]);
     }
 }
