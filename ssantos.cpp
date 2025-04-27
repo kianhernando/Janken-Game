@@ -85,7 +85,7 @@ void simonText(Rect *rSimon)
 const char* battleChoice[] = {
     "You won the round! Choose an Action!",
     "'A' to attack enemy",
-    "'B' to choose gambit"
+    "'B' to block next hit"
 };
 
 const char* simplifyControls[] = {
@@ -141,11 +141,17 @@ int compareHealth(int &pHealth, int &eHealth)
     return 0;
 }
 
-int logicSimon(int choice, int enChoice, int &pHealth) 
+bool blockDamage(bool block)
+{
+    printf("is blocked %i\n", block);
+    return block;
+}
+
+int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked) 
 {
     static int roundCounter = 0;
     int playerWonInteraction = 1;
-    if (roundCounter == 20) {
+    if (roundCounter == 40) {
         grabPlayerHealth(pHealth);
         printf("battle over!\n");
         return 0;
@@ -164,7 +170,13 @@ int logicSimon(int choice, int enChoice, int &pHealth)
             enemy.changeImage("assets/enemy/paper.png");
             ++bState.playerLoseInteraction;
             printf("Player Loses! Player loses 10 HP!\n");
-            pHealth -= 10;
+            if (blocked == 1) {
+                pHealth -= 7;
+                blocked = 0;
+                printf("not blocking %i\n", blocked);
+            } else {
+                pHealth -= 10;
+            }
             printf("%i\n", pHealth);
             printf("amount of times player has lost: %i\n", 
                 bState.playerLoseInteraction);
@@ -190,7 +202,13 @@ int logicSimon(int choice, int enChoice, int &pHealth)
             enemy.changeImage("assets/enemy/scissors.png");
             ++bState.playerLoseInteraction;
             printf("Player Loses! Player loses 10 HP!\n");
-            pHealth -= 10;
+            if (blocked == 1) {
+                pHealth -= 7;
+                blocked = 0;
+                printf("not blocking %i\n", blocked);
+            } else {
+                pHealth -= 10;
+            }
             printf("%i\n", pHealth);
             printf("amount of times player has lost: %i\n", 
                 bState.playerLoseInteraction);
@@ -215,7 +233,13 @@ int logicSimon(int choice, int enChoice, int &pHealth)
             enemy.changeImage("assets/enemy/rock.png");
             ++bState.playerLoseInteraction;
             printf("Player Loses! Player loses 10 HP!\n");
-            pHealth -= 10;
+            if (blocked == 1) {
+                pHealth -= 7;
+                blocked = 0;
+                printf("not blocking %i\n", blocked);
+            } else {
+                pHealth -= 10;
+            }
             printf("%i\n", pHealth);
             printf("amount of times player has lost: %i\n", 
                 bState.playerLoseInteraction);
