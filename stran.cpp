@@ -28,7 +28,7 @@ extern Global g;
 extern X11_wrapper x11;
 
 // The Title Screen Function with Animated Falling Text and Additional Instructions
-void renderStart()
+/*void renderStart()
 {
     static float yOffset1 = 200; // Initial vertical offsets for each piece of text
     static float yOffset2 = 250;
@@ -44,7 +44,7 @@ void renderStart()
     // Render background (same as main screen) <--- Now edited out
     // Plan: Put custom background separate from the main game
     
-    /*
+
     glColor3f(1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, g.tex.backTexture);
     glBegin(GL_QUADS);
@@ -53,7 +53,7 @@ void renderStart()
         glTexCoord2f(g.tex.xc[1], g.tex.yc[0]); glVertex2i(g.xres, g.yres);
         glTexCoord2f(g.tex.xc[1], g.tex.yc[1]); glVertex2i(g.xres, 0);
     glEnd();
-    */
+    
     
     // Render Falling Text
     Rect rText;
@@ -84,6 +84,7 @@ void renderStart()
 
     x11.swapBuffers();
 }
+*/
 
 // Function to start intro screen delay
 void showIntroScreen() 

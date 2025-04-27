@@ -159,6 +159,8 @@ public:
 
     bool showSelection;
 
+    int startMenuSelection;
+
     Global() 
     {
         xres = 576;
@@ -178,6 +180,7 @@ public:
         gameOverMenuSelection = 0;
         pauseMenuSubState = PAUSE_NONE;
         showSelection = false;
+        startMenuSelection = 0;
     }
 } g;
 
@@ -301,8 +304,8 @@ void renderPauseMenu(int xres, int yres, int pauseMenuSelection,
                     PauseSubState pauseMenuSubState);
 extern void showIntroScreen();
 extern void startGame();
-extern void renderAnimation(Player &player, Enemy &enemy);
-extern void renderStart();
+extern bool renderAnimation(Player &player, Enemy &enemy);
+extern void renderStart(int startMenuSelection);
 extern void renderGameOverScreen(int xres, int yres, bool enemyDefeated, 
                                 int gameOverMenuSelection);
 extern void checkDeathLogTrigger(bool &isGameOver, bool &enemyDefeated);
@@ -323,11 +326,7 @@ int main()
             done = check_keys(&e);
         }
         physics();
-        if (g.renderStartScreen) {
-            renderAnimation(introPlayer, introEnemy);
-        } else {
         render();
-        }
         x11.swapBuffers();
     }
     cleanup_fonts();
@@ -418,6 +417,29 @@ int check_keys(XEvent *e)
         int key = XLookupKeysym(&e->xkey, 0);
         if (key == XK_Escape) {
             return 1;
+        }
+        
+        if (g.renderStartScreen) {
+            if (key == XK_Up) {
+                g.startMenuSelection = (g.startMenuSelection + 2) % 3;
+                return 0;
+            } else if (key == XK_Down) {
+                g.startMenuSelection = (g.startMenuSelection + 1) % 3;
+                return 0;
+            } else if (key == XK_Return) {
+                switch (g.startMenuSelection) {
+                    case 0:
+                        g.renderStartScreen = false;
+                        break;
+                    case 1:
+                        // add control functions later
+                        g.currentTextState = CONTROLS;
+                        break;
+                    case 2:
+                        return 1;
+                }
+                return 0;
+            }
         }
         
         // Text Keybinds
@@ -547,6 +569,12 @@ int check_keys(XEvent *e)
             // when player dies, render gameOver screen
             // currently a bug that makes the screen white when press 
             // play again
+            if (g.playerHealth <= 0) {
+                g.isGameOver = true;
+                g.enemyDefeated = false;
+                g.gameOverMenuSelection = 0;
+            }
+
             if (g.playerHealth <= 0) {
                 g.isGameOver = true;
                 g.enemyDefeated = false;
@@ -692,6 +720,49 @@ void render()
     if (g.isGameOver) {
         renderGameOverScreen(g.xres, g.yres, g.enemyDefeated, 
                             g.gameOverMenuSelection);
+        return;
+    }
+
+    // Separate animation rendering from start screen rendering
+    // Add a new state to track if animation is playing
+    static bool playingAnimation = true;
+    
+    if (playingAnimation) {
+        // Check if animation is done
+        if (renderAnimation(player, enemy)) {
+            playingAnimation = false;
+        }
+        return;
+    }
+
+    if (g.renderStartScreen) {
+        g.isPaused = false;
+        g.pauseMenuSubState = PAUSE_NONE;
+        g.startMenuSelection = 0;
+        
+        player.pos_x = player.base_x;
+        player.pos_y = player.base_y;
+        enemy.pos_x = enemy.base_x;
+        enemy.pos_y = enemy.base_y;
+        
+    
+        g.playerHealth = 100;
+        g.enemyHealth = 100;
+        player.changeHealthBar(g.playerHealth);
+        enemy.changeHealthBar(g.enemyHealth);
+        
+        g.encounterEnemy = false;
+        g.isBackgroundMoving = true;
+        enemy.hitBarrier = false;
+        
+        g.currentTextState = INTRO;
+        g.showMembers = false;
+        g.showCreditsScreen = false;
+        g.showPlayerWins = false;
+        
+        glClearColor(0.0, 0.0, 0.0, 0.0);
+    
+        renderStart(g.startMenuSelection);
         return;
     }
 
