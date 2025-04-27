@@ -102,10 +102,12 @@ enum TextState {
 };
 
 int checkPlayerState;
+Player introPlayer;
+Player player;
+Enemy introEnemy;
+Enemy enemy;
 bool checkBlockState;
 int healthToCompare;
-Player player;
-Enemy enemy;
 int choice = 0;
 int enChoice = 0;
 static float moving = 10.0f;
@@ -299,6 +301,7 @@ void renderPauseMenu(int xres, int yres, int pauseMenuSelection,
                     PauseSubState pauseMenuSubState);
 extern void showIntroScreen();
 extern void startGame();
+extern void renderAnimation(Player &player, Enemy &enemy);
 extern void renderStart();
 extern void renderGameOverScreen(int xres, int yres, bool enemyDefeated, 
                                 int gameOverMenuSelection);
@@ -321,7 +324,7 @@ int main()
         }
         physics();
         if (g.renderStartScreen) {
-            renderStart();
+            renderAnimation(introPlayer, introEnemy);
         } else {
         render();
         }

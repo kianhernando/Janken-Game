@@ -11,10 +11,9 @@
 #include <X11/keysym.h>
 #include <GL/glx.h>
 #include "khernando.h"
+#include "stran.h"
 #include "image.h"
 
-extern Global g;
-extern void stopBackground();
 Box box(576, 75);
 Box top(576, 40);
 Box selection1(90, 65);
@@ -647,5 +646,278 @@ void renderBox(Box& sel, const char* imagePath) {
         
         glPopMatrix();
         glDisable(GL_BLEND);
+    }
+}
+
+void renderAnimation(Player &player, Enemy &enemy)
+{
+    static bool isInitialized = false;
+    static bool isAnimating = true;
+    static bool hasCollided = false; 
+    static float playerStart = -36;
+    static float enemyStart = 600;
+    static float moveSpeed = 15.0f;
+    static int textTimer = 0;
+    static bool animationDone = false;
+    
+    static bool isRPSMoving = false;
+    static float time = 0.0f;
+    static const float speed = 0.5f;
+    static const float amplitude = 20.0f;
+    static const float cycles = 3.0f;
+    static const float duration = (2.0f * M_PI * cycles) / speed;
+    static float base_y = 0.0f;
+    static bool RPSdone = false;
+    
+    static int handtype = 0;
+    static float lastChanged = 0.0f;
+    static Image* playerSprites[3] = {nullptr, nullptr, nullptr};
+    static Image* enemyImages[3] = {nullptr, nullptr, nullptr};
+    static GLuint playerTextures[3] = {0, 0, 0};
+    static GLuint enemyTextures[3] = {0, 0, 0};
+    static const char* playerPaths[3] = {
+        "assets/player/rock_x.png",
+        "assets/player/paper_x.png",
+        "assets/player/scissors_x.png"
+    };
+    static const char* enemyPaths[3] = {
+        "assets/enemy/rock.png",
+        "assets/enemy/paper.png",
+        "assets/enemy/scissors.png"
+    };
+    
+    static bool showExplosion = false;
+    static int explosionFrame = 0;
+    static const int explosionFrames = 12;
+    static float explosionSize = 450.0f;
+    static float explosionX = 0.0f;
+    static float explosionY = 0.0f;
+    
+    static Image* explosionImage = nullptr;
+    static GLuint explosionTexture = 0;
+    static const int GRID_SIZE = 12;
+    static float explosionDelay = 1.3f;
+    static float explosionCounter = 0.0f;
+    
+    if (animationDone) {
+        renderStart();
+        return;
+    }
+    
+    if (!isInitialized) {
+        for (int i = 0; i < 3; i++) {
+            playerSprites[i] = new Image(playerPaths[i]);
+            glGenTextures(1, &playerTextures[i]);
+            glBindTexture(GL_TEXTURE_2D, playerTextures[i]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, playerSprites[i]->width, playerSprites[i]->height, 0,
+                    GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(playerSprites[i]));
+            
+            enemyImages[i] = new Image(enemyPaths[i]);
+            glGenTextures(1, &enemyTextures[i]);
+            glBindTexture(GL_TEXTURE_2D, enemyTextures[i]);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, enemyImages[i]->width, enemyImages[i]->height, 0,
+                    GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(enemyImages[i]));
+        }
+        
+        player.init(playerPaths[0]);
+        enemy.init(enemyPaths[0]);
+        
+        if (explosionImage == nullptr) {
+            explosionImage = new Image("assets/effects/explosion.png");
+            
+            glGenTextures(1, &explosionTexture);
+            glBindTexture(GL_TEXTURE_2D, explosionTexture);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, explosionImage->width, explosionImage->height, 0,
+                    GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(explosionImage));
+        }
+        
+        player.pos_x = playerStart;
+        enemy.pos_x = enemyStart;
+        
+        base_y = player.pos_y;
+        
+        isInitialized = true;
+        isRPSMoving = false;
+        RPSdone = false;
+        hasCollided = false;
+        handtype = 0;
+    }
+    
+    float center = 285;
+    float playerEdge = center - 32;
+    float enemyEdge = center + 1;
+    
+    float playerPoint = playerEdge - 30;
+    float enemyPoint = enemyEdge + 30;
+    
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(0.0, 0.0, 0.0);
+    glBegin(GL_QUADS);
+        glVertex2i(0, 0);
+        glVertex2i(0, 324);
+        glVertex2i(576, 324);
+        glVertex2i(576, 0);
+    glEnd();
+    
+    if (!isRPSMoving && !RPSdone && !hasCollided) {
+        if (player.pos_x < playerPoint) {
+            player.pos_x += moveSpeed;
+            if (player.pos_x > playerPoint) {
+                player.pos_x = playerPoint;
+            }
+        }
+        
+        if (enemy.pos_x > enemyPoint) {
+            enemy.pos_x -= (moveSpeed * 1.2f);
+            if (enemy.pos_x < enemyPoint) {
+                enemy.pos_x = enemyPoint;
+            }
+        }
+        
+        if (player.pos_x >= playerPoint && enemy.pos_x <= enemyPoint) {
+            isRPSMoving = true;
+            time = 0.0f;
+            lastChanged = 0.0f;
+        }
+    }
+    
+    if (isRPSMoving && !hasCollided) {
+        float offset = amplitude * sin(time * speed);
+        player.pos_y = base_y + offset;
+        enemy.pos_y = base_y + offset;
+        
+        float sinValue = sin(time * speed);
+        
+        if (sinValue > 0.95f && (time - lastChanged) > (M_PI / speed)) {
+            handtype = (handtype + 1) % 3;
+            
+            player.tex.backImage = playerSprites[handtype];
+            player.tex.backTexture = playerTextures[handtype];
+            
+            enemy.tex.backImage = enemyImages[handtype];
+            enemy.tex.backTexture = enemyTextures[handtype];
+            
+            lastChanged = time;
+        }
+        
+        time += 1.0f;
+        
+        if (time >= duration) {
+            isRPSMoving = false;
+            RPSdone = true;
+            
+            player.pos_y = base_y;
+            enemy.pos_y = base_y;
+            
+            handtype = 0;
+            player.tex.backImage = playerSprites[handtype];
+            player.tex.backTexture = playerTextures[handtype];
+            
+            enemy.tex.backImage = enemyImages[handtype];
+            enemy.tex.backTexture = enemyTextures[handtype];
+        }
+    }
+    
+    if (RPSdone && !hasCollided) {
+        if (player.pos_x < playerEdge) {
+            player.pos_x += moveSpeed;
+            if (player.pos_x > playerEdge) {
+                player.pos_x = playerEdge;
+            }
+        }
+        
+        if (enemy.pos_x > enemyEdge) {
+            enemy.pos_x -= (moveSpeed * 1.2f);
+            if (enemy.pos_x < enemyEdge) {
+                enemy.pos_x = enemyEdge;
+            }
+        }
+        
+        if (player.pos_x >= playerEdge && enemy.pos_x <= enemyEdge) {
+            hasCollided = true;
+            showExplosion = true;
+            explosionFrame = 0;
+            
+            explosionX = center;
+            explosionY = player.pos_y + player.yres / 2.0f;
+            textTimer = 0;
+        }
+    }
+    
+    if (!showExplosion) {
+        player.render_player();
+        enemy.render_enemy();
+    } else {
+        player.render_player();
+        enemy.render_enemy();
+        
+        if (explosionTexture != 0) {
+            glEnable(GL_BLEND);
+            glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+            
+            glBindTexture(GL_TEXTURE_2D, explosionTexture);
+            
+            float frameWidth = 1.0f / GRID_SIZE;
+            float texLeft = frameWidth * (explosionFrame % GRID_SIZE);
+            float texRight = texLeft + frameWidth;
+            
+            float halfWidth = explosionSize / 2.0f;
+            float halfHeight = explosionSize / 2.0f;
+            
+            glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+            glBegin(GL_QUADS);
+                glTexCoord2f(texLeft, 1.0f);
+                glVertex2f(explosionX - halfWidth, explosionY - halfHeight);
+                
+                glTexCoord2f(texLeft, 0.0f);
+                glVertex2f(explosionX - halfWidth, explosionY + halfHeight);
+                
+                glTexCoord2f(texRight, 0.0f);
+                glVertex2f(explosionX + halfWidth, explosionY + halfHeight);
+                
+                glTexCoord2f(texRight, 1.0f);
+                glVertex2f(explosionX + halfWidth, explosionY - halfHeight);
+            glEnd();
+            
+            glDisable(GL_BLEND);
+            
+            explosionCounter += 1.0f;
+            if (explosionCounter >= explosionDelay) {
+                explosionFrame++;
+                explosionCounter = 0.0f;
+            }
+            
+            if (explosionFrame >= explosionFrames) {
+                showExplosion = false;
+            }
+        }
+    }
+    
+    if (hasCollided) {
+        textTimer++;
+        
+        if (!showExplosion) {
+            isAnimating = false;
+            hasCollided = false;
+            isRPSMoving = false;
+            RPSdone = false;
+            
+            player.pos_x = player.base_x;
+            enemy.pos_x = enemy.base_x;
+            player.pos_y = base_y;
+            enemy.pos_y = base_y;
+            
+            animationDone = true;
+            
+            renderStart();
+            
+            return;
+        }
     }
 }
