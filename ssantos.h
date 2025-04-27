@@ -8,7 +8,9 @@ extern Global g;
 
 class Item {
     public:
-        Item();
+        Item(const std::string& itemName = "");
+        std::string getName() const { return name; }
+        
         void swordItem();
         void bowItem();
         void spearItem();
@@ -24,6 +26,9 @@ class Item {
         int protectedDamage;
         int crit;
         int thorns;
+
+    private:
+        std::string name;
 };
 
 enum optionSelect{

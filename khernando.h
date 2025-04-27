@@ -3,6 +3,10 @@
 #include "image.h"
 #include "textures.h"
 #include <GL/glx.h>
+#include <vector>
+#include <algorithm>
+#include <string>
+#include "ssantos.h"
 
 class Global;
 
@@ -19,6 +23,13 @@ class Player {
         void update(float amplitude);
         void changeImage(const char* imagePath);
         void changeHealthBar(int health);
+
+        // Add inventory functions
+        void addItem(Item* item);
+        void removeItem(const std::string& itemName);
+        void clearInventory();
+        Item* getItem(const std::string& itemName);
+        void applyItemEffects(); // Apply all item effects to player stats
         
         Texture tex;
         Texture hp;
@@ -27,6 +38,18 @@ class Player {
         float pos_x, pos_y;
         float base_x, base_y;
         float hp_x, hp_y;
+
+        //stats
+        int baseDamage;
+        int baseDefense;
+        int currentDamage;
+        int currentDefense;
+        int critChance;
+        int thornsAmount;
+
+    private:
+        std::vector<Item*> inventory;
+
 };
 
 class Enemy {
@@ -40,6 +63,13 @@ class Enemy {
         void changeImage(const char* imagePath);
         void changeHealthBar(int health);
 
+        // Add inventory functions
+        void addItem(Item* item);
+        void clearEnemyInventory();
+        void removeItem(const std::string& itemName);
+        Item* getItem(const std::string& itemName);
+        void applyItemEffects(); // Apply all item effects to enemy stats
+
         Texture tex;
         Texture hp;
         int xres, yres;
@@ -48,6 +78,17 @@ class Enemy {
         float base_x, base_y;
         float hp_x, hp_y;
         bool hitBarrier;
+            
+        //stats
+        int baseDamage;
+        int baseDefense;
+        int currentDamage;
+        int currentDefense;
+        int critChance;
+        int thornsAmount;
+    
+    private:
+        std::vector<Item*> inventory;
 };
 
 // Originally from waterfall (lab 6)

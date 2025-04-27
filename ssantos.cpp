@@ -27,6 +27,15 @@ struct battleState{
 int initScore = 100;
 int totalScore = 0;
 
+Item::Item(const std::string& itemName) : 
+    boostedDamage(0), 
+    protectedDamage(0), 
+    crit(0), 
+    thorns(0),
+    name(itemName) 
+{
+}
+
 void Item::swordItem()
 {
     boostedDamage = 1;
@@ -77,6 +86,130 @@ void Item::thornedArmor()
     thorns = 2;
 }
 
+// Player inventory management functions
+void Player::addItem(Item* item) {
+    if (item) {
+        if (item) {
+            // optional: verify that the item's important stats are reasonable
+            inventory.push_back(item);
+            applyItemEffects();
+        }
+    }
+}
+
+void Player::clearInventory() {
+    for (Item* item : inventory) {
+        delete item;  // Clean up dynamically allocated memory
+    }
+    inventory.clear();  // Clear the vector
+}
+
+void Player::removeItem(const std::string& itemName) {
+    auto it = std::find_if(inventory.begin(), inventory.end(), 
+        [&itemName](Item* item) { return item->getName() == itemName; });
+    
+    if (it != inventory.end()) {
+        inventory.erase(it);
+        // Recalculate effects when an item is removed
+        applyItemEffects();
+    }
+}
+
+Item* Player::getItem(const std::string& itemName) {
+    auto it = std::find_if(inventory.begin(), inventory.end(), 
+        [&itemName](Item* item) { return item->getName() == itemName; });
+    
+    if (it != inventory.end()) {
+        return *it;
+    }
+    return nullptr;
+}
+
+void Player::applyItemEffects() {
+    // Reset stats to base values
+    currentDamage = baseDamage;
+    currentDefense = baseDefense;
+    critChance = 0;
+    thornsAmount = 0;
+    
+    // Apply all item effects
+    for (Item* item : inventory) {
+        if (item) { // <- SAFETY CHECK
+            currentDamage += item->boostedDamage;
+            currentDefense += item->protectedDamage;
+            critChance += item->crit;
+            thornsAmount += item->thorns;
+
+             // Debug prints
+            std::cout << "Item: " << item->getName() << std::endl;
+            std::cout << "Boosted Damage: " << item->boostedDamage << std::endl;
+            std::cout << "Current Damage: " << currentDamage << std::endl;
+        }
+    }
+}
+
+// Enemy inventory management functions
+void Enemy::addItem(Item* item) {
+    if (item) {
+        if (item) {
+            // optional: verify that the item's important stats are reasonable
+            inventory.push_back(item);
+            applyItemEffects();
+        }
+    }
+}
+
+void Enemy::clearEnemyInventory() {
+    for (Item* item : inventory) {
+        delete item;  // Clean up dynamically allocated memory
+    }
+    inventory.clear();  // Clear the vector
+}
+
+void Enemy::removeItem(const std::string& itemName) {
+    auto it = std::find_if(inventory.begin(), inventory.end(), 
+        [&itemName](Item* item) { return item->getName() == itemName; });
+    
+    if (it != inventory.end()) {
+        inventory.erase(it);
+        // Recalculate effects when an item is removed
+        applyItemEffects();
+    }
+}
+
+Item* Enemy::getItem(const std::string& itemName) {
+    auto it = std::find_if(inventory.begin(), inventory.end(), 
+        [&itemName](Item* item) { return item->getName() == itemName; });
+    
+    if (it != inventory.end()) {
+        return *it;
+    }
+    return nullptr;
+}
+
+void Enemy::applyItemEffects() {
+    // Reset stats to base values
+    currentDamage = baseDamage;
+    currentDefense = baseDefense;
+    critChance = 0;
+    thornsAmount = 0;
+    
+    // Apply all item effects
+    for (Item* item : inventory) {
+        if (item) { // <- SAFETY CHECK
+            currentDamage += item->boostedDamage;
+            currentDefense += item->protectedDamage;
+            critChance += item->crit;
+            thornsAmount += item->thorns;
+
+             // Debug prints
+            std::cout << "Item: " << item->getName() << std::endl;
+            std::cout << "Boosted Damage: " << item->boostedDamage << std::endl;
+            std::cout << "Current Damage: " << currentDamage << std::endl;
+        }
+    }
+}
+
 void simonText(Rect *rSimon)
 {
     ggprint8b(rSimon, 16, 0xffffff, "Simon");
@@ -94,9 +227,34 @@ const char* simplifyControls[] = {
 
 int battleChoiceFunc(int &pHealth, int &eHealth)
 {
-    eHealth -= 10;
-    printf("amount of times enemy has lost: %i\n", 
-        bState.enemyLoseInteraction);
+    // Calculate player's damage based on their base damage and item bonuses
+    int damage = player.currentDamage;
+    
+    // Apply critical hit chance
+    if (player.critChance > 0) {
+        std::uniform_int_distribution<> critRoll(1, 10);
+        if (critRoll(gen) <= player.critChance) {
+            damage *= 2;
+            printf("Critical hit!\n");
+        }
+    }
+    
+    // Apply enemy defense from items
+    int finalDamage = std::max(1, damage - enemy.currentDefense);
+    eHealth -= finalDamage;
+    printf("Enemy takes %d damage!\n", finalDamage);
+    printf("enemy health %i\n", eHealth);
+    
+    // Apply thorns damage if enemy has thorned armor
+    if (enemy.thornsAmount > 0) {
+        int thornsDamage = enemy.thornsAmount;
+        pHealth -= thornsDamage;
+        printf("You took %d thorns damage from enemy's thorns!\n", 
+            thornsDamage);
+        player.changeHealthBar(pHealth);
+    }
+    
+    printf("Amount of times enemy has lost: %i\n", bState.enemyLoseInteraction);
     enemy.changeHealthBar(eHealth);
     if (eHealth == 0) {
         printf("Enemy has died!\n");
@@ -297,23 +455,57 @@ int randItemGen()
 {
     std::uniform_int_distribution<> dis(1, 10);
     int randItem = dis(gen);
+    Item* newItem = nullptr;
+    
     if (randItem <= 10 && randItem > 9) {
         printf("Ultra Rare Item: %i\n", randItem);
-        printf("serrated sword acquired\n");
-        fflush(stdout);
+        newItem = new Item("Serrated Sword");
+        newItem->serratedSword();
+        printf("Serrated sword acquired\n");
     } else if (randItem <= 9 && randItem > 8) {
         printf("Rare Item: %i\n", randItem);
-        printf("thorned armor acquired\n");
-        fflush(stdout);
+        newItem = new Item("Thorned Armor");
+        newItem->thornedArmor();
+        printf("Thorned armor acquired\n");
     } else if (randItem <= 8 && randItem > 5) {
         printf("Uncommon Item: %i\n", randItem);
-        randUncommonItem();
-        fflush(stdout);
+        int uncommonType = randUncommonItem();
+        if (uncommonType == 0) {
+            newItem = new Item("Shield");
+            newItem->shieldItem();
+        } else if (uncommonType == 1) {
+            newItem = new Item("Helm");
+            newItem->helmItem();
+        } else if (uncommonType == 2) {
+            newItem = new Item("Armor");
+            newItem->armorItem();
+        }
     } else if (randItem <= 5 && randItem > 0) {
         printf("Common Item: %i\n", randItem);
-        randCommonItem();
-        fflush(stdout);
+        int commonType = randCommonItem();
+        if (commonType == 0) {
+            newItem = new Item("Sword");
+            newItem->swordItem();
+        } else if (commonType == 1) {
+            newItem = new Item("Bow");
+            newItem->bowItem();
+        } else if (commonType == 2) {
+            newItem = new Item("Spear");
+            newItem->spearItem();
+        } else if (commonType == 3) {
+            newItem = new Item("Axe");
+            newItem->axeItem();
+        } else if (commonType == 4) {
+            newItem = new Item("Hammer");
+            newItem->hammerItem();
+        }
     }
+    
+    if (newItem) {
+        player.addItem(newItem);
+        std::cout << newItem->getName() << " added to inventory!" << std::endl;
+    }
+    
     printf("Item: %i\n", randItem);
     fflush(stdout);
 

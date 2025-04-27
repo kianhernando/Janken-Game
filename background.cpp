@@ -329,6 +329,7 @@ int main()
         render();
         x11.swapBuffers();
     }
+    player.clearInventory();
     cleanup_fonts();
     return 0;
 }
