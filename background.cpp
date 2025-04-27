@@ -106,6 +106,8 @@ Player introPlayer;
 Player player;
 Enemy introEnemy;
 Enemy enemy;
+bool checkBlockState;
+int healthToCompare;
 int choice = 0;
 int enChoice = 0;
 static float moving = 10.0f;
@@ -431,7 +433,7 @@ int check_keys(XEvent *e)
         if (key == XK_z) {
             g.showCreditsScreen = !g.showCreditsScreen;
         }
-        if (key == XK_b) {
+        if (key == XK_v) {
             g.showPlayerWins = !g.showPlayerWins;
         }
         if (key == XK_h) {
@@ -443,11 +445,11 @@ int check_keys(XEvent *e)
         // Player Health Keybinds for testing purposes
         if (key == XK_2) {
             // Commented out for testing logic 
-            //g.playerHealth = 20;
-            g.enemyHealth = 20;
+            g.playerHealth = 20;
+            //g.enemyHealth = 20;
             // Commented out for testing logic 
-            //player.changeHealthBar(g.playerHealth);
-            enemy.changeHealthBar(g.enemyHealth);
+            player.changeHealthBar(g.playerHealth);
+            //enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_4) {
             g.playerHealth = 40;
@@ -469,15 +471,15 @@ int check_keys(XEvent *e)
         }
         if (key == XK_0) {
             g.playerHealth = 0;
-            g.enemyHealth = 0;
+            //g.enemyHealth = 0;
             player.changeHealthBar(g.playerHealth);
-            enemy.changeHealthBar(g.enemyHealth);
+            //enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_f) {
             g.playerHealth = 100;
-            g.enemyHealth = 100;
+            //g.enemyHealth = 100;
             player.changeHealthBar(g.playerHealth);
-            enemy.changeHealthBar(g.enemyHealth);
+            //enemy.changeHealthBar(g.enemyHealth);
         }
 
         // Test for random gen
@@ -489,23 +491,19 @@ int check_keys(XEvent *e)
         if (!g.isBackgroundMoving) {
             // Keybinds for rock paper and scissors
             if (g.playerHealth != 0 && g.enemyHealth != 0) {
+                static bool block = false;
                 if (key == XK_r) {
                     choice = ROCK;
                     enChoice = randGen();
-                    //player.changeImage("assets/player/rock_x.png");
-                    //enemy.changeImage("assets/enemy/rock.png");
                     checkPlayerState = logicSimon(choice, enChoice, 
-                            g.playerHealth); 
+                            g.playerHealth, checkBlockState); 
                 }
                 
                 if (key == XK_p) {
                     choice = PAPER;
                     enChoice = randGen();
-                    //player.changeImage("assets/player/paper_x.png");
-                    //enemy.changeImage("assets/enemy/paper.png");
-                    //logicSimon(choice, enChoice, g.playerHealth);
                     checkPlayerState = logicSimon(choice, enChoice, 
-                            g.playerHealth); 
+                            g.playerHealth, checkBlockState); 
                 }
                 
                 if (key == XK_q) {
@@ -515,26 +513,44 @@ int check_keys(XEvent *e)
                 if (key == XK_s) {
                     choice = SCISSORS;
                     enChoice = randGen();
-                    //player.changeImage("assets/player/scissors_x.png");
-                    //enemy.changeImage("assets/enemy/scissors.png");
-                    //logicSimon(choice, enChoice, g.playerHealth);
                     checkPlayerState = logicSimon(choice, enChoice, 
-                            g.playerHealth); 
+                            g.playerHealth, checkBlockState); 
                 }
                 if (key == XK_n) {
                     player.changeImage("assets/player/normal_x.png");
                     enemy.changeImage("assets/enemy/boot.png");
                 }
+
                 if (checkPlayerState == 1) {
                     g.currentTextState = BATTLECONTROLS;
                     if (key == XK_a) {
-                        battleChoiceFunc(g.playerHealth, g.enemyHealth);
+                        healthToCompare = battleChoiceFunc(g.playerHealth, 
+                            g.enemyHealth);
+                        checkPlayerState = 0;
+                    }
+                    if (key == XK_b) {
+                        block = true;
+                        checkBlockState = blockDamage(block);
                         checkPlayerState = 0;
                     }
                 }
+
                 if (checkPlayerState == 0) {
                     g.currentTextState = SIMPLIFYCONTROLS;
                 }
+                /* save for later use
+                int ehealth = grabEnemyHealth(g.enemyHealth);
+                int phealth = grabPlayerHealth(g.playerHealth);
+                compareHealth(phealth, ehealth);
+                */
+            }
+            // when player dies, render gameOver screen
+            // currently a bug that makes the screen white when press 
+            // play again
+            if (g.playerHealth <= 0) {
+                g.isGameOver = true;
+                g.enemyDefeated = false;
+                g.gameOverMenuSelection = 0;
             }
         }
 
@@ -627,10 +643,12 @@ int check_keys(XEvent *e)
          // Game Over Screen
          if (g.isGameOver) {
              if (key == XK_Up || key == XK_Down) {
-                 g.gameOverMenuSelection ^= 1;
-                 if (!g.enemyDefeated) g.gameOverMenuSelection = 1; // lock to option 1
-             }
-             if (key == XK_Return) {
+                g.gameOverMenuSelection ^= 1;
+                if (!g.enemyDefeated) { 
+                    g.gameOverMenuSelection = 1; // lock to option 1
+                }
+            }
+                if (key == XK_Return) {
                  if (g.gameOverMenuSelection == 0 && g.enemyDefeated) {
                      // Start next level
                      printf("Loading next level...\n");
@@ -681,7 +699,7 @@ void render()
         creditsScreen();
     } else {
             creditsScreenReset();
-            glClearColor(1.0, 1.0, 1.0, 1.0); /* added so it sets the
+            /*glClearColor(1.0, 1.0, 1.0, 1.0);  added so it sets the
                                               background color back 
                                               to white */
         

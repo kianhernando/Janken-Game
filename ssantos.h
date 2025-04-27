@@ -35,10 +35,15 @@ enum optionSelect{
 extern const char* battleChoice[];
 extern const char* simplifyControls[];
 
+
 void simonText(Rect *rSimon);
 void genNewEnemy(int eDeath);
+int grabEnemyHealth(int &eHealth);
+int grabPlayerHealth(int &pHealth);
 int battleChoiceFunc(int &pHealth, int &eHmakealth);
-int logicSimon(int choice, int enChoice, int &pHealth);
+int compareHealth(int &pHealth, int &eHealth);
+bool blockDamage(bool block);
+int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked);
 int scoreCalculator(int &pLoseCondition, int &eLoseCondition);
 int randGen();
 int randItemGen();
