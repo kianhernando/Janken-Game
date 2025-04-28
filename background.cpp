@@ -95,7 +95,7 @@ Image img[1] = {"./assets/landscape.jpg"};
 
 enum TextState {
     INTRO,
-    CONTROLS,
+    //CONTROLS,
     BATTLECONTROLS,
     SIMPLIFYCONTROLS,
     NONE
@@ -442,7 +442,7 @@ int check_keys(XEvent *e)
                         break;
                     case 1:
                         // add control functions later
-                        g.currentTextState = CONTROLS;
+                        g.showSelection = true;
                         break;
                     case 2:
                         return 1;
@@ -458,9 +458,9 @@ int check_keys(XEvent *e)
         if (key == XK_m) {
             g.showMembers = !g.showMembers;
         }
-        if (key == XK_c) {
+        /*if (key == XK_c) {
             g.currentTextState = CONTROLS;
-        }
+        }*/
         if (key == XK_z) {
             g.showCreditsScreen = !g.showCreditsScreen;
         }
@@ -476,8 +476,16 @@ int check_keys(XEvent *e)
         // Player Health Keybinds for testing purposes
         if (key == XK_2) {
             // Commented out for testing logic 
-            //g.playerHealth = 20;
-            g.enemyHealth = 20;
+            g.playerHealth = 20;
+            //g.enemyHealth = 20;
+            // Commented out for testing logic 
+            player.changeHealthBar(g.playerHealth);
+            //enemy.changeHealthBar(g.enemyHealth);
+        }
+        if (key == XK_1) {
+            // Commented out for testing logic 
+            //g.playerHealth = 10;
+            g.enemyHealth = 10;
             // Commented out for testing logic 
             //player.changeHealthBar(g.playerHealth);
             enemy.changeHealthBar(g.enemyHealth);
@@ -526,8 +534,7 @@ int check_keys(XEvent *e)
             }
             
             if (g.playerHealth != 0 && g.enemyHealth != 0) {
-                static bool block = false;
-                
+                static bool block = false;                
                 if (g.showSelection) {
                     if (key == XK_Left) {
                         g.RPSSelection = (g.RPSSelection + 2) % 3;
@@ -556,52 +563,52 @@ int check_keys(XEvent *e)
                                         g.playerHealth, checkBlockState);
                                 break;
                         }
-                        g.showSelection = false;
+                        if (checkPlayerState == 1) {
+                            // Player won, now allow battle controls
+                            g.showSelection = false;
+                            g.currentTextState = BATTLECONTROLS;
+                        } else {
+                            // Player lost or tied, reset
+                            g.showSelection = true;
+                            g.RPSSelection = 0;
+                            g.currentTextState = NONE;
+                        }
                         return 0;
+                    } else {
+                        if (checkPlayerState == 1) {
+                            //g.showSelection = !g.showSelection;
+                            if (key == XK_a) {
+                                healthToCompare = battleChoiceFunc(g.playerHealth, 
+                                    g.enemyHealth);
+                                checkPlayerState = 0;
+                            }
+                            if (key == XK_b) {
+                                block = true;
+                                checkBlockState = blockDamage(block);
+                                checkPlayerState = 0;
+                            }
+                        }
+        
+                        if (checkPlayerState == 0) {
+                            g.showSelection = true;
+                            g.RPSSelection = 0;
+                            g.currentTextState = NONE;
+                        }
                     }
-                }
-                if (checkPlayerState == 1) {
-                    g.currentTextState = BATTLECONTROLS;
-                    if (key == XK_a) {
-                        healthToCompare = battleChoiceFunc(g.playerHealth, 
-                            g.enemyHealth);
-                        checkPlayerState = 0;
-                    }
-                    if (key == XK_b) {
-                        block = true;
-                        checkBlockState = blockDamage(block);
-                        checkPlayerState = 0;
-                    }
-                }
-
-                if (checkPlayerState == 0) {
-                    g.showSelection = true;
-                    g.RPSSelection = 0;
                 }
                 /* save for later use
                 int ehealth = grabEnemyHealth(g.enemyHealth);
                 int phealth = grabPlayerHealth(g.playerHealth);
                 compareHealth(phealth, ehealth);
                 */
-            }
-            // when player dies, render gameOver screen
-            // currently a bug that makes the screen white when press 
-            // play again
-            if (g.playerHealth <= 0) {
-                g.isGameOver = true;
-                g.enemyDefeated = false;
-                g.gameOverMenuSelection = 0;
-            }
-
-            if (g.playerHealth <= 0) {
-                g.isGameOver = true;
-                g.enemyDefeated = false;
-                g.gameOverMenuSelection = 0;
+               // when player dies, render gameOver screen
             }
         }
 
         // Enemy Keybinds
         if (key == XK_space) {
+            g.currentTextState = NONE;
+            g.showSelection = !g.showSelection;
             g.encounterEnemy = !g.encounterEnemy;
             
             if (!g.encounterEnemy) {
@@ -617,101 +624,108 @@ int check_keys(XEvent *e)
             }
         }
           //if tab is pressed ; switches screens
-        if (key == XK_Tab) {
-            g.renderStartScreen = !g.renderStartScreen;
+        //if (key == XK_Tab) {
+        //    g.renderStartScreen = !g.renderStartScreen;
     
-        }
+        //}
 
         if (e->type == KeyPress) {
-             int key = XLookupKeysym(&e->xkey, 0);
+            int key = XLookupKeysym(&e->xkey, 0);
          
              // Toggle pause with 'G'
-             if (key == XK_g) {
-                 g.isPaused = !g.isPaused;
-                 g.pauseMenuSelection = 0;
-                 g.exitMenuSelection = 0;
-                 g.settingsMenuSelection = 0;
-                 g.pauseMenuSubState = PAUSE_NONE;
-                 return 0;
-             }
+            if (key == XK_g) {
+                g.isPaused = !g.isPaused;
+                g.pauseMenuSelection = 0;
+                g.exitMenuSelection = 0;
+                g.settingsMenuSelection = 0;
+                g.pauseMenuSubState = PAUSE_NONE;
+                return 0;
+            }
          
              // If pause menu is active
              if (g.isPaused) {
                  // Exit submenu
-                 if (g.pauseMenuSubState == PAUSE_EXIT) {
-                     if (key == XK_Up || key == XK_Down) {
-                         g.exitMenuSelection = 1 - g.exitMenuSelection;
-                     } else if (key == XK_Return) {
-                         if (g.exitMenuSelection == 0) {
-                             g.renderStartScreen = true;
-                             g.isPaused = false;
-                         } else {
-                             x11.cleanupXWindows();
-                             exit(0); 
-                         }
-                     } else if (key == XK_BackSpace) {
-                         g.pauseMenuSubState = PAUSE_NONE;
-                     }
-                     return 0;
+                if (g.pauseMenuSubState == PAUSE_EXIT) {
+                    if (key == XK_Up || key == XK_Down) {
+                        g.exitMenuSelection = 1 - g.exitMenuSelection;
+                    } else if (key == XK_Return) {
+                        if (g.exitMenuSelection == 0) {
+                            g.renderStartScreen = true;
+                            g.isPaused = false;
+                        } else {
+                            x11.cleanupXWindows();
+                            exit(0); 
+                        }
+                    } else if (key == XK_BackSpace) {
+                        g.pauseMenuSubState = PAUSE_NONE;
+                    }
+                    return 0;
                  }
          
                  // Settings submenu
-                 if (g.pauseMenuSubState == PAUSE_SETTINGS) {
-                     if (key == XK_Up || key == XK_Down) {
-                         g.settingsMenuSelection = 1 - g.settingsMenuSelection;
-                     } else if (key == XK_Return) {
-                         // Add toggle logic here later
-                     } else if (key == XK_BackSpace) {
-                         g.pauseMenuSubState = PAUSE_NONE;
-                     }
-                     return 0;
-                 }
+                if (g.pauseMenuSubState == PAUSE_SETTINGS) {
+                    if (key == XK_Up || key == XK_Down) {
+                        g.settingsMenuSelection = 1 - g.settingsMenuSelection;
+                    } else if (key == XK_Return) {
+                        // Add toggle logic here later
+                    } else if (key == XK_BackSpace) {
+                        g.pauseMenuSubState = PAUSE_NONE;
+                    }
+                    return 0;
+                }
          
-                 // Main pause menu
-                 if (g.pauseMenuSubState == PAUSE_NONE) {
-                     if (key == XK_Up) {
-                         g.pauseMenuSelection = (g.pauseMenuSelection + 2) % 3;
-                     } else if (key == XK_Down) {
-                         g.pauseMenuSelection = (g.pauseMenuSelection + 1) % 3;
-                     } else if (key == XK_Return) {
-                         if (g.pauseMenuSelection == 0) {
-                             g.isPaused = false;
-                         } else if (g.pauseMenuSelection == 1) {
-                             g.pauseMenuSubState = PAUSE_SETTINGS;
-                         } else if (g.pauseMenuSelection == 2) {
-                             g.pauseMenuSubState = PAUSE_EXIT;
-                         }
-                     }
-                     return 0;
-                 }
-             }
-         }
+                // Main pause menu
+                if (g.pauseMenuSubState == PAUSE_NONE) {
+                    if (key == XK_Up) {
+                        g.pauseMenuSelection = (g.pauseMenuSelection + 2) % 3;
+                    } else if (key == XK_Down) {
+                        g.pauseMenuSelection = (g.pauseMenuSelection + 1) % 3;
+                    } else if (key == XK_Return) {
+                        if (g.pauseMenuSelection == 0) {
+                            g.isPaused = false;
+                        } else if (g.pauseMenuSelection == 1) {
+                            g.pauseMenuSubState = PAUSE_SETTINGS;
+                        } else if (g.pauseMenuSelection == 2) {
+                            g.pauseMenuSubState = PAUSE_EXIT;
+                        }
+                    }
+                    return 0;
+                }
+            }
+        }
          // Game Over Screen
-         if (g.isGameOver) {
-             if (key == XK_Up || key == XK_Down) {
+        if (g.isGameOver) {
+            if (key == XK_Up || key == XK_Down) {
                 g.gameOverMenuSelection ^= 1;
                 if (!g.enemyDefeated) { 
                     g.gameOverMenuSelection = 1; // lock to option 1
                 }
             }
-                if (key == XK_Return) {
-                 if (g.gameOverMenuSelection == 0 && g.enemyDefeated) {
-                     // Start next level
-                     printf("Loading next level...\n");
-                     g.isGameOver = false;
-                     g.playerHealth = 100;
-                     g.enemyHealth = 100;
-                     player.changeHealthBar(100);
-                     enemy.changeHealthBar(100);
-                     // any other reset logic here
-                 } else {
-                     // Return to main menu
-                     g.renderStartScreen = true;
-                     g.isGameOver = false;
-                 }
-             }
-             return 0;
-         }
+            if (key == XK_Return) {
+                if (g.gameOverMenuSelection == 0 && g.enemyDefeated) {
+                    // Start next level
+                    printf("Loading next level...\n");
+                    g.isGameOver = false;
+                    g.showSelection = false;
+                    g.playerHealth = 100;
+                    g.enemyHealth = 100;
+                    player.changeHealthBar(100);
+                    enemy.changeHealthBar(100);
+                    // any other reset logic here
+                } else if (g.gameOverMenuSelection == 0) {
+                    // Return to main menu
+                    printf("hi\n");
+                    g.renderStartScreen = true;
+                    g.isGameOver = false;
+                    g.showSelection = false;
+                    g.playerHealth = 100;
+                    g.enemyHealth = 100;
+                    player.changeHealthBar(100);
+                    enemy.changeHealthBar(100);
+                }
+            }
+            return 0;
+        }
     }
     return 0;
 }
@@ -728,6 +742,11 @@ void physics()
 
 void render()
 {
+    if (g.playerHealth <= 0) {
+        g.isGameOver = true;
+        g.enemyDefeated = false;
+        g.gameOverMenuSelection = 0;
+    }
     if (g.isPaused) {
         renderPauseMenu(g.xres, g.yres, g.pauseMenuSelection, 
                        g.exitMenuSelection, g.settingsMenuSelection,
@@ -908,9 +927,9 @@ void render()
                 case INTRO:
                     render_text(&rec, intro, 3);
                     break;
-                case CONTROLS:
+                /*case CONTROLS:
                     render_text(&rec, controls, 3);
-                    break;
+                    break;*/
                 case SIMPLIFYCONTROLS:
                     render_text(&rec, simplifyControls, 1);
                     break;
