@@ -17,6 +17,7 @@ extern void init_hp(int health);
 extern void changeHealthBar(int health);
 std::random_device rd;
 std::mt19937 gen(rd());
+static int roundCounter = 0;
 
 struct battleState{
     int playerLoseInteraction;
@@ -267,6 +268,7 @@ int battleChoiceFunc(int &pHealth, int &eHealth)
         enemy.changeHealthBar(eHealth);
         player.changeHealthBar(pHealth);
         player.init("assets/player/normal_x.png");
+        roundCounter = 0;
     }
     grabEnemyHealth(pHealth);
     return eHealth;
@@ -307,7 +309,6 @@ bool blockDamage(bool block)
 
 int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked) 
 {
-    static int roundCounter = 0;
     int playerWonInteraction = 1;
     if (roundCounter == 40) {
         grabPlayerHealth(pHealth);
@@ -327,17 +328,29 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
         } else if (enChoice == 1) {
             enemy.changeImage("assets/enemy/paper.png");
             ++bState.playerLoseInteraction;
-            printf("Player Loses! Player loses 10 HP!\n");
+            printf("Player Loses!\n");
+        
+            int baseDamage = enemy.currentDamage; // <- Enemy's current attack power
+        
             if (blocked == 1) {
-                pHealth -= 7;
-                blocked = 0;
-                printf("not blocking %i\n", blocked);
-            } else {
-                pHealth -= 10;
+                baseDamage -= 3; // If blocking, reduce incoming damage by 3
+                printf("Blocking reduced damage by 3!\n");
             }
-            printf("%i\n", pHealth);
-            printf("amount of times player has lost: %i\n", 
-                bState.playerLoseInteraction);
+            blocked = 0;
+        
+            // Apply player's defense
+            int finalDamage = baseDamage - player.currentDefense;
+            if (finalDamage < 1) {
+                finalDamage = 1;
+            }
+        
+            // Deal damage
+            pHealth -= finalDamage;
+        
+            printf("Enemy deals %d damage to player (after defense).\n", finalDamage);
+            printf("Player's current health: %d\n", pHealth);
+            printf("Amount of times player has lost: %d\n", bState.playerLoseInteraction);
+        
             player.changeHealthBar(pHealth);
             fflush(stdout);
         } else if (enChoice == choice) {
@@ -359,17 +372,29 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
         } else if (enChoice == 2) {
             enemy.changeImage("assets/enemy/scissors.png");
             ++bState.playerLoseInteraction;
-            printf("Player Loses! Player loses 10 HP!\n");
+            printf("Player Loses!\n");
+        
+            int baseDamage = enemy.currentDamage; // <- Enemy's current attack power
+        
             if (blocked == 1) {
-                pHealth -= 7;
-                blocked = 0;
-                printf("not blocking %i\n", blocked);
-            } else {
-                pHealth -= 10;
+                baseDamage -= 3; // If blocking, reduce incoming damage by 3
+                printf("Blocking reduced damage by 3!\n");
             }
-            printf("%i\n", pHealth);
-            printf("amount of times player has lost: %i\n", 
-                bState.playerLoseInteraction);
+            blocked = 0;
+        
+            // Apply player's defense
+            int finalDamage = baseDamage - player.currentDefense;
+            if (finalDamage < 1) {
+                finalDamage = 1;
+            }
+        
+            // Deal damage
+            pHealth -= finalDamage;
+        
+            printf("Enemy deals %d damage to player (after defense).\n", finalDamage);
+            printf("Player's current health: %d\n", pHealth);
+            printf("Amount of times player has lost: %d\n", bState.playerLoseInteraction);
+        
             player.changeHealthBar(pHealth);
             fflush(stdout);
         } else if (enChoice == choice) {
@@ -390,17 +415,29 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
         } else if (enChoice == 0) {
             enemy.changeImage("assets/enemy/rock.png");
             ++bState.playerLoseInteraction;
-            printf("Player Loses! Player loses 10 HP!\n");
+            printf("Player Loses!\n");
+        
+            int baseDamage = enemy.currentDamage; // <- Enemy's current attack power
+        
             if (blocked == 1) {
-                pHealth -= 7;
-                blocked = 0;
-                printf("not blocking %i\n", blocked);
-            } else {
-                pHealth -= 10;
+                baseDamage -= 3; // If blocking, reduce incoming damage by 3
+                printf("Blocking reduced damage by 3!\n");
             }
-            printf("%i\n", pHealth);
-            printf("amount of times player has lost: %i\n", 
-                bState.playerLoseInteraction);
+            blocked = 0;
+        
+            // Apply player's defense
+            int finalDamage = baseDamage - player.currentDefense;
+            if (finalDamage < 1) {
+                finalDamage = 1;
+            }
+        
+            // Deal damage
+            pHealth -= finalDamage;
+        
+            printf("Enemy deals %d damage to player (after defense).\n", finalDamage);
+            printf("Player's current health: %d\n", pHealth);
+            printf("Amount of times player has lost: %d\n", bState.playerLoseInteraction);
+        
             player.changeHealthBar(pHealth);
             fflush(stdout);
         } else if (enChoice == choice) {
@@ -414,6 +451,7 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
         scoreCalculator(bState.playerLoseInteraction, 
             bState.enemyLoseInteraction);
         ++bState.playerDeath;
+        roundCounter = 0;
     }
     printf("\n");
     usleep(700000);
@@ -422,14 +460,38 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
 
 void genNewEnemy(int eDeath)
 {
+    // Clear previous enemy's inventory
+    enemy.clearEnemyInventory();
     if (eDeath == 1) {
         enemy.init("assets/enemy/grey-yaroi.png");
+        // Basic enemy with simple equipment
+        Item* sword = new Item("Enemy Sword");
+        sword->swordItem();
+        enemy.addItem(sword);
     } else if (eDeath == 2) {
         enemy.init("assets/enemy/yellow-yaroi.png");
+        // Stronger enemy with better equipment
+        Item* axe = new Item("Enemy Axe");
+        axe->axeItem();
+        Item* shield = new Item("Enemy Shield");
+        shield->shieldItem();
+        enemy.addItem(axe);
+        enemy.addItem(shield);
     } else if (eDeath == 3) {
         enemy.init("assets/enemy/blue-yaroi.png");
+        // Advanced enemy with rare items
+        Item* serratedSword = new Item("Enemy Serrated Sword");
+        serratedSword->serratedSword();
+        enemy.addItem(serratedSword);
     } else if (eDeath == 4) {
         enemy.init("assets/enemy/red-yaroi.png");
+        // Boss enemy with the best equipment
+        Item* serratedSword = new Item("Enemy Serrated Sword");
+        serratedSword->serratedSword();
+        Item* thornedArmor = new Item("Enemy Thorned Armor");
+        thornedArmor->thornedArmor();
+        enemy.addItem(serratedSword);
+        enemy.addItem(thornedArmor);
     }
 }
 
