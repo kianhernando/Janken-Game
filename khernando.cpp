@@ -59,6 +59,12 @@ Player::Player()
     hp_yres = 0;
     hp_x = 10;
     hp_y = 294;
+    baseDamage = 10;
+    baseDefense = 0;
+    currentDamage = 10;
+    currentDefense = 0;
+    critChance = 0;
+    thornsAmount = 0;
 }
 
 void Player::init(const char* imagePath)
@@ -261,6 +267,12 @@ Enemy::Enemy()
     hp_x = 449;
     hp_y = 294;
     hitBarrier = false;
+    baseDamage = 10;
+    baseDefense = 0;
+    currentDamage = 10;
+    currentDefense = 0;
+    critChance = 0;
+    thornsAmount = 0;
 }
 
 void Enemy::init(const char* imagePath)
@@ -424,27 +436,27 @@ void Enemy::changeHealthBar(int health)
     }
 
     // Conditional to check player's HP amount
-    if (health == 100) {
+    if (health <= 100 && health > 90) {
         hp.backImage = new Image("assets/health/100.png");
-    } else if (health == 90) {
+    } else if (health <= 90 && health > 80) {
         hp.backImage = new Image("assets/health/90.png");
-    } else if (health == 80) {
+    } else if (health <= 80 && health > 70) {
         hp.backImage = new Image("assets/health/80.png");
-    } else if (health == 70) {
+    } else if (health <= 70 && health > 60) {
         hp.backImage = new Image("assets/health/70.png");
-    } else if (health == 60) {
+    } else if (health <= 60 && health > 50) {
         hp.backImage = new Image("assets/health/60.png");
-    } else if (health == 50) {
+    } else if (health <= 50 && health > 40) {
         hp.backImage = new Image("assets/health/50.png");
-    } else if (health == 40) {
+    } else if (health <= 40 && health > 30) {
         hp.backImage = new Image("assets/health/40.png");
-    } else if (health == 30) {
+    } else if (health <= 30 && health > 20) {
         hp.backImage = new Image("assets/health/30.png");
-    } else if (health == 20) {
+    } else if (health <= 20 && health > 10) {
         hp.backImage = new Image("assets/health/20.png");
-    } else if (health == 10) {
+    } else if (health <= 10 && health > 0) {
         hp.backImage = new Image("assets/health/10.png");
-    } else if (health == 0) {
+    } else if (health <= 0) {
         hp.backImage = new Image("assets/health/0.png");
     }
 
