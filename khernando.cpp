@@ -694,9 +694,9 @@ bool renderAnimation(Player &player, Enemy &enemy)
     static bool hasCollided = false; 
     static float playerStart = -36;
     static float enemyStart = 600;
-    static float moveSpeed = 15.0f;
+    static float moveSpeed = 5.0f;
     static float time = 0.0f;
-    static const float speed = 0.5f;
+    static const float speed = 0.1f;
     static const float amplitude = 20.0f;
     static const float cycles = 3.0f;
     static const float duration = (2.0f * M_PI * cycles) / speed;
@@ -730,7 +730,7 @@ bool renderAnimation(Player &player, Enemy &enemy)
     static Image* explosionImage = nullptr;
     static GLuint explosionTexture = 0;
     static const int GRID_SIZE = 12;
-    static float explosionDelay = 1.3f;
+    static float explosionDelay = 5.0f;
     static float explosionCounter = 0.0f;
     
     if (animationDone) {
@@ -889,8 +889,6 @@ bool renderAnimation(Player &player, Enemy &enemy)
         player.render_player();
         enemy.render_enemy();
     } else {
-        player.render_player();
-        enemy.render_enemy();
         
         if (explosionTexture != 0) {
             glEnable(GL_BLEND);
