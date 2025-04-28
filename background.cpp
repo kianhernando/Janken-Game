@@ -712,39 +712,6 @@ int check_keys(XEvent *e)
              }
              return 0;
          }
-
-         if(g.showSelection) {
-            if (key == XK_Left) {
-                g.RPSSelection = (g.RPSSelection + 2) % 3;
-                return 0;
-            } else if (key == XK_Right) {
-                g.RPSSelection = (g.RPSSelection + 1) % 3;
-                return 0;
-            } else if (key == XK_Return) {
-                switch (g.RPSSelection) {
-                    case 0:
-                        choice = ROCK;
-                        enChoice = randGen();
-                        checkPlayerState = logicSimon(choice, enChoice,
-                                g.playerHealth, checkBlockState);
-                        break;
-                    case 1:
-                        choice = PAPER;
-                        enChoice = randGen();
-                        checkPlayerState = logicSimon(choice, enChoice,
-                                g.playerHealth, checkBlockState);
-                        break;
-                    case 2:
-                        choice = SCISSORS;
-                        enChoice = randGen();
-                        checkPlayerState = logicSimon(choice, enChoice,
-                                g.playerHealth, checkBlockState);
-                        break;
-                }
-                g.showSelection = false;
-                return 0;
-            }
-         }
     }
     return 0;
 }
