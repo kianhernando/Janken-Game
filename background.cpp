@@ -330,6 +330,7 @@ int main()
         x11.swapBuffers();
     }
     player.clearInventory();
+    enemy.clearEnemyInventory();
     cleanup_fonts();
     return 0;
 }
@@ -468,11 +469,11 @@ int check_keys(XEvent *e)
         // Player Health Keybinds for testing purposes
         if (key == XK_2) {
             // Commented out for testing logic 
-            g.playerHealth = 20;
-            //g.enemyHealth = 20;
+            //g.playerHealth = 20;
+            g.enemyHealth = 20;
             // Commented out for testing logic 
-            player.changeHealthBar(g.playerHealth);
-            //enemy.changeHealthBar(g.enemyHealth);
+            //player.changeHealthBar(g.playerHealth);
+            enemy.changeHealthBar(g.enemyHealth);
         }
         if (key == XK_4) {
             g.playerHealth = 40;
