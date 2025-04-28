@@ -562,10 +562,25 @@ void initSelections() {
     selection3.pos[0] = box.pos[0] + spacing;
     selection3.pos[1] = yPos;
 
+
+    extern int getRPSSelection();
+    int currentSelection = getRPSSelection();
+
     // Pass the image paths for rock, paper, scissors
-    renderBox(selection1, "assets/player/rock_y.png");
-    renderBox(selection2, "assets/player/paper_y.png");
-    renderBox(selection3, "assets/player/scissors_y.png");
+    // Use different images based on selection
+    if (currentSelection == 0) {
+        renderBox(selection1, "assets/player/rock_y.png", true);
+        renderBox(selection2, "assets/player/paper_y.png");
+        renderBox(selection3, "assets/player/scissors_y.png");
+    } else if (currentSelection == 1) {
+        renderBox(selection1, "assets/player/rock_y.png");
+        renderBox(selection2, "assets/player/paper_y.png", true);
+        renderBox(selection3, "assets/player/scissors_y.png");
+    } else if (currentSelection == 2) {
+        renderBox(selection1, "assets/player/rock_y.png");
+        renderBox(selection2, "assets/player/paper_y.png");
+        renderBox(selection3, "assets/player/scissors_y.png", true);
+    }
 }
 
 void controlText(Rect* rControl)
@@ -578,8 +593,10 @@ void kianText(Rect* rKian)
     ggprint8b(rKian, 16, 0xFFFFFF, "Kian");
 }
 
-void renderBox(Box& sel, const char* imagePath) {
+void renderBox(Box& sel, const char* imagePath, bool isSelected) {
+    // Keep the box background color the same regardless of selection
     glColor3ub(sel.color[0], sel.color[1], sel.color[2]);
+    
     glPushMatrix();
     glTranslatef(sel.pos[0], sel.pos[1], 0.0f);
     glBegin(GL_QUADS);
@@ -591,8 +608,14 @@ void renderBox(Box& sel, const char* imagePath) {
     glPopMatrix();
 
     glDisable(GL_TEXTURE_2D);
-    glColor4f(1.0, 1.0, 1.0, 1.0);
-    glLineWidth(2.0);
+    if (isSelected) {
+        glColor4f(1.0, 0.0, 0.0, 1.0);
+        glLineWidth(3.0);
+    } else {
+        glColor4f(1.0, 1.0, 1.0, 1.0);
+        glLineWidth(2.0);
+    }
+    
     glPushMatrix();
     glTranslatef(sel.pos[0], sel.pos[1], 0.0f);
     glBegin(GL_LINE_LOOP);

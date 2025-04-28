@@ -161,6 +161,8 @@ public:
 
     int startMenuSelection;
 
+    int RPSSelection;
+
     Global() 
     {
         xres = 576;
@@ -181,8 +183,13 @@ public:
         pauseMenuSubState = PAUSE_NONE;
         showSelection = false;
         startMenuSelection = 0;
+        RPSSelection = 0;
     }
 } g;
+
+int getRPSSelection() {
+    return g.RPSSelection;
+}
 
 class X11_wrapper 
 {
@@ -513,38 +520,46 @@ int check_keys(XEvent *e)
         }
     
         if (!g.isBackgroundMoving) {
-            // Keybinds for rock paper and scissors
+            if (!g.showSelection) {
+                g.showSelection = true;
+                g.RPSSelection = 0;
+            }
+            
             if (g.playerHealth != 0 && g.enemyHealth != 0) {
                 static bool block = false;
-                if (key == XK_r) {
-                    choice = ROCK;
-                    enChoice = randGen();
-                    checkPlayerState = logicSimon(choice, enChoice, 
-                            g.playerHealth, checkBlockState); 
-                }
                 
-                if (key == XK_p) {
-                    choice = PAPER;
-                    enChoice = randGen();
-                    checkPlayerState = logicSimon(choice, enChoice, 
-                            g.playerHealth, checkBlockState); 
+                if (g.showSelection) {
+                    if (key == XK_Left) {
+                        g.RPSSelection = (g.RPSSelection + 2) % 3;
+                        return 0;
+                    } else if (key == XK_Right) {
+                        g.RPSSelection = (g.RPSSelection + 1) % 3;
+                        return 0;
+                    } else if (key == XK_Return) {
+                        switch (g.RPSSelection) {
+                            case 0:
+                                choice = ROCK;
+                                enChoice = randGen();
+                                checkPlayerState = logicSimon(choice, enChoice,
+                                        g.playerHealth, checkBlockState);
+                                break;
+                            case 1:
+                                choice = PAPER;
+                                enChoice = randGen();
+                                checkPlayerState = logicSimon(choice, enChoice,
+                                        g.playerHealth, checkBlockState);
+                                break;
+                            case 2:
+                                choice = SCISSORS;
+                                enChoice = randGen();
+                                checkPlayerState = logicSimon(choice, enChoice,
+                                        g.playerHealth, checkBlockState);
+                                break;
+                        }
+                        g.showSelection = false;
+                        return 0;
+                    }
                 }
-                
-                if (key == XK_q) {
-                    g.showSelection = !g.showSelection;
-                }
-
-                if (key == XK_s) {
-                    choice = SCISSORS;
-                    enChoice = randGen();
-                    checkPlayerState = logicSimon(choice, enChoice, 
-                            g.playerHealth, checkBlockState); 
-                }
-                if (key == XK_n) {
-                    player.changeImage("assets/player/normal_x.png");
-                    enemy.changeImage("assets/enemy/boot.png");
-                }
-
                 if (checkPlayerState == 1) {
                     g.currentTextState = BATTLECONTROLS;
                     if (key == XK_a) {
@@ -560,7 +575,8 @@ int check_keys(XEvent *e)
                 }
 
                 if (checkPlayerState == 0) {
-                    g.currentTextState = SIMPLIFYCONTROLS;
+                    g.showSelection = true;
+                    g.RPSSelection = 0;
                 }
                 /* save for later use
                 int ehealth = grabEnemyHealth(g.enemyHealth);
@@ -910,4 +926,3 @@ void render()
             }
     }
 }
-
