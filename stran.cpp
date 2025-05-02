@@ -112,3 +112,79 @@ void stevenText(Rect *rSteven)
 {
     ggprint8b(rSteven, 16, 0xffffff, "Steven");
 }
+
+void startControlsScreen()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+    Rect r;
+    r.left = g.xres / 2;
+    r.center = 1;
+    r.bot = g.yres - 100;
+
+    // Draw header
+    ggprint16(&r, 32, 0xffffff, "Controls");
+
+    // Box coordinates
+    int box_x = g.xres / 2 - 150;
+    int box_y = g.yres - 160;
+    int box_width = 300;
+    int box_height = 220;
+
+    // Draw semi-transparent background box
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4f(0.1f, 0.1f, 0.1f, 0.7f); // dark translucent
+    glBegin(GL_QUADS);
+        glVertex2i(box_x, box_y);
+        glVertex2i(box_x + box_width, box_y);
+        glVertex2i(box_x + box_width, box_y - box_height);
+        glVertex2i(box_x, box_y - box_height);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // Drop shadow for box border
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(box_x + 2, box_y - 2);
+        glVertex2i(box_x + box_width + 2, box_y - 2);
+        glVertex2i(box_x + box_width + 2, box_y - box_height - 2);
+        glVertex2i(box_x + 2, box_y - box_height - 2);
+    glEnd();
+
+    // Draw white border box
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBegin(GL_LINE_LOOP);
+        glVertex2i(box_x, box_y);
+        glVertex2i(box_x + box_width, box_y);
+        glVertex2i(box_x + box_width, box_y - box_height);
+        glVertex2i(box_x, box_y - box_height);
+    glEnd();
+
+    // Draw controls text inside box
+    r.bot = g.yres - 180;
+    ggprint16(&r, 16, 0xffcc00, "M - Show Contributors");
+    r.bot -= 30;
+    ggprint16(&r, 16, 0x00ffcc, "Space - Start Gameplay");
+    r.bot -= 30;
+    ggprint16(&r, 16, 0xff6666, "R - Rock");
+    r.bot -= 30;
+    ggprint16(&r, 16, 0x66ccff, "P - Paper");
+    r.bot -= 30;
+    ggprint16(&r, 16, 0xcc66ff, "S - Scissors");
+    r.bot -= 30;
+    ggprint16(&r, 16, 0xcccccc, "N - Neutral");
+
+    // Draw pulsing triangle icon for "Play"
+    float t = sin(glutGet(GLUT_ELAPSED_TIME) * 0.002f) * 5.0f;
+    glColor3f(0.3f, 1.0f, 0.3f);
+    glBegin(GL_TRIANGLES);
+        glVertex2i(100, 100 + t);
+        glVertex2i(100, 140 + t);
+        glVertex2i(140, 120 + t);
+    glEnd();
+
+    // Return to menu instruction with faded color
+    r.bot -= 60;
+    ggprint16(&r, 16, 0xaaaaaa, "Press ENTER to return to main menu");
+}
+

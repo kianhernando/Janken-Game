@@ -16,3 +16,4 @@ void stevenText(Rect *rSteven);
 void showIntroScreen();
 void startGame();
 void renderStart();
+void startControlsScreen();
