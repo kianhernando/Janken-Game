@@ -39,7 +39,8 @@ enum optionSelect{
 
 extern const char* battleChoice[];
 extern const char* simplifyControls[];
-
+extern const char* loseDialogue[];
+extern const char* tieDialogue[];
 
 void simonText(Rect *rSimon);
 void genNewEnemy(int eDeath);

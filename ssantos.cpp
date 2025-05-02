@@ -216,6 +216,14 @@ void simonText(Rect *rSimon)
     ggprint8b(rSimon, 16, 0xffffff, "Simon");
 }
 
+const char* loseDialogue[] = {
+    "You lost the round! Press LEFT SHIFT to continue."
+};
+
+const char* tieDialogue[] = {
+    "You tied! Press LEFT SHIFT to continue."
+};
+
 const char* battleChoice[] = {
     "You won the round! Choose an Action!",
     "'A' to attack enemy",
@@ -310,6 +318,7 @@ bool blockDamage(bool block)
 int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked) 
 {
     int playerWonInteraction = 1;
+    int playerLostInteraction = 2;
     if (roundCounter == 40) {
         grabPlayerHealth(pHealth);
         printf("battle over!\n");
@@ -353,6 +362,7 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
         
             player.changeHealthBar(pHealth);
             fflush(stdout);
+            return playerLostInteraction;
         } else if (enChoice == choice) {
             enemy.changeImage("assets/enemy/rock.png");
             printf("Tie! Nothing happens!\n");
@@ -397,6 +407,7 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
         
             player.changeHealthBar(pHealth);
             fflush(stdout);
+            return playerLostInteraction;
         } else if (enChoice == choice) {
             enemy.changeImage("assets/enemy/paper.png");
             printf("Tie! Nothing happens!\n");
@@ -440,6 +451,7 @@ int logicSimon(int choice, int enChoice, int &pHealth, bool &blocked)
         
             player.changeHealthBar(pHealth);
             fflush(stdout);
+            return playerLostInteraction;
         } else if (enChoice == choice) {
             enemy.changeImage("assets/enemy/scissors.png");
             printf("Tie! Nothing happens!\n");

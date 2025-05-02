@@ -96,6 +96,8 @@ Image img[1] = {"./assets/landscape.jpg"};
 enum TextState {
     INTRO,
     //CONTROLS,
+    ROUNDLOST,
+    ROUNDTIED,
     BATTLECONTROLS,
     SIMPLIFYCONTROLS,
     NONE
@@ -534,7 +536,8 @@ int check_keys(XEvent *e)
             }
             
             if (g.playerHealth != 0 && g.enemyHealth != 0) {
-                static bool block = false;                
+                static bool block = false;
+                //static int timer = 0;       
                 if (g.showSelection) {
                     if (key == XK_Left) {
                         g.RPSSelection = (g.RPSSelection + 2) % 3;
@@ -567,11 +570,13 @@ int check_keys(XEvent *e)
                             // Player won, now allow battle controls
                             g.showSelection = false;
                             g.currentTextState = BATTLECONTROLS;
+                        } else if (checkPlayerState == 2){
+                            g.showSelection = false;
+                            g.currentTextState = ROUNDLOST;
                         } else {
-                            // Player lost or tied, reset
-                            g.showSelection = true;
-                            g.RPSSelection = 0;
-                            g.currentTextState = NONE;
+                            // Player tied, reset
+                            g.showSelection = false;
+                            g.currentTextState = ROUNDTIED;
                         }
                         return 0;
                     } else {
@@ -581,18 +586,26 @@ int check_keys(XEvent *e)
                                 healthToCompare = battleChoiceFunc(g.playerHealth, 
                                     g.enemyHealth);
                                 checkPlayerState = 0;
+                                g.currentTextState = NONE;
                             }
                             if (key == XK_b) {
                                 block = true;
                                 checkBlockState = blockDamage(block);
                                 checkPlayerState = 0;
+                                g.currentTextState = NONE;
                             }
-                        }
-        
-                        if (checkPlayerState == 0) {
-                            g.showSelection = true;
-                            g.RPSSelection = 0;
-                            g.currentTextState = NONE;
+                        } else if (checkPlayerState == 2) {
+                            if (key == XK_Shift_L) {
+                                g.showSelection = true;
+                                g.RPSSelection = 0;
+                                g.currentTextState = NONE;
+                            }
+                        } else if (checkPlayerState == 0) {
+                            if (key == XK_Shift_L) {
+                                g.showSelection = true;
+                                g.RPSSelection = 0;
+                                g.currentTextState = NONE;
+                            }
                         }
                     }
                 }
@@ -792,6 +805,7 @@ void render()
         enemy.hitBarrier = false;
         
         g.currentTextState = INTRO;
+        g.showSelection = false;
         g.showMembers = false;
         g.showCreditsScreen = false;
         g.showPlayerWins = false;
@@ -935,6 +949,12 @@ void render()
                     break;
                 case BATTLECONTROLS:
                     render_text(&rec, battleChoice, 3);
+                    break;
+                case ROUNDLOST:
+                    render_text(&rec, loseDialogue, 1);
+                    break;
+                case ROUNDTIED:
+                    render_text(&rec, tieDialogue, 1);
                     break;
                 case NONE:
                     break;
