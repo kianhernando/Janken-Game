@@ -217,21 +217,17 @@ void simonText(Rect *rSimon)
 }
 
 const char* loseDialogue[] = {
-    "You lost the round! Press LEFT SHIFT to continue."
+    "You lost the round! Press SHIFT to continue."
 };
 
 const char* tieDialogue[] = {
-    "You tied! Press LEFT SHIFT to continue."
+    "You tied! Press SHIFT to continue."
 };
 
 const char* battleChoice[] = {
     "You won the round! Choose an Action!",
     "'A' to attack enemy",
     "'B' to block next hit"
-};
-
-const char* simplifyControls[] = {
-    "PRESS 'R', 'P', OR 'S' FOR ROCK-PAPER-SCISSORS"
 };
 
 int battleChoiceFunc(int &pHealth, int &eHealth)

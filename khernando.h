@@ -113,7 +113,7 @@ void kianText(Rect *rKian);
 void controlText(Rect *rControl);
 
 extern const char* intro[];
-extern const char* controls[];
+extern const char* enemyAppeared[];
 void render_text(Rect *rec, const char* lines[], const int num_lines);
 
 void initSelections();

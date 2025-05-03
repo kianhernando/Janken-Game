@@ -87,7 +87,7 @@ extern X11_wrapper x11;
 */
 
 // Function to start intro screen delay
-void showIntroScreen() 
+/*void showIntroScreen() 
 {
     if (true) {
         cout << "===================================" << endl;
@@ -99,14 +99,16 @@ void showIntroScreen()
     this_thread::sleep_for(chrono::seconds(1));
     cout << "\nStarting the game..." << endl;
 }
+*/
 
-void startGame() 
+/*void startGame() 
 {
     // Display the intro screen
     showIntroScreen();
     // Main program or game logic here
     cout << "\nGame has started!" << endl;
 }
+*/
 
 void stevenText(Rect *rSteven)
 {
