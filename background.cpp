@@ -817,7 +817,8 @@ void render()
     }
 
     if (g.showCreditsScreen == true) {
-        creditsScreen();
+        displayFinalBossYaroi(); /* (so that we can test functionality of 
+                                    the display enemy functions) */
     } else {
             creditsScreenReset();
             /*glClearColor(1.0, 1.0, 1.0, 1.0);  added so it sets the

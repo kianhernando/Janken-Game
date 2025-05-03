@@ -225,6 +225,69 @@ void creditsScreenReset() {
     }
 }
 
+/* ====================================================================== */
+/* ======================== ENEMY DISPLAY SCREENS ======================= */
+/* ====================================================================== */
+
+static void drawTransition(GLuint tex, const char *label) {
+    glClearColor(0.0, 0.0, 0.0, 0.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    float w = 64.0f, h = 64.0f;
+    float x = (WINDOW_WIDTH - w) / 2.0f;
+    float y = (WINDOW_HEIGHT - h) / 2.0f;
+    glPushAttrib(GL_ENABLE_BIT | GL_CURRENT_BIT);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glColor3f(1.0, 1.0, 1.0);
+    glBegin(GL_QUADS);
+        glTexCoord2f(1,1); glVertex2f(x, y);
+        glTexCoord2f(0,1); glVertex2f(x + w, y);
+        glTexCoord2f(0,0); glVertex2f(x + w, y + h);
+        glTexCoord2f(1,0); glVertex2f(x, y + h); 
+    glEnd();
+    glPopAttrib();
+    Rect r;
+    int tw = strlen(label) * 8;
+    r.left = (WINDOW_WIDTH - tw) / 2;
+    r.bot  = (int)(y - 36);
+    ggprint16(&r, 32, 0x00ffffff, label);
+}
+
+void displayYellowYaroi() {
+    static GLuint yellowTex = 0;
+    if (!yellowTex) yellowTex = loadTexture("assets/enemy/yellow-yaroi.png");
+    drawTransition(yellowTex, "Incoming... YELLOW YAROI!");
+}
+
+void displayBlueYaroi() {
+    static GLuint blueTex = 0;
+    if (!blueTex) blueTex = loadTexture("assets/enemy/blue-yaroi.png");
+    drawTransition(blueTex, "Incoming... BLUE YAROI!");
+}
+
+void displayFinalBossYaroi() {
+    static GLuint bossTex = 0;
+    if (!bossTex) bossTex = loadTexture("assets/enemy/final-boss-yaroi.png");
+    drawTransition(bossTex, "Incoming... FINAL BOSS YAROI!");
+}
+
+void displayRedYaroi() {
+    static GLuint redTex = 0;
+    if (!redTex) redTex = loadTexture("assets/enemy/red-yaroi.png");
+    drawTransition(redTex, "Incoming... RED YAROI!");
+}
+
+void displayBoot() {
+    static GLuint bootTex = 0;
+    if (!bootTex) bootTex = loadTexture("assets/enemy/boot.png");
+    drawTransition(bootTex, "Incoming... BOOT!");
+}
+
+
+
+
+
+// no
 void playerWins() {
     // Draw base pause box
     int ares = 576;
