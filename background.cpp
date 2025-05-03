@@ -95,11 +95,10 @@ Image img[1] = {"./assets/landscape.jpg"};
 
 enum TextState {
     INTRO,
-    //CONTROLS,
     ROUNDLOST,
     ROUNDTIED,
     BATTLECONTROLS,
-    SIMPLIFYCONTROLS,
+    ENEMYAPPEARED,
     NONE
 };
 
@@ -311,8 +310,6 @@ void render(void);
 void renderPauseMenu(int xres, int yres, int pauseMenuSelection, 
                     int exitMenuSelection, int settingsMenuSelection,
                     PauseSubState pauseMenuSubState);
-extern void showIntroScreen();
-extern void startGame();
 extern bool renderAnimation(Player &player, Enemy &enemy);
 extern void renderStart(int startMenuSelection);
 extern void renderGameOverScreen(int xres, int yres, bool enemyDefeated, 
@@ -323,7 +320,6 @@ extern void checkDeathLogTrigger(bool &isGameOver, bool &enemyDefeated);
 int main()
 {
     g.renderStartScreen = true;
-    startGame();
     
     init_opengl();
     int done = 0;
@@ -426,6 +422,29 @@ int check_keys(XEvent *e)
     //Was there input from the keyboard?
     if (e->type == KeyPress) {
         int key = XLookupKeysym(&e->xkey, 0);
+        
+        // Handle battle controls first, before any other checks
+        if (g.currentTextState == BATTLECONTROLS) {
+            if (key == XK_a) {
+                healthToCompare = battleChoiceFunc(g.playerHealth, g.enemyHealth);
+                checkPlayerState = 0;
+                g.currentTextState = NONE;
+                g.showSelection = true;
+                g.RPSSelection = 0;
+                return 0;
+            }
+            if (key == XK_b) {
+                static bool block = false;
+                block = true;
+                checkBlockState = blockDamage(block);
+                checkPlayerState = 0;
+                g.currentTextState = NONE;
+                g.showSelection = true;
+                g.RPSSelection = 0;
+                return 0;
+            }
+        }
+
         if (key == XK_Escape) {
             return 1;
         }
@@ -454,15 +473,14 @@ int check_keys(XEvent *e)
         }
         
         // Text Keybinds
-        if (key == XK_a) {
-            g.currentTextState = INTRO;
-        }
         if (key == XK_m) {
             g.showMembers = !g.showMembers;
         }
+        
         /*if (key == XK_c) {
             g.currentTextState = CONTROLS;
         }*/
+
         if (key == XK_z) {
             g.showCreditsScreen = !g.showCreditsScreen;
         }
@@ -530,14 +548,31 @@ int check_keys(XEvent *e)
         }
     
         if (!g.isBackgroundMoving) {
-            if (!g.showSelection) {
-                g.showSelection = true;
-                g.RPSSelection = 0;
+            // Initial selection setup
+            if (key == XK_Return) {
+                if (!g.showSelection) {
+                    g.showSelection = true;
+                    g.RPSSelection = 0;
+                    if (g.currentTextState == INTRO) {
+                        g.currentTextState = NONE;
+                    }
+                }
             }
             
             if (g.playerHealth != 0 && g.enemyHealth != 0) {
                 static bool block = false;
-                //static int timer = 0;       
+                // Handle shift key specifically for round results
+                if ((key == XK_Shift_L || key == XK_Shift_R)) {
+                    if (g.currentTextState == ROUNDLOST || g.currentTextState == ROUNDTIED) {
+                        g.showSelection = true;
+                        g.RPSSelection = 0;
+                        g.currentTextState = NONE;
+                    }
+                    // If not in the correct state, ignore shift key
+                    return 0;
+                }
+
+                // Rest of your existing selection and battle logic...
                 if (g.showSelection) {
                     if (key == XK_Left) {
                         g.RPSSelection = (g.RPSSelection + 2) % 3;
@@ -546,94 +581,109 @@ int check_keys(XEvent *e)
                         g.RPSSelection = (g.RPSSelection + 1) % 3;
                         return 0;
                     } else if (key == XK_Return) {
-                        switch (g.RPSSelection) {
-                            case 0:
-                                choice = ROCK;
-                                enChoice = randGen();
-                                checkPlayerState = logicSimon(choice, enChoice,
-                                        g.playerHealth, checkBlockState);
-                                break;
-                            case 1:
-                                choice = PAPER;
-                                enChoice = randGen();
-                                checkPlayerState = logicSimon(choice, enChoice,
-                                        g.playerHealth, checkBlockState);
-                                break;
-                            case 2:
-                                choice = SCISSORS;
-                                enChoice = randGen();
-                                checkPlayerState = logicSimon(choice, enChoice,
-                                        g.playerHealth, checkBlockState);
-                                break;
+                        if (g.currentTextState == ENEMYAPPEARED) {
+                            g.currentTextState = NONE;
+                            g.showSelection = true;
+                            g.RPSSelection = 0;
+                            return 0;
                         }
-                        if (checkPlayerState == 1) {
-                            // Player won, now allow battle controls
-                            g.showSelection = false;
-                            g.currentTextState = BATTLECONTROLS;
-                        } else if (checkPlayerState == 2){
-                            g.showSelection = false;
-                            g.currentTextState = ROUNDLOST;
-                        } else {
-                            // Player tied, reset
-                            g.showSelection = false;
-                            g.currentTextState = ROUNDTIED;
+                        if (g.showSelection) {
+                            switch (g.RPSSelection) {
+                                case 0:
+                                    choice = ROCK;
+                                    enChoice = randGen();
+                                    checkPlayerState = logicSimon(choice, enChoice,
+                                            g.playerHealth, checkBlockState);
+                                    break;
+                                case 1:
+                                    choice = PAPER;
+                                    enChoice = randGen();
+                                    checkPlayerState = logicSimon(choice, enChoice,
+                                            g.playerHealth, checkBlockState);
+                                    break;
+                                case 2:
+                                    choice = SCISSORS;
+                                    enChoice = randGen();
+                                    checkPlayerState = logicSimon(choice, enChoice,
+                                            g.playerHealth, checkBlockState);
+                                    break;
+                            }
+                            if (checkPlayerState == 1) {
+                                // Player won, now allow battle controls
+                                g.showSelection = false;
+                                g.currentTextState = BATTLECONTROLS;
+                            } else if (checkPlayerState == 2){
+                                g.showSelection = false;
+                                g.currentTextState = ROUNDLOST;
+                            } else {
+                                // Player tied, reset
+                                g.showSelection = false;
+                                g.currentTextState = ROUNDTIED;
+                            }
+                            return 0;
                         }
-                        return 0;
                     } else {
                         if (checkPlayerState == 1) {
-                            //g.showSelection = !g.showSelection;
-                            if (key == XK_a) {
-                                healthToCompare = battleChoiceFunc(g.playerHealth, 
-                                    g.enemyHealth);
-                                checkPlayerState = 0;
-                                g.currentTextState = NONE;
+                            // Move battle controls outside of the selection logic
+                            if (g.currentTextState == BATTLECONTROLS) {
+                                if (key == XK_a) {
+                                    healthToCompare = battleChoiceFunc(g.playerHealth, g.enemyHealth);
+                                    checkPlayerState = 0;
+                                    g.currentTextState = NONE;
+                                    g.showSelection = true;
+                                    g.RPSSelection = 0;
+                                    return 0;
+                                }
+                                if (key == XK_b) {
+                                    block = true;
+                                    checkBlockState = blockDamage(block);
+                                    checkPlayerState = 0;
+                                    g.currentTextState = NONE;
+                                    g.showSelection = true;
+                                    g.RPSSelection = 0;
+                                    return 0;
+                                }
                             }
-                            if (key == XK_b) {
-                                block = true;
-                                checkBlockState = blockDamage(block);
-                                checkPlayerState = 0;
-                                g.currentTextState = NONE;
-                            }
-                        } else if (checkPlayerState == 2) {
-                            if (key == XK_Shift_L) {
+                            return 0;
+                        } else if (checkPlayerState == 2 && (key == XK_Shift_L || key == XK_Shift_R)) {
+                            // Only allow shift during ROUNDLOST state
+                            if (g.currentTextState == ROUNDLOST) {
                                 g.showSelection = true;
                                 g.RPSSelection = 0;
                                 g.currentTextState = NONE;
                             }
-                        } else if (checkPlayerState == 0) {
-                            if (key == XK_Shift_L) {
+                            return 0;
+                        } else if (checkPlayerState == 0 && (key == XK_Shift_L || key == XK_Shift_R)) {
+                            // Only allow shift during ROUNDTIED state
+                            if (g.currentTextState == ROUNDTIED) {
                                 g.showSelection = true;
                                 g.RPSSelection = 0;
                                 g.currentTextState = NONE;
                             }
+                            return 0;
                         }
                     }
-                }
                 /* save for later use
                 int ehealth = grabEnemyHealth(g.enemyHealth);
                 int phealth = grabPlayerHealth(g.playerHealth);
                 compareHealth(phealth, ehealth);
                 */
-               // when player dies, render gameOver screen
+                // when player dies, render gameOver screen
+                }
             }
         }
 
         // Enemy Keybinds
         if (key == XK_space) {
-            g.currentTextState = NONE;
-            g.showSelection = !g.showSelection;
-            g.encounterEnemy = !g.encounterEnemy;
-            
+            // Only toggle combat state if not already in combat
             if (!g.encounterEnemy) {
-                enemy.hitBarrier = false;
-                enemy.pos_x = enemy.base_x;
-                enemy.pos_y = enemy.base_y;
-                g.isBackgroundMoving = true;
-                // Reset sprites to normal when movement resumes
-                player.changeImage("assets/player/normal_x.png");
-                enemy.changeImage("assets/enemy/boot.png");
-            } else {
+                g.currentTextState = ENEMYAPPEARED;
+                g.encounterEnemy = true;
                 g.isBackgroundMoving = false;
+                g.showSelection = false;  // Ensure selection is hidden initially
+            } else {
+                // If already in combat, just clear the text state
+                g.currentTextState = NONE;
             }
         }
           //if tab is pressed ; switches screens
@@ -725,9 +775,8 @@ int check_keys(XEvent *e)
                     player.changeHealthBar(100);
                     enemy.changeHealthBar(100);
                     // any other reset logic here
-                } else if (g.gameOverMenuSelection == 0) {
+
                     // Return to main menu
-                    printf("hi\n");
                     g.renderStartScreen = true;
                     g.isGameOver = false;
                     g.showSelection = false;
@@ -804,7 +853,6 @@ void render()
         g.isBackgroundMoving = true;
         enemy.hitBarrier = false;
         
-        g.currentTextState = INTRO;
         g.showSelection = false;
         g.showMembers = false;
         g.showCreditsScreen = false;
@@ -941,12 +989,6 @@ void render()
                 case INTRO:
                     render_text(&rec, intro, 3);
                     break;
-                /*case CONTROLS:
-                    render_text(&rec, controls, 3);
-                    break;*/
-                case SIMPLIFYCONTROLS:
-                    render_text(&rec, simplifyControls, 1);
-                    break;
                 case BATTLECONTROLS:
                     render_text(&rec, battleChoice, 3);
                     break;
@@ -955,6 +997,9 @@ void render()
                     break;
                 case ROUNDTIED:
                     render_text(&rec, tieDialogue, 1);
+                    break;
+                case ENEMYAPPEARED:
+                    render_text(&rec, enemyAppeared, 1);
                     break;
                 case NONE:
                     break;

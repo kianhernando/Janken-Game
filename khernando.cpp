@@ -71,28 +71,24 @@ void Player::init(const char* imagePath)
 {
     tex.backImage = new Image(imagePath);
 
-    // Call datatypes to store width and height for manipulation
     int image_width = tex.backImage->width;
     int image_height = tex.backImage->height;
     
-    // Scale it 3x original size
     float scale = 3.0f;
     xres = image_width * scale;
     yres = image_height * scale;
 
-    // Set player sprite coordinates
     base_x = 576/4 - xres/2;
     base_y = 324/2.75 - yres/2;
     pos_x = base_x;
     pos_y = base_y;
 
-    // Initalize sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
+        GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
 }
 
 void Player::init_hp(int health)
@@ -122,18 +118,17 @@ void Player::render_player()
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-    // Render player sprite textures
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glBegin(GL_QUADS);
-    glTexCoord2f(tex.xc[0], tex.yc[1]);
-    glVertex2i(pos_x, pos_y);
-    glTexCoord2f(tex.xc[0], tex.yc[0]);
-    glVertex2i(pos_x, pos_y + yres);
-    glTexCoord2f(tex.xc[1], tex.yc[0]);
-    glVertex2i(pos_x + xres, pos_y + yres);
-    glTexCoord2f(tex.xc[1], tex.yc[1]);
-    glVertex2i(pos_x + xres, pos_y);
+        glTexCoord2f(tex.xc[0], tex.yc[1]);
+        glVertex2i(pos_x, pos_y);
+        glTexCoord2f(tex.xc[0], tex.yc[0]);
+        glVertex2i(pos_x, pos_y + yres);
+        glTexCoord2f(tex.xc[1], tex.yc[0]);
+        glVertex2i(pos_x + xres, pos_y + yres);
+        glTexCoord2f(tex.xc[1], tex.yc[1]);
+        glVertex2i(pos_x + xres, pos_y);
     glEnd();
 
     glDisable(GL_BLEND);
@@ -165,7 +160,6 @@ void Player::update(float amplitude)
     static float time = 0.0f;
     static const float speed = 2.0f;
 
-    // Apply sinodal wave to player's original coords
     float offset = amplitude * sin(speed * time);
     pos_y = base_y + offset;
 
@@ -180,7 +174,6 @@ void Player::changeImage(const char* imagePath)
         glDeleteTextures(1, &tex.backTexture);
     }
 
-    // Insert new sprite textures
     tex.backImage = new Image(imagePath);
     int image_width = tex.backImage->width;
     int image_height = tex.backImage->height;
@@ -189,15 +182,13 @@ void Player::changeImage(const char* imagePath)
     xres = image_width * scale;
     yres = image_height * scale;
 
-    // Render new sprite textures
     glGenTextures(1, &tex.backTexture);
     glBindTexture(GL_TEXTURE_2D, tex.backTexture);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, image_width, image_height, 0,
-            GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
+        GL_RGBA, GL_UNSIGNED_BYTE, buildAlphaData(tex.backImage));
     
-    // Set coordinates of new sprite textures
     tex.xc[0] = 0.0;
     tex.xc[1] = 1.0;
     tex.yc[0] = 0.0;
@@ -477,10 +468,10 @@ void render_box()
     glPushMatrix();
     glTranslatef(box.pos[0], box.pos[1], 0.0f);
     glBegin(GL_QUADS);
-    glVertex2f(-box.width/2, 0);
-    glVertex2f(-box.width/2, box.height);
-    glVertex2f(box.width/2, box.height);
-    glVertex2f(box.width/2, 0);
+        glVertex2f(-box.width/2, 0);
+        glVertex2f(-box.width/2, box.height);
+        glVertex2f(box.width/2, box.height);
+        glVertex2f(box.width/2, 0);
     glEnd();
     glPopMatrix();
 }
@@ -491,24 +482,22 @@ void render_top()
     glPushMatrix();
     glTranslatef(top.pos[0], 324 - top.height, 0.0f);
     glBegin(GL_QUADS);
-    glVertex2f(-top.width/2, 0);
-    glVertex2f(-top.width/2, top.height);
-    glVertex2f(top.width/2, top.height);
-    glVertex2f(top.width/2, 0);
+        glVertex2f(-top.width/2, 0);
+        glVertex2f(-top.width/2, top.height);
+        glVertex2f(top.width/2, top.height);
+        glVertex2f(top.width/2, 0);
     glEnd();
     glPopMatrix();
 }
 
-const char* intro[] = {
-    "HI MY NAME IS HANDEL!",
-    "THIS IS MY DEBUT GAME!", 
-    "IT IS CALLED JANKEN!"
+const char* enemyAppeared[] = {
+    "An enemy has appeared! Press ENTER to continue."
 };
 
-const char* controls[] = {
-    "PRESS 'M' TO SHOW CONTRIBUTORS", 
-    "PRESS 'SPACE' TO SHOW ENEMY (WILL AUTOMATICALLY STOP BACKGROUND)",
-    "PRESS 'R', 'P', OR 'S' FOR ROCK-PAPER-SCISSORS, 'N' FOR NORMAL"
+const char* intro[] = {
+    "Hi, my name is Handell, and I'm currently",
+    "on a mission to find my body!",
+    "Press SPACE to continue."
 };
 
 void render_text(Rect *rec, const char* lines[], const int num_lines)
@@ -600,10 +589,10 @@ void renderBox(Box& sel, const char* imagePath, bool isSelected) {
     glPushMatrix();
     glTranslatef(sel.pos[0], sel.pos[1], 0.0f);
     glBegin(GL_QUADS);
-    glVertex2f(-sel.width/2, 0);
-    glVertex2f(-sel.width/2, sel.height);
-    glVertex2f(sel.width/2, sel.height);
-    glVertex2f(sel.width/2, 0);
+        glVertex2f(-sel.width/2, 0);
+        glVertex2f(-sel.width/2, sel.height);
+        glVertex2f(sel.width/2, sel.height);
+        glVertex2f(sel.width/2, 0);
     glEnd();
     glPopMatrix();
 
@@ -619,10 +608,10 @@ void renderBox(Box& sel, const char* imagePath, bool isSelected) {
     glPushMatrix();
     glTranslatef(sel.pos[0], sel.pos[1], 0.0f);
     glBegin(GL_LINE_LOOP);
-    glVertex2f(-sel.width/2, 0);
-    glVertex2f(-sel.width/2, sel.height);
-    glVertex2f(sel.width/2, sel.height);
-    glVertex2f(sel.width/2, 0);
+        glVertex2f(-sel.width/2, 0);
+        glVertex2f(-sel.width/2, sel.height);
+        glVertex2f(sel.width/2, sel.height);
+        glVertex2f(sel.width/2, 0);
     glEnd();
     glPopMatrix();
     
@@ -673,14 +662,14 @@ void renderBox(Box& sel, const char* imagePath, bool isSelected) {
         float yOffset = (boxHeight - newHeight) / 2.0f;
         
         glBegin(GL_QUADS);
-        glTexCoord2f(sel.xc[0], sel.yc[1]);
-        glVertex2f(-boxWidth/2 + xOffset, yOffset);
-        glTexCoord2f(sel.xc[0], sel.yc[0]);
-        glVertex2f(-boxWidth/2 + xOffset, yOffset + newHeight);
-        glTexCoord2f(sel.xc[1], sel.yc[0]);
-        glVertex2f(-boxWidth/2 + xOffset + newWidth, yOffset + newHeight);
-        glTexCoord2f(sel.xc[1], sel.yc[1]);
-        glVertex2f(-boxWidth/2 + xOffset + newWidth, yOffset);
+            glTexCoord2f(sel.xc[0], sel.yc[1]);
+            glVertex2f(-boxWidth/2 + xOffset, yOffset);
+            glTexCoord2f(sel.xc[0], sel.yc[0]);
+            glVertex2f(-boxWidth/2 + xOffset, yOffset + newHeight);
+            glTexCoord2f(sel.xc[1], sel.yc[0]);
+            glVertex2f(-boxWidth/2 + xOffset + newWidth, yOffset + newHeight);
+            glTexCoord2f(sel.xc[1], sel.yc[1]);
+            glVertex2f(-boxWidth/2 + xOffset + newWidth, yOffset);
         glEnd();
         
         glPopMatrix();
@@ -745,7 +734,7 @@ bool renderAnimation(Player &player, Enemy &enemy)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, playerSprites[i]->width, 
-                playerSprites[i]->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                playerSprites[i]->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
                 buildAlphaData(playerSprites[i]));
             
             enemyImages[i] = new Image(enemyPaths[i]);
@@ -754,7 +743,7 @@ bool renderAnimation(Player &player, Enemy &enemy)
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
             glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, enemyImages[i]->width, 
-                enemyImages[i]->height, 0, GL_RGBA, GL_UNSIGNED_BYTE,
+                enemyImages[i]->height, 0, GL_RGBA, GL_UNSIGNED_BYTE, 
                 buildAlphaData(enemyImages[i]));
         }
         
@@ -803,7 +792,7 @@ bool renderAnimation(Player &player, Enemy &enemy)
     
     if (!isRPSMoving && !RPSdone && !hasCollided) {
         if (player.pos_x < playerPoint) {
-            player.pos_x += moveSpeed;
+            player.pos_x += (moveSpeed * 1.18f);
             if (player.pos_x > playerPoint) {
                 player.pos_x = playerPoint;
             }
@@ -862,14 +851,14 @@ bool renderAnimation(Player &player, Enemy &enemy)
     
     if (RPSdone && !hasCollided) {
         if (player.pos_x < playerEdge) {
-            player.pos_x += moveSpeed;
+            player.pos_x += (moveSpeed);
             if (player.pos_x > playerEdge) {
                 player.pos_x = playerEdge;
             }
         }
         
         if (enemy.pos_x > enemyEdge) {
-            enemy.pos_x -= (moveSpeed * 1.2f);
+            enemy.pos_x -= (moveSpeed);
             if (enemy.pos_x < enemyEdge) {
                 enemy.pos_x = enemyEdge;
             }
