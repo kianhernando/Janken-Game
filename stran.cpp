@@ -147,13 +147,13 @@ void startControlsScreen()
     int box_width = 300;
     int box_height = 220;
 
-    // Draw semi-transparent background box
+   // Draw semi-transparent background box
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glColor4f(0.1f, 0.1f, 0.1f, 0.7f); // dark translucent
     glBegin(GL_QUADS);
-    glVertex2i(box_x, box_y);
-    glVertex2i(box_x + box_width, box_y);
+    glVertex2i(box_x, (box_y + 30));
+    glVertex2i(box_x + box_width, (box_y + 30));
     glVertex2i(box_x + box_width, box_y - box_height);
     glVertex2i(box_x, box_y - box_height);
     glEnd();
@@ -162,8 +162,8 @@ void startControlsScreen()
     // Drop shadow for box border
     glColor3f(0.0f, 0.0f, 0.0f);
     glBegin(GL_LINE_LOOP);
-    glVertex2i(box_x + 2, box_y - 2);
-    glVertex2i(box_x + box_width + 2, box_y - 2);
+    glVertex2i(box_x + 2, (box_y + 30));
+    glVertex2i(box_x + box_width + 2, (box_y + 30));
     glVertex2i(box_x + box_width + 2, box_y - box_height - 2);
     glVertex2i(box_x + 2, box_y - box_height - 2);
     glEnd();
@@ -171,25 +171,19 @@ void startControlsScreen()
     // Draw white border box
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_LINE_LOOP);
-    glVertex2i(box_x, box_y);
-    glVertex2i(box_x + box_width, box_y);
+    glVertex2i(box_x, (box_y + 30));
+    glVertex2i(box_x + box_width, (box_y + 30));
     glVertex2i(box_x + box_width, box_y - box_height);
     glVertex2i(box_x, box_y - box_height);
     glEnd();
 
     // Draw controls text inside box
     r.bot = g.yres - 180;
-    ggprint16(&r, 16, 0xffcc00, "M - Show Contributors");
+    ggprint16(&r, 16, 0xffcc00, "Enter - Proceed");
     r.bot -= 30;
-    ggprint16(&r, 16, 0x00ffcc, "Space - Start Gameplay");
+    ggprint16(&r, 16, 0xff6666, "Shift - Continue Gameplay");
     r.bot -= 30;
-    ggprint16(&r, 16, 0xff6666, "Shift - Continue");
-    r.bot -= 30;
-    ggprint16(&r, 16, 0x66ccff, "< ( Arrow Key ) - Left");
-    r.bot -= 30;
-    ggprint16(&r, 16, 0xcc66ff, "> ( Arrow Key ) - Right");
-    r.bot -= 30;
-    ggprint16(&r, 16, 0xcccccc, "Enter - Continue");
+    ggprint16(&r, 16, 0x66ccff, " Arrow Keys : < >  - Left / Right");
 
     // Draw pulsing triangle icon for "Play"
     auto now = std::chrono::steady_clock::now();
