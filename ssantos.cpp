@@ -9,6 +9,7 @@
 #include <random>
 #include "ssantos.h"
 #include "khernando.h"
+#include "jbowers.h"
 
 extern Global g;
 extern Player player;
@@ -261,7 +262,7 @@ int battleChoiceFunc(int &pHealth, int &eHealth)
     
     printf("Amount of times enemy has lost: %i\n", bState.enemyLoseInteraction);
     enemy.changeHealthBar(eHealth);
-    if (eHealth == 0) {
+    if (eHealth <= 0) {
         printf("Enemy has died!\n");
         scoreCalculator(bState.playerLoseInteraction, 
             bState.enemyLoseInteraction);
@@ -471,13 +472,13 @@ void genNewEnemy(int eDeath)
     // Clear previous enemy's inventory
     enemy.clearEnemyInventory();
     if (eDeath == 1) {
-        enemy.init("assets/enemy/grey-yaroi.png");
+        enemy.init("assets/enemy/gray-yoroi.png");
         // Basic enemy with simple equipment
         Item* sword = new Item("Enemy Sword");
         sword->swordItem();
         enemy.addItem(sword);
     } else if (eDeath == 2) {
-        enemy.init("assets/enemy/yellow-yaroi.png");
+        enemy.init("assets/enemy/yellow-yoroi.png");
         // Stronger enemy with better equipment
         Item* axe = new Item("Enemy Axe");
         axe->axeItem();
@@ -486,13 +487,19 @@ void genNewEnemy(int eDeath)
         enemy.addItem(axe);
         enemy.addItem(shield);
     } else if (eDeath == 3) {
-        enemy.init("assets/enemy/blue-yaroi.png");
+        enemy.init("assets/enemy/blue-yoroi.png");
         // Advanced enemy with rare items
         Item* serratedSword = new Item("Enemy Serrated Sword");
         serratedSword->serratedSword();
         enemy.addItem(serratedSword);
     } else if (eDeath == 4) {
-        enemy.init("assets/enemy/red-yaroi.png");
+        enemy.init("assets/enemy/red-yoroi.png");
+        // Mini-Boss enemy with the best equipment
+        Item* thornedArmor = new Item("Enemy Thorned Armor");
+        thornedArmor->thornedArmor();
+        enemy.addItem(thornedArmor);
+    } else if (eDeath == 5) {
+        enemy.init("assets/enemy/boss-yoroi.png");
         // Boss enemy with the best equipment
         Item* serratedSword = new Item("Enemy Serrated Sword");
         serratedSword->serratedSword();
@@ -500,6 +507,8 @@ void genNewEnemy(int eDeath)
         thornedArmor->thornedArmor();
         enemy.addItem(serratedSword);
         enemy.addItem(thornedArmor);
+    } else if (eDeath == 6) {
+        creditsScreen();
     }
 }
 
