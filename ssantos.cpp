@@ -262,7 +262,7 @@ int battleChoiceFunc(int &pHealth, int &eHealth)
     
     printf("Amount of times enemy has lost: %i\n", bState.enemyLoseInteraction);
     enemy.changeHealthBar(eHealth);
-    if (eHealth == 0) {
+    if (eHealth <= 0) {
         printf("Enemy has died!\n");
         scoreCalculator(bState.playerLoseInteraction, 
             bState.enemyLoseInteraction);
