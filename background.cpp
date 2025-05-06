@@ -467,15 +467,10 @@ int check_keys(XEvent *e)
                 switch (g.startMenuSelection) {
                     case 0: // Play Game
                         g.renderStartScreen = false;
-                        g.currentTextState = ENEMYAPPEARED;
-                        g.encounterEnemy = true;
-                        g.isBackgroundMoving = false;
-                        g.showSelection = false;
                         break;
-
                     case 1:
                         // add control functions later
-                        g.currentTextState = CONTROLSCREEN;
+                        g.showSelection = true;
                         break;
                     case 2:
                         return 1;
