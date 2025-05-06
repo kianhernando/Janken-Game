@@ -472,13 +472,13 @@ void genNewEnemy(int eDeath)
     // Clear previous enemy's inventory
     enemy.clearEnemyInventory();
     if (eDeath == 1) {
-        enemy.init("assets/enemy/gray-yoroi.png");
+        enemy.init("assets/enemy/gray-yoroi.png", 1.5f);
         // Basic enemy with simple equipment
         Item* sword = new Item("Enemy Sword");
         sword->swordItem();
         enemy.addItem(sword);
     } else if (eDeath == 2) {
-        enemy.init("assets/enemy/yellow-yoroi.png");
+        enemy.init("assets/enemy/yellow-yoroi.png", 1.5f);
         // Stronger enemy with better equipment
         Item* axe = new Item("Enemy Axe");
         axe->axeItem();
@@ -487,19 +487,19 @@ void genNewEnemy(int eDeath)
         enemy.addItem(axe);
         enemy.addItem(shield);
     } else if (eDeath == 3) {
-        enemy.init("assets/enemy/blue-yoroi.png");
+        enemy.init("assets/enemy/blue-yoroi.png", 1.5f);
         // Advanced enemy with rare items
         Item* serratedSword = new Item("Enemy Serrated Sword");
         serratedSword->serratedSword();
         enemy.addItem(serratedSword);
     } else if (eDeath == 4) {
-        enemy.init("assets/enemy/red-yoroi.png");
+        enemy.init("assets/enemy/red-yoroi.png", 1.5f);
         // Mini-Boss enemy with the best equipment
         Item* thornedArmor = new Item("Enemy Thorned Armor");
         thornedArmor->thornedArmor();
         enemy.addItem(thornedArmor);
     } else if (eDeath == 5) {
-        enemy.init("assets/enemy/boss-yoroi.png");
+        enemy.init("assets/enemy/boss-yoroi.png", 1.5f);
         // Boss enemy with the best equipment
         Item* serratedSword = new Item("Enemy Serrated Sword");
         serratedSword->serratedSword();

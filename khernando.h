@@ -55,7 +55,7 @@ class Player {
 class Enemy {
     public:
         Enemy();
-        void init(const char* imagePath);
+        void init(const char* imagePath, float scale);
         void init_hp();
         void render_enemy();
         void render_hp();
