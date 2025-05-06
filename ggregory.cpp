@@ -187,3 +187,72 @@ void checkDeathLogTrigger(bool &isGameOver, bool &enemyDefeated)
         clear.close();
     }    
 }
+
+
+void renderWinMenu(int xres, int yres, int winMenuSelection)
+{
+    float boxWidth = 200.0f;
+    float boxHeight = 200.0f;
+    float x = (xres - boxWidth) / 2;
+    float y = (yres - boxHeight) / 2;
+
+    // Background panel 
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Outer gold border
+    glColor4f(1.0, 0.84, 0.0, 0.35); 
+    for (int i = 0; i < 5; i++) {
+        float offset = i * 1.5f;
+        glBegin(GL_QUADS);
+            glVertex2f(x - offset, y - offset);
+            glVertex2f(x + boxWidth + offset, y - offset);
+            glVertex2f(x + boxWidth + offset, y + boxHeight + offset);
+            glVertex2f(x - offset, y + boxHeight + offset);
+        glEnd();
+    }
+
+    // Inner dark panel
+    glColor4f(0.0, 0.0, 0.0, 0.9);
+    glBegin(GL_QUADS);
+        glVertex2f(x, y);
+        glVertex2f(x + boxWidth, y);
+        glVertex2f(x + boxWidth, y + boxHeight);
+        glVertex2f(x, y + boxHeight);
+    glEnd();
+    glDisable(GL_BLEND);
+
+    // Text rendering
+    Rect r;
+    r.center = 1;
+    r.left = xres / 2;
+    r.bot = y + boxHeight - 35;
+
+    // Headline
+    ggprint16(&r, 40, 0xFFD700, "GREAT JOB,");
+    ggprint16(&r, 40, 0xFFD700, "YOU WIN!");
+
+    // "Next Opponent" option
+    r.bot -= 30;
+    int color1 = (winMenuSelection == 0) ? COLOR_MENU_SELECTED : COLOR_MENU_DEFAULT;
+    ggprint16(&r, 28, color1, "Next Opponent");
+
+    // Final Score
+    // r.bot -= 40;
+    // char scoreText[100];
+    // snprintf(scoreText, sizeof(scoreText), "Final Score: %d", totalScore);
+    // ggprint16(&r, 28, 0xFFFFFF, scoreText);
+
+    // Menu Hint
+    // r.bot -= 30;
+    // ggprint16(&r, 20, 0x999999, "Select an option:");
+
+    // Menu Options
+    // r.bot -= 30;
+    // int color1 = (winMenuSelection == 0) ? COLOR_MENU_SELECTED : COLOR_MENU_DEFAULT;
+    // ggprint16(&r, 28, color1, "> Claim Your Prize");
+
+    r.bot -= 25;
+    int color2 = (winMenuSelection == 1) ? COLOR_MENU_SELECTED : COLOR_MENU_DEFAULT;
+    ggprint16(&r, 28, color2, "Exit to Main Menu");
+}

@@ -168,6 +168,10 @@ class Global
 
         int RPSSelection;
 
+        int winMenuSelection;
+
+        bool showWinMenu;
+
         Global() 
         {
             xres = 576;
@@ -189,6 +193,8 @@ class Global
             showSelection = false;
             startMenuSelection = 0;
             RPSSelection = 0;
+            showWinMenu = false;
+            winMenuSelection = 0;
         }
 } g;
 
@@ -314,6 +320,7 @@ void render(void);
 void renderPauseMenu(int xres, int yres, int pauseMenuSelection, 
         int exitMenuSelection, int settingsMenuSelection,
         PauseSubState pauseMenuSubState);
+void renderWinMenu(int xres, int yres, int winMenuSelection);
 extern bool renderAnimation(Player &player, Enemy &enemy);
 extern void renderStart(int startMenuSelection);
 extern void renderGameOverScreen(int xres, int yres, bool enemyDefeated, 
@@ -505,6 +512,31 @@ if (key == XK_c) {
             g.isGameOver = true;
             g.enemyDefeated = true;
             g.gameOverMenuSelection = 0;
+        }
+
+        if (g.showWinMenu) {
+            if (key == XK_Up || key == XK_Down) {
+                g.winMenuSelection ^= 1; // Toggle between 0 and 1
+            } else if (key == XK_Return) {
+                if (g.winMenuSelection == 0) {
+                    // Next Opponent
+                    g.showWinMenu = false;
+                    g.isGameOver = false;
+                    g.showSelection = false;
+                    g.playerHealth = 100;
+                    g.enemyHealth = 100;
+                    player.changeHealthBar(100);
+                    enemy.changeHealthBar(100);
+                    // Reset other game state if needed
+                    printf("Loading next opponent...\n");              
+                } else if (g.winMenuSelection == 1) {
+                    g.renderStartScreen = true;
+                    g.showWinMenu = false;
+                }
+            } else if (key == XK_BackSpace) {
+                g.showWinMenu = false;
+            }
+            return 0; // Important to stop processing other keys
         }
 
         // Player Health Keybinds for testing purposes
@@ -802,8 +834,11 @@ if (key == XK_c) {
             }
             return 0;
         }
-
-
+        // Toggle Win Menu 
+        if (key == XK_l) {
+            g.showWinMenu = true;
+            g.winMenuSelection = 0;
+        }
     }
     return 0;
     // Anywhere after if (g.renderStartScreen) or outside specific states
@@ -818,6 +853,12 @@ void physics()
     }
 
     checkDeathLogTrigger(g.isGameOver, g.enemyDefeated);
+
+    // Show Win Menu if enemy died
+    if (g.isGameOver && g.enemyDefeated && !g.showWinMenu) {
+        g.showWinMenu = true;
+        g.winMenuSelection = 0;
+    }
 }
 
 void render()
@@ -827,6 +868,18 @@ void render()
         g.enemyDefeated = false;
         g.gameOverMenuSelection = 0;
     }
+
+    if (g.enemyHealth <= 0 && !g.showWinMenu) {
+        g.showWinMenu = true;
+        g.winMenuSelection = 0;
+        return;
+    }
+
+    if (g.showWinMenu) {
+        renderWinMenu(g.xres, g.yres, g.winMenuSelection);
+        return; 
+    }  
+
     if (g.isPaused) {
         renderPauseMenu(g.xres, g.yres, g.pauseMenuSelection, 
                 g.exitMenuSelection, g.settingsMenuSelection,
