@@ -947,7 +947,7 @@ void render()
 
         static bool isEnemyInit = false;
         if (!isEnemyInit) {
-            enemy.init("assets/enemy/boot.png");
+            enemy.init("assets/enemy/boot.png", 3.0f);
             enemy.init_hp();
             isEnemyInit = true;
         }

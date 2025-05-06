@@ -266,7 +266,7 @@ Enemy::Enemy()
     thornsAmount = 0;
 }
 
-void Enemy::init(const char* imagePath)
+void Enemy::init(const char* imagePath, float scale)
 {
     tex.backImage = new Image(imagePath);
     
@@ -274,8 +274,6 @@ void Enemy::init(const char* imagePath)
     int image_width = tex.backImage->width;
     int image_height = tex.backImage->height;
    
-    // Scale it 3x original size
-    float scale = 3.0f;
     xres = image_width * scale;
     yres = image_height * scale;
 
@@ -748,7 +746,7 @@ bool renderAnimation(Player &player, Enemy &enemy)
         }
         
         player.init(playerPaths[0]);
-        enemy.init(enemyPaths[0]);
+        enemy.init(enemyPaths[0], 3.0f);
         
         if (explosionImage == nullptr) {
             explosionImage = new Image("assets/effects/explosion.png");
