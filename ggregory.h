@@ -26,6 +26,7 @@ extern class Global g;
 extern X11_wrapper x11;
 extern GLuint rpsTextures[3];
 extern Image rpsImages[3];
+extern int totalScore;
 
 // Function declarations
 void garrettText(Rect *rGarrett);
